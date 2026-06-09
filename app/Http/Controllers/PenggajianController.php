@@ -1,0 +1,486 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Karyawan;
+use App\Models\Notifikasi;
+use App\Models\Penggajian;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class PenggajianController extends Controller
+{
+    // For Employees - View their own payslips
+    public function index()
+    {
+        $karyawanId = auth()->id();
+
+        $penggajian = Penggajian::where('karyawan_id', $karyawanId)
+            ->where('status', Penggajian::STATUS_PAID)
+            ->where('tahun', Carbon::now()->year)
+            ->orderBy('tahun', 'desc')
+            ->orderBy('bulan', 'desc')
+            ->get();
+
+        $totalSalary = Penggajian::where('karyawan_id', $karyawanId)
+            ->where('status', Penggajian::STATUS_PAID)
+            ->where('tahun', Carbon::now()->year)
+            ->sum('gaji_pokok');
+
+        $totalDeducations = Penggajian::where('karyawan_id', $karyawanId)
+            ->where('status', Penggajian::STATUS_PAID)
+            ->where('tahun', Carbon::now()->year)
+            ->sum('total_deductions');
+
+        $totalAllowances = Penggajian::where('karyawan_id', $karyawanId)
+            ->where('status', Penggajian::STATUS_PAID)
+            ->where('tahun', Carbon::now()->year)
+            ->sum('transport_allowance', 'meal_allowance', 'internet_allowance', 'position_allowance', 'incentive');
+
+        return view('penggajian.index', compact('penggajian', 'totalSalary', 'totalDeducations', 'totalAllowances'));
+    }
+
+    public function show($id)
+    {
+        $karyawanId = auth()->id();
+
+        $penggajian = Penggajian::with('karyawan')
+            ->where('karyawan_id', $karyawanId)
+            ->where('id', $id)
+            ->firstOrFail();
+
+        return response()->json($penggajian);
+    }
+
+    // For Admin/HR
+    public function adminIndex(Request $request)
+    {
+        $query = Penggajian::with('karyawan')->orderBy('created_at', 'desc');
+
+        if ($request->bulan && $request->tahun) {
+            $query->where('bulan', $request->bulan)->where('tahun', $request->tahun);
+        } elseif ($request->bulan) {
+            $query->where('bulan', $request->bulan);
+        } elseif ($request->tahun) {
+            $query->where('tahun', $request->tahun);
+        }
+
+        if ($request->status) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->karyawan_id) {
+            $query->where('karyawan_id', $request->karyawan_id);
+        }
+
+        $penggajian = $query->paginate(15);
+        $karyawans = Karyawan::orderBy('nama_lengkap')->get();
+
+        $statistics = [
+            'total_payroll' => Penggajian::where('status', Penggajian::STATUS_PAID)->sum('net_salary'),
+            'total_pending' => Penggajian::where('status', Penggajian::STATUS_PENDING)->count(),
+            'total_approved' => Penggajian::where('status', Penggajian::STATUS_APPROVED)->count(),
+            'total_paid' => Penggajian::where('status', Penggajian::STATUS_PAID)->count(),
+        ];
+
+        return view('admin.penggajian.index', compact('penggajian', 'karyawans', 'statistics'));
+    }
+
+    public function adminCreate()
+    {
+        $karyawans = Karyawan::whereIn('status', ['Permanent', 'Contract', 'Outsource'])
+            ->orderBy('nama_lengkap')
+            ->get();
+        $bulan = range(1, 12);
+        $tahun = range(date('Y') - 2, date('Y') + 1);
+
+        return view('admin.penggajian.create', compact('karyawans', 'bulan', 'tahun'));
+    }
+
+    public function adminStore(Request $request)
+    {
+        $karyawan = Karyawan::find($request->karyawan_id);
+
+        $exists = Penggajian::where('karyawan_id', $request->karyawan_id)
+            ->where('bulan', $request->bulan)
+            ->where('tahun', $request->tahun)
+            ->exists();
+
+        if ($exists) {
+            return redirect()->back()
+                ->with('error', 'Penggajian untuk karyawan ini pada periode tersebut sudah ada')
+                ->withInput();
+        }
+
+        $penggajian = new Penggajian;
+        $penggajian->karyawan_id = $request->karyawan_id;
+        $penggajian->nama_karyawan = $karyawan->nama_lengkap;
+        $penggajian->bulan = $request->bulan;
+        $penggajian->tahun = $request->tahun;
+        $penggajian->gaji_pokok = (float) str_replace('.', '', $request->gaji_pokok);
+        $penggajian->transport_allowance = (float) str_replace('.', '', $request->transport_allowance);
+        $penggajian->meal_allowance = (float) str_replace('.', '', $request->meal_allowance);
+        $penggajian->internet_allowance = (float) str_replace('.', '', $request->internet_allowance);
+        $penggajian->position_allowance = (float) str_replace('.', '', $request->position_allowance);
+        $penggajian->incentive = (float) str_replace('.', '', $request->incentive);
+        $penggajian->tax = (float) str_replace('.', '', $request->tax);
+        $penggajian->bpjs_kesehatan = (float) str_replace('.', '', $request->bpjs_kesehatan);
+        $penggajian->bpjs_ketenagakerjaan = (float) str_replace('.', '', $request->bpjs_ketenagakerjaan);
+        $penggajian->late_absent_deduction = (float) str_replace('.', '', $request->late_absent_deduction);
+        $penggajian->loan_deduction = (float) str_replace('.', '', $request->loan_deduction);
+
+        $penggajian->total_earnings = $penggajian->calculateTotalEarnings();
+        $penggajian->total_deductions = $penggajian->calculateTotalDeductions();
+        $penggajian->net_salary = $penggajian->calculateNetSalary();
+
+        $penggajian->tanggal_pembayaran = $request->tanggal_pembayaran;
+        $penggajian->metode_pembayaran = $request->metode_pembayaran;
+        $penggajian->nama_bank = $request->nama_bank;
+        $penggajian->nomor_rekening = $request->nomor_rekening;
+        $penggajian->status = $request->status;
+        $penggajian->catatan = $request->catatan;
+        $penggajian->dibuat_oleh = Auth::user()->nama_lengkap;
+        $penggajian->detail_gaji = json_encode([
+            'created_by' => Auth::user()->nama_lengkap,
+            'created_at' => now(),
+        ]);
+
+        $penggajian->save();
+
+        if (in_array($request->status, ['approved', 'paid'])) {
+            Notifikasi::create([
+                'user_id' => $karyawan->id,
+                'judul' => 'Slip Gaji Tersedia',
+                'pesan' => 'Slip gaji untuk periode '.$this->getBulanText($request->bulan)." {$request->tahun} telah tersedia.",
+                'tipe_notifikasi' => 'penggajian',
+            ]);
+        }
+
+        return redirect()->route('admin.penggajian.index')
+            ->with('success', 'Data penggajian berhasil ditambahkan');
+    }
+
+    public function adminEdit($id)
+    {
+        $penggajian = Penggajian::findOrFail($id);
+        $karyawans = Karyawan::whereIn('status', ['Permanent', 'Contract', 'Outsource'])
+            ->orderBy('nama_lengkap')
+            ->get();
+        $bulan = range(1, 12);
+        $tahun = range(date('Y') - 2, date('Y') + 1);
+
+        return view('admin.penggajian.edit', compact('penggajian', 'karyawans', 'bulan', 'tahun'));
+    }
+
+    public function adminUpdate(Request $request, $id)
+    {
+        $penggajian = Penggajian::findOrFail($id);
+        $karyawan = Karyawan::find($request->karyawan_id);
+
+        $exists = Penggajian::where('karyawan_id', $request->karyawan_id)
+            ->where('bulan', $request->bulan)
+            ->where('tahun', $request->tahun)
+            ->where('id', '!=', $id)
+            ->exists();
+
+        if ($exists) {
+            return redirect()->back()
+                ->with('error', 'Penggajian untuk karyawan ini pada periode tersebut sudah ada')
+                ->withInput();
+        }
+
+        $penggajian->karyawan_id = $request->karyawan_id;
+        $penggajian->nama_karyawan = $karyawan->nama_lengkap;
+        $penggajian->bulan = $request->bulan;
+        $penggajian->tahun = $request->tahun;
+        $penggajian->gaji_pokok = (float) str_replace('.', '', $request->gaji_pokok);
+        $penggajian->transport_allowance = (float) str_replace('.', '', $request->transport_allowance);
+        $penggajian->meal_allowance = (float) str_replace('.', '', $request->meal_allowance);
+        $penggajian->internet_allowance = (float) str_replace('.', '', $request->internet_allowance);
+        $penggajian->position_allowance = (float) str_replace('.', '', $request->position_allowance);
+        $penggajian->incentive = (float) str_replace('.', '', $request->incentive);
+        $penggajian->tax = (float) str_replace('.', '', $request->tax);
+        $penggajian->bpjs_kesehatan = (float) str_replace('.', '', $request->bpjs_kesehatan);
+        $penggajian->bpjs_ketenagakerjaan = (float) str_replace('.', '', $request->bpjs_ketenagakerjaan);
+        $penggajian->late_absent_deduction = (float) str_replace('.', '', $request->late_absent_deduction);
+        $penggajian->loan_deduction = (float) str_replace('.', '', $request->loan_deduction);
+
+        $penggajian->total_earnings = $penggajian->calculateTotalEarnings();
+        $penggajian->total_deductions = $penggajian->calculateTotalDeductions();
+        $penggajian->net_salary = $penggajian->calculateNetSalary();
+
+        $penggajian->tanggal_pembayaran = $request->tanggal_pembayaran;
+        $penggajian->metode_pembayaran = $request->metode_pembayaran;
+        $penggajian->nama_bank = $request->nama_bank;
+        $penggajian->nomor_rekening = $request->nomor_rekening;
+        $penggajian->status = $request->status;
+        $penggajian->catatan = $request->catatan;
+
+        $detailGaji = json_decode($penggajian->detail_gaji, true) ?? [];
+        $detailGaji['updated_by'] = Auth::user()->nama_lengkap;
+        $detailGaji['updated_at'] = now();
+        $penggajian->detail_gaji = json_encode($detailGaji);
+
+        $penggajian->save();
+
+        if ($penggajian->wasChanged('status')) {
+            Notifikasi::create([
+                'user_id' => $karyawan->id,
+                'judul' => 'Status Penggajian Diupdate',
+                'pesan' => 'Status penggajian periode '.$this->getBulanText($request->bulan)." {$request->tahun} telah diubah menjadi ".strtoupper($request->status),
+                'tipe_notifikasi' => 'penggajian',
+            ]);
+        }
+
+        return redirect()->route('admin.penggajian.index')
+            ->with('success', 'Data penggajian berhasil diupdate');
+    }
+
+    public function adminDestroy($id)
+    {
+        $penggajian = Penggajian::findOrFail($id);
+
+        if ($penggajian->status == Penggajian::STATUS_PAID) {
+            return redirect()->route('admin.penggajian.index')
+                ->with('error', 'Penggajian yang sudah dibayar tidak dapat dihapus');
+        }
+
+        $penggajian->delete();
+
+        return redirect()->route('admin.penggajian.index')
+            ->with('success', 'Data penggajian berhasil dihapus');
+    }
+
+    public function adminUpdateStatus(Request $request, $id)
+    {
+        $penggajian = Penggajian::findOrFail($id);
+
+        $request->validate([
+            'status' => 'required|in:draft,pending,approved,paid,cancelled',
+            'tanggal_pembayaran' => 'nullable|date',
+            'metode_pembayaran' => 'nullable|in:transfer,tunai,cek',
+            'nama_bank' => 'nullable|string|max:50',
+            'nomor_rekening' => 'nullable|string|max:50',
+            'catatan' => 'nullable',
+        ]);
+
+        $updateData = [
+            'status' => $request->status,
+            'catatan' => $request->catatan,
+        ];
+
+        if ($request->status == Penggajian::STATUS_PAID) {
+            $updateData['tanggal_pembayaran'] = $request->tanggal_pembayaran ?: now();
+            $updateData['metode_pembayaran'] = $request->metode_pembayaran;
+            $updateData['nama_bank'] = $request->nama_bank;
+            $updateData['nomor_rekening'] = $request->nomor_rekening;
+        }
+
+        $penggajian->update($updateData);
+
+        $detailGaji = json_decode($penggajian->detail_gaji, true) ?? [];
+        $detailGaji['status_updated_by'] = Auth::user()->nama_lengkap;
+        $detailGaji['status_updated_at'] = now();
+        $detailGaji['status_updated_to'] = $request->status;
+        $penggajian->detail_gaji = json_encode($detailGaji);
+        $penggajian->save();
+
+        Notifikasi::create([
+            'user_id' => $penggajian->karyawan_id,
+            'judul' => 'Status Penggajian Diupdate',
+            'pesan' => 'Status penggajian periode '.$this->getBulanText($penggajian->bulan)." {$penggajian->tahun} telah diubah menjadi ".strtoupper($request->status),
+            'tipe_notifikasi' => 'penggajian',
+        ]);
+
+        return redirect()->route('admin.penggajian.index')
+            ->with('success', 'Status penggajian berhasil diupdate');
+    }
+
+    public function adminShow($id)
+    {
+        $penggajian = Penggajian::with('karyawan')->findOrFail($id);
+
+        return response()->json($penggajian);
+    }
+
+    public function getJson($id)
+    {
+        $penggajian = Penggajian::with('karyawan')->where('karyawan_id', Auth::id())->findOrFail($id);
+
+        // Generate status badge HTML
+        $statusBadge = '';
+        switch ($penggajian->status) {
+            case 'draft':
+                $statusBadge = '<span class="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800">Draft</span>';
+                break;
+            case 'pending':
+                $statusBadge = '<span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pending</span>';
+                break;
+            case 'approved':
+                $statusBadge = '<span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">Approved</span>';
+                break;
+            case 'paid':
+                $statusBadge = '<span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Paid</span>';
+                break;
+            default:
+                $statusBadge = '<span class="px-2 py-1 text-xs rounded-full bg-gray-100">'.ucfirst($penggajian->status).'</span>';
+        }
+
+        return response()->json([
+            'id' => $penggajian->id,
+            'nama_karyawan' => $penggajian->nama_karyawan,
+            'bulan' => $penggajian->bulan,
+            'tahun' => $penggajian->tahun,
+            'bulan_text' => $penggajian->bulan_text,
+            'gaji_pokok' => $penggajian->gaji_pokok,
+            'transport_allowance' => $penggajian->transport_allowance,
+            'meal_allowance' => $penggajian->meal_allowance,
+            'internet_allowance' => $penggajian->internet_allowance,
+            'position_allowance' => $penggajian->position_allowance,
+            'incentive' => $penggajian->incentive,
+            'total_earnings' => $penggajian->total_earnings,
+            'tax' => $penggajian->tax,
+            'bpjs_kesehatan' => $penggajian->bpjs_kesehatan,
+            'bpjs_ketenagakerjaan' => $penggajian->bpjs_ketenagakerjaan,
+            'late_absent_deduction' => $penggajian->late_absent_deduction,
+            'loan_deduction' => $penggajian->loan_deduction,
+            'total_deductions' => $penggajian->total_deductions,
+            'net_salary' => $penggajian->net_salary,
+            'status' => $penggajian->status,
+            'status_badge' => $statusBadge,
+            'catatan' => $penggajian->catatan,
+            'tanggal_pembayaran' => $penggajian->tanggal_pembayaran,
+            'metode_pembayaran' => $penggajian->metode_pembayaran,
+            'nama_bank' => $penggajian->nama_bank,
+            'nomor_rekening' => $penggajian->nomor_rekening,
+        ]);
+    }
+
+    public function sendPayslip($id)
+    {
+        $penggajian = Penggajian::with('karyawan')->findOrFail($id);
+        $karyawan = $penggajian->karyawan;
+
+        if (! $karyawan || ! $karyawan->email) {
+            return redirect()->back()->with('error', 'Email karyawan tidak ditemukan');
+        }
+
+        try {
+            // Kirim notifikasi sederhana (tanpa PDF untuk sementara)
+            Notifikasi::create([
+                'user_id' => $karyawan->id,
+                'judul' => 'Slip Gaji Tersedia',
+                'pesan' => 'Slip gaji untuk periode '.$this->getBulanText($penggajian->bulan)." {$penggajian->tahun} telah tersedia. Silakan login ke sistem untuk melihat detail.",
+                'tipe_notifikasi' => 'penggajian',
+            ]);
+
+            $penggajian->payslip_sent_at = now();
+            $penggajian->payslip_sent_by = Auth::user()->nama_lengkap;
+            $penggajian->save();
+
+            return redirect()->back()->with('success', 'Slip gaji berhasil dikirim (notifikasi)');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal mengirim: '.$e->getMessage());
+        }
+    }
+
+    public function downloadPayslip($id)
+    {
+        $penggajian = Penggajian::with('karyawan')->findOrFail($id);
+
+        if (! (auth()->user()->isAdmin() || auth()->user()->isHR() || auth()->id() == $penggajian->karyawan_id)) {
+            abort(403, 'Unauthorized');
+        }
+
+        $pdf = Pdf::loadView('admin.penggajian.payslip', [
+            'penggajian' => $penggajian,
+            'karyawan' => $penggajian->karyawan,
+        ])->setPaper('a4', 'portrait');
+
+        $filename = 'slip_gaji_'.
+            str_replace(' ', '_', $penggajian->karyawan->nama_lengkap).'_'.
+            $this->getBulanText($penggajian->bulan).'_'.
+            $penggajian->tahun.'.pdf';
+
+        return $pdf->download($filename);
+    }
+
+    public function exportReport(Request $request)
+    {
+        $query = Penggajian::with('karyawan');
+
+        if ($request->bulan && $request->tahun) {
+            $query->where('bulan', $request->bulan)->where('tahun', $request->tahun);
+        }
+
+        if ($request->status) {
+            $query->where('status', $request->status);
+        }
+
+        $penggajian = $query->get();
+
+        $fileName = 'laporan_gaji_'.date('Y-m-d').'.csv';
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="'.$fileName.'"',
+        ];
+
+        $callback = function () use ($penggajian) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, ['ID', 'Nama Karyawan', 'NIP', 'Email', 'Role', 'Bulan', 'Tahun', 'Status', 'Gaji Pokok', 'Transport', 'Meal', 'Internet', 'Position', 'Incentive', 'Total Earnings', 'Tax', 'BPJS Kesehatan', 'BPJS Ketenagakerjaan', 'Late/Absent', 'Loan', 'Total Deductions', 'Net Salary']);
+
+            foreach ($penggajian as $item) {
+                fputcsv($file, [
+                    $item->id,
+                    $item->nama_karyawan,
+                    $item->karyawan->nip ?? '-',
+                    $item->karyawan->email ?? '-',
+                    $item->karyawan->role ?? '-',
+                    $this->getBulanText($item->bulan),
+                    $item->tahun,
+                    $item->status,
+                    number_format($item->gaji_pokok, 0, ',', '.'),
+                    number_format($item->transport_allowance, 0, ',', '.'),
+                    number_format($item->meal_allowance, 0, ',', '.'),
+                    number_format($item->internet_allowance, 0, ',', '.'),
+                    number_format($item->position_allowance, 0, ',', '.'),
+                    number_format($item->incentive, 0, ',', '.'),
+                    number_format($item->total_earnings, 0, ',', '.'),
+                    number_format($item->tax, 0, ',', '.'),
+                    number_format($item->bpjs_kesehatan, 0, ',', '.'),
+                    number_format($item->bpjs_ketenagakerjaan, 0, ',', '.'),
+                    number_format($item->late_absent_deduction, 0, ',', '.'),
+                    number_format($item->loan_deduction, 0, ',', '.'),
+                    number_format($item->total_deductions, 0, ',', '.'),
+                    number_format($item->net_salary, 0, ',', '.'),
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    private function getBulanText($bulan)
+    {
+        $bulanNama = [
+            1 => 'Januari',
+            2 => 'Februari',
+            3 => 'Maret',
+            4 => 'April',
+            5 => 'Mei',
+            6 => 'Juni',
+            7 => 'Juli',
+            8 => 'Agustus',
+            9 => 'September',
+            10 => 'Oktober',
+            11 => 'November',
+            12 => 'Desember',
+        ];
+
+        return $bulanNama[$bulan] ?? '-';
+    }
+}

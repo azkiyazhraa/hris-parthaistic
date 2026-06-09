@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HRIS Management System - Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+
+        .input-focus {
+            transition: all 0.3s ease;
+        }
+
+        .input-focus:focus {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+        }
+
+        .pulse-animation {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        .floating-shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+    </style>
+</head>
+
+<body class="min-h-screen bg-slate-100 overflow-x-hidden">
+
+    <!-- BACKGROUND -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-32 -left-32 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl animate-pulse">
+        </div>
+
+        <div class="absolute bottom-0 right-0 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse">
+        </div>
+    </div>
+
+    <!-- CONTAINER -->
+    <div class="relative z-10 min-h-screen flex items-center justify-center p-4 md:p-6">
+
+        <div
+            class="w-full max-w-6xl bg-white rounded-[32px] shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-2">
+
+            <!-- LEFT SIDE -->
+            <div
+                class="hidden lg:flex relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 text-white p-12 flex-col justify-between overflow-hidden">
+
+                <!-- DECOR -->
+                <div class="absolute inset-0">
+                    <div class="absolute w-72 h-72 border border-white/10 rounded-full -top-24 -left-24">
+                    </div>
+
+                    <div class="absolute w-96 h-96 border border-white/5 rounded-full -bottom-44 -right-44">
+                    </div>
+                </div>
+
+                <!-- TOP -->
+                <div class="relative z-10">
+
+                    <div
+                        class="w-20 h-20 rounded-3xl bg-white/10 backdrop-blur-md flex items-center justify-center mb-8 border border-white/10">
+
+                        <i class="fas fa-users-cog text-4xl"></i>
+                    </div>
+
+                    <h1 class="text-5xl font-bold leading-tight mb-4">
+                        HRIS System
+                    </h1>
+
+                    <p class="text-blue-100 text-lg leading-relaxed max-w-md">
+                        Human Resource Information System for employee management,
+                        attendance, payroll, and leave requests
+                    </p>
+
+                </div>
+
+                <!-- FEATURES -->
+                <div class="relative z-10 space-y-4">
+
+                    <div
+                        class="flex items-center gap-4 bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10">
+
+                        <div class="w-11 h-11 rounded-xl bg-green-400/20 flex items-center justify-center">
+                            <i class="fas fa-check text-green-300"></i>
+                        </div>
+
+                        <div>
+                            <p class="font-medium">
+                                Employee Management
+                            </p>
+
+                            <p class="text-sm text-blue-100">
+                                Manage employee data digitally 
+                            </p>
+                        </div>
+                    </div>
+
+                    <div
+                        class="flex items-center gap-4 bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10">
+
+                        <div class="w-11 h-11 rounded-xl bg-green-400/20 flex items-center justify-center">
+                            <i class="fas fa-check text-green-300"></i>
+                        </div>
+
+                        <div>
+                            <p class="font-medium">
+                                Attendance & Leave
+                            </p>
+
+                            <p class="text-sm text-blue-100">
+                                Online attendance and leave requests
+                            </p>
+                        </div>
+                    </div>
+
+                    <div
+                        class="flex items-center gap-4 bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10">
+
+                        <div class="w-11 h-11 rounded-xl bg-green-400/20 flex items-center justify-center">
+                            <i class="fas fa-check text-green-300"></i>
+                        </div>
+
+                        <div>
+                            <p class="font-medium">
+                                Payroll System
+                            </p>
+
+                            <p class="text-sm text-blue-100">
+                                Automatic & realtime payroll
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- RIGHT SIDE -->
+            <div class="p-6 sm:p-10 lg:p-14 flex items-center">
+
+                <div class="w-full max-w-md mx-auto">
+
+                    <!-- MOBILE LOGO -->
+                    <div class="lg:hidden text-center mb-8">
+
+                        <div
+                            class="w-20 h-20 mx-auto rounded-3xl bg-blue-600 flex items-center justify-center text-white shadow-lg mb-5">
+
+                            <i class="fas fa-users-cog text-3xl"></i>
+                        </div>
+
+                        <h1 class="text-3xl font-bold text-slate-800">
+                            HRIS System
+                        </h1>
+
+                        <p class="text-slate-500 mt-2">
+                            Human Resource Information System
+                        </p>
+                    </div>
+
+                    <!-- HEADER -->
+                    <div class="mb-8">
+
+                        <h2 class="text-3xl font-bold text-slate-800 mb-2">
+                            Welcome Back 👋
+                        </h2>
+
+                        <p class="text-slate-500">
+                            Login to continue to dashboard
+                        </p>
+
+                    </div>
+
+                    <!-- FORM -->
+                    <form action="{{ route('login') }}" method="POST" class="space-y-5">
+                        @csrf
+
+                        <!-- EMAIL -->
+                        <div>
+
+                            <label class="block text-sm font-medium text-slate-700 mb-2">
+                                Email Address
+                            </label>
+
+                            <div class="relative">
+
+                                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                                    <i class="fas fa-envelope"></i>
+                                </span>
+
+                                <input type="email" name="email" value="{{ old('email') }}" required
+                                    autocomplete="email" placeholder="nama@company.com"
+                                    class="w-full pl-12 pr-4 py-3.5 rounded-2xl border border-slate-200 bg-slate-50
+                                    focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition">
+
+                            </div>
+
+                            @error('email')
+                                <p class="text-red-500 text-sm mt-2">
+                                    {{ $message }}
+                                </p>
+                            @enderror
+
+                        </div>
+
+                        <!-- PASSWORD -->
+                        <div>
+
+                            <label class="block text-sm font-medium text-slate-700 mb-2">
+                                Password
+                            </label>
+
+                            <div class="relative">
+
+                                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                                    <i class="fas fa-lock"></i>
+                                </span>
+
+                                <input type="password" id="password" name="password" required
+                                    autocomplete="current-password" placeholder="Masukkan password"
+                                    class="w-full pl-12 pr-12 py-3.5 rounded-2xl border border-slate-200 bg-slate-50
+                                    focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition">
+
+                                <button type="button" onclick="togglePassword()"
+                                    class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+
+                                    <i id="toggleIcon" class="fas fa-eye"></i>
+
+                                </button>
+
+                            </div>
+
+                            @error('password')
+                                <p class="text-red-500 text-sm mt-2">
+                                    {{ $message }}
+                                </p>
+                            @enderror
+
+                        </div>
+
+                        <!-- OPTIONS -->
+                        <div class="flex items-center justify-between gap-4">
+
+                            <label class="flex items-center gap-2 cursor-pointer">
+
+                                <input type="checkbox" name="remember"
+                                    class="rounded border-slate-300 text-blue-600 focus:ring-blue-500">
+
+                                <span class="text-sm text-slate-600">
+                                    Remember me
+                                </span>
+
+                            </label>
+
+                            <a href="{{ route('password.request') }}"
+                                class="text-sm font-medium text-blue-600 hover:text-blue-700">
+
+                                Forgot Password?
+                            </a>
+
+                        </div>
+
+                        <!-- BUTTON -->
+                        <button type="submit"
+                            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold
+                            py-3.5 rounded-2xl transition duration-300 shadow-lg shadow-blue-600/20">
+
+                            Sign In
+                        </button>
+
+                    </form>
+
+                    <!-- FOOTER -->
+                    <div class="mt-8 text-center">
+
+                        <p class="text-sm text-slate-500">
+                            Don't have an account?
+                            <a href="/" class="font-semibold text-blue-600 hover:text-blue-700">
+                                Contact HR
+                            </a>
+                        </p>
+
+                        <div class="mt-6 text-xs text-slate-400">
+                            © 2026 HRIS Management System
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        function togglePassword() {
+
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.getElementById('toggleIcon');
+
+            if (passwordInput.type === 'password') {
+
+                passwordInput.type = 'text';
+
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+
+            } else {
+
+                passwordInput.type = 'password';
+
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+
+            }
+        }
+    </script>
+
+</body>
+
+</html>

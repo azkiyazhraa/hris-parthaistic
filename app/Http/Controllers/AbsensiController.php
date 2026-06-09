@@ -1,0 +1,588 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\AbsensiKaryawan;
+use App\Models\Karyawan;
+use App\Models\Notifikasi;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+
+class AbsensiController extends Controller
+{
+    public function index()
+    {
+        $today = Carbon::today();
+        $karyawanId = auth()->id();
+        $currentMonth = Carbon::now()->month;
+
+        // absensi bulan ini
+        $absensi = AbsensiKaryawan::where('karyawan_id', $karyawanId)
+            ->whereMonth('tanggal', $currentMonth)
+            ->where('is_change_day', false)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Absensi hari ini
+        $absensiToday = AbsensiKaryawan::where('karyawan_id', $karyawanId)
+            ->whereDate('tanggal', $today)
+            ->where('is_change_day', false)
+            ->first();
+
+        // ABSENSI BULAN INI
+        $monthAbcense = AbsensiKaryawan::where('karyawan_id', $karyawanId)
+            ->whereMonth('tanggal', $currentMonth)
+            ->where('is_change_day', false)
+            ->get();
+
+        return view('absensi.index', compact('absensi', 'absensiToday', 'monthAbcense'));
+    }
+
+    public function show($id)
+    {
+        $absensi = AbsensiKaryawan::with(['karyawan', 'disetujuiOleh'])
+            ->where('id', $id)
+            ->firstOrFail();
+
+        return response()->json($absensi);
+    }
+
+    public function create()
+    {
+        // Method ini tidak dipakai karena modal di-include langsung di index
+        // Redirect ke index
+        return redirect()->route('absensi.index');
+    }
+
+    public function store(Request $request)
+    {
+        // Validasi dasar dulu
+        $request->validate([
+            'jenis_absensi' => 'required|in:masuk,izin,sakit,change_day',
+        ]);
+
+        // Validasi per jenis
+        if ($request->jenis_absensi === 'masuk') {
+            $request->validate([
+                'jam_masuk' => 'required',
+                'lokasi_masuk' => 'required|string|max:255',
+                'keterangan' => 'nullable',
+                'attachment' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            ]);
+        } elseif ($request->jenis_absensi === 'change_day') {
+            $request->validate([
+                'change_day_tanggal_awal' => 'required|date',
+                'change_day_tanggal_akhir' => 'required|date|after_or_equal:change_day_tanggal_awal',
+                'change_day_jam_mulai' => 'required',
+                'change_day_jam_selesai' => 'required',
+                'change_day_alasan' => 'required',
+                'keterangan' => 'nullable',
+                'attachment' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            ]);
+        } else {
+            // izin / sakit
+            $request->validate([
+                'keterangan' => 'nullable',
+                'attachment' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            ]);
+        }
+
+        $karyawan = Auth::user();
+        $today = Carbon::today();
+
+        DB::beginTransaction();
+        try {
+            $attachmentPath = null;
+            if ($request->hasFile('attachment')) {
+                $attachmentPath = $request->file('attachment')->store('attachments', 'public');
+            }
+
+            // ── CHANGE DAY ──────────────────────────────────────────────────
+            if ($request->jenis_absensi === 'change_day') {
+                $tanggalAwal = Carbon::parse($request->change_day_tanggal_awal);
+
+                $existingChangeDay = AbsensiKaryawan::where('karyawan_id', $karyawan->id)
+                    ->where('is_change_day', true)
+                    ->where(function ($query) use ($request) {
+                        $query->whereBetween('change_day_tanggal_awal', [
+                            $request->change_day_tanggal_awal,
+                            $request->change_day_tanggal_akhir,
+                        ])
+                            ->orWhereBetween('change_day_tanggal_akhir', [
+                                $request->change_day_tanggal_awal,
+                                $request->change_day_tanggal_akhir,
+                            ]);
+                    })
+                    ->whereIn('change_day_status', [
+                        AbsensiKaryawan::CHANGE_DAY_PENDING,
+                        AbsensiKaryawan::CHANGE_DAY_APPROVED,
+                    ])
+                    ->exists();
+
+                if ($existingChangeDay) {
+                    DB::rollBack();
+
+                    return redirect()->route('absensi.index')
+                        ->with('error', 'Anda sudah memiliki pengajuan change day untuk periode tersebut');
+                }
+
+                AbsensiKaryawan::create([
+                    'karyawan_id' => $karyawan->id,
+                    'nama_karyawan' => $karyawan->nama_lengkap,
+                    'tanggal' => $tanggalAwal,
+                    'status_kehadiran' => 'pending',
+                    'keterangan' => $request->keterangan,
+                    'attachment' => $attachmentPath,
+                    'is_change_day' => true,
+                    'change_day_tanggal_awal' => $request->change_day_tanggal_awal,
+                    'change_day_tanggal_akhir' => $request->change_day_tanggal_akhir,
+                    'change_day_jam_mulai' => $request->change_day_jam_mulai,
+                    'change_day_jam_selesai' => $request->change_day_jam_selesai,
+                    'change_day_alasan' => $request->change_day_alasan,
+                    'change_day_status' => 'pending',
+                ]);
+
+                $admins = Karyawan::whereIn('role', ['admin', 'hr'])->get();
+                foreach ($admins as $admin) {
+                    Notifikasi::create([
+                        'user_id' => $admin->id,
+                        'judul' => 'Pengajuan Change Day Baru',
+                        'pesan' => "{$karyawan->nama_lengkap} mengajukan change day pada tanggal {$tanggalAwal->format('d/m/Y')}",
+                        'tipe_notifikasi' => 'absensi',
+                    ]);
+                }
+
+                DB::commit();
+
+                return redirect()->route('absensi.index')
+                    ->with('success', 'Pengajuan change day berhasil dikirim, menunggu persetujuan HR/Admin');
+            }
+
+            // ── ABSENSI MASUK ────────────────────────────────────────────────
+            elseif ($request->jenis_absensi === 'masuk') {
+                // Cek apakah sudah ada absensi hari ini (apapun jenisnya, bukan change day)
+                $existingAbsensi = AbsensiKaryawan::where('karyawan_id', $karyawan->id)
+                    ->whereDate('tanggal', $today)
+                    ->where('is_change_day', false)
+                    ->first();
+
+                if ($existingAbsensi) {
+                    DB::rollBack();
+                    $pesan = $existingAbsensi->jam_masuk
+                        ? 'Anda sudah melakukan absensi masuk hari ini'
+                        : 'Anda sudah memiliki pengajuan (izin/sakit) untuk hari ini';
+
+                    return redirect()->route('absensi.index')->with('error', $pesan);
+                }
+
+                AbsensiKaryawan::create([
+                    'karyawan_id' => $karyawan->id,
+                    'nama_karyawan' => $karyawan->nama_lengkap,
+                    'tanggal' => $today,
+                    'jam_masuk' => $request->jam_masuk,
+                    'lokasi_masuk' => $request->lokasi_masuk,
+                    'status_kehadiran' => 'pending',
+                    'keterangan' => $request->keterangan,
+                    'attachment' => $attachmentPath,
+                    'is_change_day' => false,
+                ]);
+
+                DB::commit();
+
+                return redirect()->route('absensi.index')
+                    ->with('success', 'Absensi masuk berhasil ditambahkan, menunggu persetujuan HR/Admin');
+            }
+
+            // ── IZIN ─────────────────────────────────────────────────────────
+            elseif ($request->jenis_absensi === 'izin') {
+                $existingAbsensi = AbsensiKaryawan::where('karyawan_id', $karyawan->id)
+                    ->whereDate('tanggal', $today)
+                    ->where('is_change_day', false)
+                    ->first();
+
+                if ($existingAbsensi) {
+                    DB::rollBack();
+
+                    return redirect()->route('absensi.index')
+                        ->with('error', 'Anda sudah melakukan pengajuan untuk hari ini');
+                }
+
+                AbsensiKaryawan::create([
+                    'karyawan_id' => $karyawan->id,
+                    'nama_karyawan' => $karyawan->nama_lengkap,
+                    'tanggal' => $today,
+                    'status_kehadiran' => 'izin',
+                    'keterangan' => $request->keterangan ?: 'Izin tidak masuk',
+                    'attachment' => $attachmentPath,
+                    'is_change_day' => false,
+                ]);
+
+                DB::commit();
+
+                return redirect()->route('absensi.index')
+                    ->with('success', 'Pengajuan izin berhasil dikirim');
+            }
+
+            // ── SAKIT ────────────────────────────────────────────────────────
+            elseif ($request->jenis_absensi === 'sakit') {
+                $existingAbsensi = AbsensiKaryawan::where('karyawan_id', $karyawan->id)
+                    ->whereDate('tanggal', $today)
+                    ->where('is_change_day', false)
+                    ->first();
+
+                if ($existingAbsensi) {
+                    DB::rollBack();
+
+                    return redirect()->route('absensi.index')
+                        ->with('error', 'Anda sudah melakukan pengajuan untuk hari ini');
+                }
+
+                AbsensiKaryawan::create([
+                    'karyawan_id' => $karyawan->id,
+                    'nama_karyawan' => $karyawan->nama_lengkap,
+                    'tanggal' => $today,
+                    'status_kehadiran' => 'sakit',
+                    'keterangan' => $request->keterangan ?: 'Sakit',
+                    'attachment' => $attachmentPath,
+                    'is_change_day' => false,
+                ]);
+
+                DB::commit();
+
+                return redirect()->route('absensi.index')
+                    ->with('success', 'Pengajuan sakit berhasil dikirim');
+            }
+
+            DB::commit();
+
+            return redirect()->route('absensi.index')
+                ->with('success', 'Absensi berhasil ditambahkan');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Absensi store error: '.$e->getMessage());
+
+            return redirect()->route('absensi.index')
+                ->with('error', 'Terjadi kesalahan: '.$e->getMessage());
+        }
+    }
+
+    public function edit($id)
+    {
+        $absensi = AbsensiKaryawan::where('karyawan_id', Auth::id())
+            ->where('id', $id)
+            ->firstOrFail();
+
+        if ($absensi->is_change_day) {
+            if ($absensi->change_day_status !== AbsensiKaryawan::CHANGE_DAY_PENDING) {
+                return redirect()->route('absensi.index')
+                    ->with('error', 'Pengajuan change day yang sudah diproses tidak dapat diedit');
+            }
+
+            return view('absensi.edit_change_day', compact('absensi'));
+        }
+
+        if ($absensi->status_kehadiran !== AbsensiKaryawan::STATUS_PENDING) {
+            return redirect()->route('absensi.index')
+                ->with('error', 'Absensi yang sudah disetujui tidak dapat diedit');
+        }
+
+        if ($absensi->jam_pulang) {
+            return redirect()->route('absensi.index')
+                ->with('error', 'Absensi yang sudah pulang tidak dapat diedit');
+        }
+
+        return view('absensi.edit', compact('absensi'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $absensi = AbsensiKaryawan::where('karyawan_id', Auth::id())
+            ->findOrFail($id);
+
+        if ($absensi->is_change_day) {
+            if ($absensi->change_day_status !== AbsensiKaryawan::CHANGE_DAY_PENDING) {
+                return redirect()
+                    ->route('absensi.index')
+                    ->with('error', 'Pengajuan change day yang sudah diproses tidak dapat diedit');
+            }
+
+            $validated = $request->validate([
+                'change_day_tanggal_awal' => 'required|date',
+                'change_day_tanggal_akhir' => 'required|date|after_or_equal:change_day_tanggal_awal',
+                'change_day_jam_mulai' => 'required',
+                'change_day_jam_selesai' => 'required',
+                'change_day_alasan' => 'required|string',
+                'keterangan' => 'nullable|string',
+                'attachment' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            ]);
+
+            $updateData = [
+                'change_day_tanggal_awal' => $validated['change_day_tanggal_awal'],
+                'change_day_tanggal_akhir' => $validated['change_day_tanggal_akhir'],
+                'change_day_jam_mulai' => $validated['change_day_jam_mulai'],
+                'change_day_jam_selesai' => $validated['change_day_jam_selesai'],
+                'change_day_alasan' => $validated['change_day_alasan'],
+                'keterangan' => $validated['keterangan'] ?? null,
+            ];
+
+            if ($request->hasFile('attachment')) {
+                if ($absensi->attachment && Storage::disk('public')->exists($absensi->attachment)) {
+                    Storage::disk('public')->delete($absensi->attachment);
+                }
+
+                $updateData['attachment'] = $request->file('attachment')
+                    ->store('attachments', 'public');
+            }
+
+            $absensi->update($updateData);
+
+            return redirect()
+                ->route('absensi.index')
+                ->with('success', 'Pengajuan change day berhasil diupdate');
+        }
+
+        // Regular absensi hanya bisa diedit sebelum check-out
+        if ($absensi->jam_pulang) {
+            return redirect()
+                ->route('absensi.index')
+                ->with('error', 'Absensi yang sudah check-out tidak dapat diedit');
+        }
+
+        $updateData = [
+            'jam_masuk' => $absensi['jam_masuk'] ?? $request['change_day_jam_mulai'],
+            'lokasi_masuk' => $absensi['lokasi_masuk'],
+            'keterangan' => $request['keterangan'] ?? null,
+        ];
+
+        if ($request->hasFile('attachment')) {
+            if ($absensi->attachment && Storage::disk('public')->exists($absensi->attachment)) {
+                Storage::disk('public')->delete($absensi->attachment);
+            }
+
+            $updateData['attachment'] = $request->file('attachment')
+                ->store('attachments', 'public');
+        }
+
+        $absensi->update($updateData);
+
+        return redirect()
+            ->route('absensi.index')
+            ->with('success', 'Absensi berhasil diupdate');
+    }
+
+    public function absensiPulang(Request $request, $id)
+    {
+        $absensi = AbsensiKaryawan::where('karyawan_id', Auth::id())
+            ->where('id', $id)
+            ->where('is_change_day', false)
+            ->firstOrFail();
+
+        if ($absensi->jam_pulang) {
+            return redirect()->route('absensi.index')
+                ->with('error', 'Anda sudah melakukan absensi pulang');
+        }
+
+        if (! $absensi->jam_masuk) {
+            return redirect()->route('absensi.index')
+                ->with('error', 'Anda belum melakukan absensi masuk');
+        }
+
+        $request->validate([
+            'jam_pulang' => 'required',
+            'lokasi_pulang' => 'required|string|max:255',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $tanggalAbsensi = $absensi->tanggal->format('Y-m-d');
+            $jamMasukValue = $absensi->jam_masuk;
+
+            if (strpos($jamMasukValue, ' ') !== false) {
+                $jamMasukValue = substr($jamMasukValue, 11, 5);
+            }
+
+            $jamMasukDateTime = Carbon::parse($tanggalAbsensi.' '.$jamMasukValue);
+            $jamPulangDateTime = Carbon::parse($tanggalAbsensi.' '.$request->jam_pulang);
+
+            if ($jamPulangDateTime < $jamMasukDateTime) {
+                $jamPulangDateTime->addDay();
+            }
+
+            $selisihMenit = $jamMasukDateTime->diffInMinutes($jamPulangDateTime);
+            $totalJam = $selisihMenit / 60;
+
+            $absensi->update([
+                'jam_pulang' => $request->jam_pulang,
+                'lokasi_pulang' => $request->lokasi_pulang,
+                'total_jam_kerja' => round($totalJam, 2),
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('absensi.index')
+                ->with('success', 'Absensi pulang berhasil dicatat. Total jam kerja: '.number_format($totalJam, 2).' jam');
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return redirect()->route('absensi.index')
+                ->with('error', 'Terjadi kesalahan: '.$e->getMessage());
+        }
+    }
+
+    public function cancelChangeDay($id)
+    {
+        $absensi = AbsensiKaryawan::where('karyawan_id', Auth::id())
+            ->where('id', $id)
+            ->where('is_change_day', true)
+            ->where('change_day_status', AbsensiKaryawan::CHANGE_DAY_PENDING)
+            ->firstOrFail();
+
+        $absensi->delete();
+
+        return redirect()->route('absensi.index')
+            ->with('success', 'Pengajuan change day berhasil dibatalkan');
+    }
+
+    // ==================== ADMIN/HR SECTION ====================
+    public function adminIndex()
+    {
+        $absensi = AbsensiKaryawan::with('karyawan')
+            ->orderBy('tanggal', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->where('is_change_day', false)
+            ->get();
+
+        $statistics = [
+            'total' => AbsensiKaryawan::where('is_change_day', false)->count(),
+            'pending' => AbsensiKaryawan::where('status_kehadiran', 'Pending')->where('is_change_day', false)->count(),
+            'hadir' => AbsensiKaryawan::where('status_kehadiran', AbsensiKaryawan::STATUS_HADIR)->where('is_change_day', false)->count(),
+            'izin' => AbsensiKaryawan::where('status_kehadiran', AbsensiKaryawan::STATUS_IZIN)->where('is_change_day', false)->count(),
+            'sakit' => AbsensiKaryawan::where('status_kehadiran', AbsensiKaryawan::STATUS_SAKIT)->where('is_change_day', false)->count(),
+        ];
+
+        return view('admin.absensi.index', compact('absensi', 'statistics'));
+    }
+
+    public function adminUpdateStatusChangeDay(Request $request, $id)
+    {
+        $absensi = AbsensiKaryawan::findOrFail($id);
+
+        DB::beginTransaction();
+        try {
+            $request->validate([
+                'change_day_status' => 'required|in:pending,approved,rejected',
+                'change_day_note' => 'nullable|string',
+            ]);
+
+            $updateData = [
+                'change_day_status' => $request->change_day_status,
+                'change_day_note' => $request->change_day_catatan_admin ?? null,
+            ];
+
+            if ($request->change_day_status === AbsensiKaryawan::CHANGE_DAY_APPROVED) {
+                $updateData['change_day_disetujui_pada'] = now();
+                $updateData['change_day_disetujui_oleh'] = Auth::id();
+                $updateData['status_kehadiran'] = AbsensiKaryawan::STATUS_HADIR;
+                $updateData['jam_masuk'] = $absensi->change_day_jam_mulai;
+                $updateData['jam_pulang'] = $absensi->change_day_jam_selesai;
+
+                $totalJam = $absensi->hitungTotalJamChangeDay();
+                if ($totalJam > 0) {
+                    $updateData['total_jam_kerja'] = $totalJam;
+                }
+            } elseif ($request->change_day_status === AbsensiKaryawan::CHANGE_DAY_REJECTED) {
+                $updateData['status_kehadiran'] = AbsensiKaryawan::STATUS_ALPHA;
+            }
+
+            $absensi->update($updateData);
+
+            $statusText = $request->change_day_status === 'approved' ? 'disetujui' : 'ditolak';
+            $message = 'Pengajuan change day Anda pada tanggal '.
+                ($absensi->change_day_tanggal_awal ? $absensi->change_day_tanggal_awal->format('d/m/Y') : '-').
+                " telah {$statusText}";
+
+            Notifikasi::create([
+                'user_id' => $absensi->karyawan_id,
+                'judul' => 'Status Change Day Diupdate',
+                'pesan' => $message,
+                'tipe_notifikasi' => 'absensi',
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('admin.changeday.index')
+                ->with('success', 'Status change day berhasil diupdate');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return redirect()->route('admin.absensi.index')
+                ->with('error', 'Terjadi kesalahan: '.$e->getMessage());
+        }
+    }
+
+    public function adminUpdateStatusAbsensi(Request $request, $id)
+    {
+        $absensi = AbsensiKaryawan::findOrFail($id);
+
+        DB::beginTransaction();
+        try {
+            $request->validate([
+                'status_kehadiran' => 'required|in:pending,hadir,izin,sakit',
+            ]);
+
+            $updateData = [
+                'status_kehadiran' => $request->status_kehadiran,
+            ];
+
+            if ($request->status_kehadiran === AbsensiKaryawan::STATUS_HADIR) {
+                $updateData['jam_masuk'] = $absensi->jam_masuk ?: now()->format('H:i');
+                $updateData['jam_pulang'] = $absensi->jam_pulang ?: now()->format('H:i');
+
+                if ($updateData['jam_masuk'] && $updateData['jam_pulang']) {
+                    $jamMasukDateTime = Carbon::parse($absensi->tanggal->format('Y-m-d').' '.$updateData['jam_masuk']);
+                    $jamPulangDateTime = Carbon::parse($absensi->tanggal->format('Y-m-d').' '.$updateData['jam_pulang']);
+
+                    if ($jamPulangDateTime < $jamMasukDateTime) {
+                        $jamPulangDateTime->addDay();
+                    }
+
+                    $selisihMenit = $jamMasukDateTime->diffInMinutes($jamPulangDateTime);
+                    $totalJam = $selisihMenit / 60;
+                    $updateData['total_jam_kerja'] = round($totalJam, 2);
+                }
+            }
+
+            $absensi->update($updateData);
+
+            Notifikasi::create([
+                'user_id' => $absensi->karyawan_id,
+                'judul' => 'Status Absensi Diupdate',
+                'pesan' => "Status absensi Anda pada tanggal {$absensi->tanggal->format('d/m/Y')} telah diupdate menjadi {$request->status_kehadiran}",
+                'tipe_notifikasi' => 'absensi',
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('admin.absensi.index')
+                ->with('success', 'Status absensi berhasil diupdate');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return redirect()->route('admin.absensi.index')
+                ->with('error', 'Terjadi kesalahan: '.$e->getMessage());
+        }
+    }
+
+    public function adminShow($id)
+    {
+        $absensi = AbsensiKaryawan::with(['karyawan', 'disetujuiOleh'])->findOrFail($id);
+
+        return response()->json($absensi);
+    }
+}
