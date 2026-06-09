@@ -116,7 +116,7 @@
                     <div class="flex items-center justify-between mb-8">
                         <h2 class="text-lg font-semibold text-gray-800">Today Attendance</h2>
                         <span>
-                            {{ \Carbon\Carbon::now()->locale('id')->isoFormat('dddd, D MMMM YYYY') }}
+                            {{ \Carbon\Carbon::now()->locale('en')->isoFormat('dddd, D MMMM YYYY') }}
                         </span>
                     </div>
 
