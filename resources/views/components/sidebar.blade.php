@@ -122,7 +122,7 @@
     aria-label="Sidebar">
     <div class="h-full px-4 py-6 overflow-y-auto bg-blue-800 text-white">
         <a href="/dashboard" class="flex items-center ps-2.5 mb-5">
-            <span class="self-center text-lg text-white font-bold whitespace-nowrap">HRIS - SYSTEM</span>
+            <span class="self-center text-lg text-white font-bold whitespace-nowrap">PARTHARIS</span>
         </a>
         <ul class="space-y-2 font-medium">
             <li>
