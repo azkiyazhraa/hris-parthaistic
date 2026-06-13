@@ -46,6 +46,7 @@
                                 Other Leave
                             </option>
                         </select>
+                    </div>
 
                     <!-- TANGGAL -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">

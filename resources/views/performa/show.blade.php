@@ -35,7 +35,6 @@
         {{-- Attendance Summary --}}
         @php
             $presentCount = \App\Models\Performa::calculatePresentCount($performa->karyawan_id, $performa->bulan, $performa->tahun);
-            $lateCount = \App\Models\Performa::calculateLateCount($performa->karyawan_id, $performa->bulan, $performa->tahun);
             $absentCount = \App\Models\Performa::calculateAbsentCount($performa->karyawan_id, $performa->bulan, $performa->tahun);
             $totalWorkingDays = \App\Models\Performa::getRelevantWorkingDays($karyawan, $performa->bulan, $performa->tahun);
         @endphp
@@ -57,10 +56,7 @@
                     <p class="text-xs text-gray-500">Present</p>
                     <p class="text-lg font-bold text-green-600">{{ $presentCount }} Days</p>
                 </div>
-                <div class="bg-white rounded-lg p-3 text-center">
-                    <p class="text-xs text-gray-500">Late</p>
-                    <p class="text-lg font-bold text-yellow-600">{{ $lateCount }} Days</p>
-                </div>
+
                 <div class="bg-white rounded-lg p-3 text-center">
                     <p class="text-xs text-gray-500">Absent</p>
                     <p class="text-lg font-bold text-red-600">{{ $absentCount }} Days</p>

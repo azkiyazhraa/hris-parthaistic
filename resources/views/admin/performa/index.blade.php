@@ -116,9 +116,11 @@
                     <thead>
                         <tr class="text-gray-400 font-medium text-xs uppercase tracking-wide border-b">
                             <th class="text-left pb-3 pl-2">Name</th>
+                            <th class="text-left pb-3">Month</th>
                             <th class="text-left pb-3">Task Done</th>
                             <th class="text-left pb-3">Attendance Rate</th>
                             <th class="text-left pb-3">KPI Score</th>
+                            <th class="text-left pb-3">Final Score</th>
                             <th class="text-left pb-3">Status</th>
                             <th class="text-left pb-3">Action</th>
                         </tr>
@@ -146,9 +148,19 @@
                                         </div>
                                     </div>
                                 </td>
+                                <td class="py-3 text-gray-600 whitespace-nowrap">
+                                    @php
+                                        $monthNames = [1=>'Jan',2=>'Feb',3=>'Mar',4=>'Apr',5=>'May',6=>'Jun',7=>'Jul',8=>'Aug',9=>'Sep',10=>'Oct',11=>'Nov',12=>'Dec'];
+                                    @endphp
+                                    {{ $monthNames[$item->bulan] ?? '-' }} {{ $item->tahun }}
+                                </td>
                                 <td class="py-3 text-gray-700">{{ $item->task_done }}</td>
                                 <td class="py-3 text-gray-700">{{ $item->attendance_summary->attendance_rate }}%</td>
                                 <td class="py-3 text-gray-700 font-semibold">{{ $item->kpi->kpi_score }}</td>
+                                <td class="py-3">
+                                    <span class="font-bold text-purple-700 text-base">{{ $item->performance_score }}</span>
+                                    <span class="text-gray-400 text-xs">/ 100</span>
+                                </td>
                                 <td class="py-3">
                                     <span
                                         class="px-3 py-1 rounded-full text-xs font-semibold
@@ -204,7 +216,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center py-12">
+                                <td colspan="8" class="text-center py-12">
                                     <div class="flex flex-col items-center gap-3">
                                         <svg class="w-16 h-16 text-gray-300" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
@@ -338,7 +350,6 @@
                         <div class="space-y-2">
                             <div><p class="font-semibold text-blue-900">Attendance Rate</p><p class="text-sky-500 font-semibold">${data.attendance_summary.attendance_rate}%</p></div>
                             <div><p class="font-semibold text-blue-900">Present</p><p class="text-emerald-500">${data.attendance_summary.present} Days</p></div>
-                            <div><p class="font-semibold text-blue-900">Late</p><p class="text-yellow-500">${data.attendance_summary.late} Days</p></div>
                             <div><p class="font-semibold text-blue-900">Absent</p><p class="text-red-500">${data.attendance_summary.absent} Days</p></div>
                         </div>
                         <div class="mt-8">

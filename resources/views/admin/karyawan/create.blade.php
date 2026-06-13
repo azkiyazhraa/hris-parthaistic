@@ -130,7 +130,7 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Date of Birthr</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
                         <input type="date" name="tanggal_lahir" class="w-full border rounded-lg px-3 py-2">
                     </div>
 

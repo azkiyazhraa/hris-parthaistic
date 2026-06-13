@@ -823,14 +823,15 @@
                 return badges[status] ?? badges['pending'];
             }
 
-            function loadAttendance(bulan) {
+            function loadAttendance(bulan, page) {
+                page = page || 1;
                 $('#attendanceLoader').removeClass('hidden');
                 $('#attendanceTable').html('');
 
                 $.ajax({
                     url: "{{ route('attendance.filter') }}",
                     type: "GET",
-                    data: { bulan: bulan },
+                    data: { bulan: bulan, page: page },
                     success: function(response) {
                         $('#presentCount').text(response.summary.present);
                         $('#permissionCount').text(response.summary.permission);
@@ -874,8 +875,8 @@
                 });
             }
 
-            $(document).on('click', '.paginateBtn', function() {
-                loadAttendance($('#filterBulan').val());
+            $(document).on('click', '.paginateBtn:not([disabled])', function() {
+                loadAttendance($('#filterBulan').val(), $(this).data('page'));
             });
         });
     </script>

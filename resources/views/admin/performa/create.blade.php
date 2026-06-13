@@ -19,9 +19,9 @@
             <div class="mb-4 bg-blue-50 border-l-4 border-blue-500 p-4">
                 <p class="text-blue-700 text-sm">
                     <strong>Auto Calculation Information :</strong><br>
-                    - KPI Score = Average of (Productivity + Discipline + Quality + Teamwork)<br>
-                    - Attendance Rate = Same as KPI Score<br>
-                    - Performance Score = Weighted calculation of all components
+                    - KPI Score = Average of (Quality + Productivity + Teamwork + Discipline)<br>
+                    - Attendance Rate = Fetched from real attendance data for the selected period<br>
+                    - Performance Score = (KPI Score + Attendance Rate) / 2
                 </p>
             </div>
 
@@ -106,10 +106,14 @@
                             <div class="w-full bg-gray-200 rounded-full h-2 mt-2"><div id="kpi_bar" class="bg-blue-600 rounded-full h-2" style="width: 0%"></div></div>
                         </div>
                         <div class="bg-green-50 rounded-lg p-4">
-                            <label class="block text-gray-700 text-sm font-bold mb-2">Attendance Rate (Automatic)</label>
-                            <div class="text-3xl font-bold text-green-600" id="attendance_rate_display">0</div>
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Attendance Rate (From Attendance Data)</label>
+                            <div class="flex items-center gap-2">
+                                <div class="text-3xl font-bold text-green-600" id="attendance_rate_display">0</div>
+                                <span id="attendance_loading" class="hidden text-xs text-gray-400 animate-pulse">Loading…</span>
+                            </div>
                             <input type="hidden" id="attendance_rate" name="attendance_rate" value="0">
                             <div class="w-full bg-gray-200 rounded-full h-2 mt-2"><div id="attendance_bar" class="bg-green-600 rounded-full h-2" style="width: 0%"></div></div>
+                            <p class="text-xs text-gray-400 mt-1">Select employee, month & year to fetch</p>
                         </div>
                     </div>
                 </div>
@@ -144,41 +148,77 @@
     </div>
 
     <script>
+    let realAttendanceRate = 0;
+
     function calculateAll() {
-        let quality = parseInt(document.getElementById('quality').value) || 0;
-        let productivity = parseInt(document.getElementById('productivity').value) || 0;
-        let teamwork = parseInt(document.getElementById('teamwork').value) || 0;
-        let discipline = parseInt(document.getElementById('discipline').value) || 0;
+        const quality      = parseInt(document.getElementById('quality').value)      || 0;
+        const productivity = parseInt(document.getElementById('productivity').value) || 0;
+        const teamwork     = parseInt(document.getElementById('teamwork').value)     || 0;
+        const discipline   = parseInt(document.getElementById('discipline').value)   || 0;
 
-        document.getElementById('quality_bar').style.width = quality + '%';
+        document.getElementById('quality_bar').style.width      = quality      + '%';
         document.getElementById('productivity_bar').style.width = productivity + '%';
-        document.getElementById('teamwork_bar').style.width = teamwork + '%';
-        document.getElementById('discipline_bar').style.width = discipline + '%';
+        document.getElementById('teamwork_bar').style.width     = teamwork     + '%';
+        document.getElementById('discipline_bar').style.width   = discipline   + '%';
 
-        let kpiScore = Math.round((quality + productivity + teamwork + discipline) / 4);
-        let attendanceRate = kpiScore;
-
-        document.getElementById('kpi_score').value = kpiScore;
+        // KPI Score = average of 4 components
+        const kpiScore = Math.round((quality + productivity + teamwork + discipline) / 4);
+        document.getElementById('kpi_score').value          = kpiScore;
         document.getElementById('kpi_score_display').innerText = kpiScore;
-        document.getElementById('kpi_bar').style.width = kpiScore + '%';
-        document.getElementById('attendance_rate').value = attendanceRate;
-        document.getElementById('attendance_rate_display').innerText = attendanceRate;
-        document.getElementById('attendance_bar').style.width = attendanceRate + '%';
+        document.getElementById('kpi_bar').style.width      = kpiScore + '%';
 
-        let total = Math.round((attendanceRate * 0.15) + (quality * 0.20) + (productivity * 0.20) + (teamwork * 0.15) + (discipline * 0.15) + (kpiScore * 0.15));
+        // Attendance Rate = from real data (fetched from backend)
+        document.getElementById('attendance_rate').value           = realAttendanceRate;
+        document.getElementById('attendance_rate_display').innerText = realAttendanceRate;
+        document.getElementById('attendance_bar').style.width      = realAttendanceRate + '%';
 
-        document.getElementById('performance_score').value = total;
+        // Performance Score = (KPI Score + Attendance Rate) / 2
+        const total = Math.round((kpiScore + realAttendanceRate) / 2);
+
+        document.getElementById('performance_score').value          = total;
         document.getElementById('performance_score_display').innerText = total;
 
         let rating = '', ratingColor = '';
-        if (total >= 90) { rating = 'Excellent (A)'; ratingColor = 'green'; }
-        else if (total >= 75) { rating = 'Good (B)'; ratingColor = 'blue'; }
-        else if (total >= 60) { rating = 'Fair (C)'; ratingColor = 'yellow'; }
-        else if (total >= 50) { rating = 'Poor (D)'; ratingColor = 'orange'; }
-        else { rating = 'Very Poor (E)'; ratingColor = 'red'; }
+        if      (total >= 90) { rating = 'Excellent (A)'; ratingColor = 'green';  }
+        else if (total >= 75) { rating = 'Good (B)';      ratingColor = 'blue';   }
+        else if (total >= 60) { rating = 'Fair (C)';      ratingColor = 'yellow'; }
+        else if (total >= 50) { rating = 'Poor (D)';      ratingColor = 'orange'; }
+        else                  { rating = 'Very Poor (E)'; ratingColor = 'red';    }
 
-        document.getElementById('rating_display').innerHTML = '<span class="bg-'+ratingColor+'-100 text-'+ratingColor+'-800 py-1 px-3 rounded-full text-xs">'+rating+'</span>';
+        document.getElementById('rating_display').innerHTML =
+            '<span class="bg-'+ratingColor+'-100 text-'+ratingColor+'-800 py-1 px-3 rounded-full text-xs">'+rating+'</span>';
     }
+
+    async function fetchAttendanceRate() {
+        const karyawanId = document.getElementById('karyawan_id').value;
+        const bulan      = document.getElementById('bulan').value;
+        const tahun      = document.getElementById('tahun').value;
+
+        if (!karyawanId || !bulan || !tahun) {
+            realAttendanceRate = 0;
+            calculateAll();
+            return;
+        }
+
+        document.getElementById('attendance_loading').classList.remove('hidden');
+        document.getElementById('attendance_rate_display').innerText = '—';
+
+        try {
+            const resp = await fetch(`{{ route('admin.performa.attendance-rate') }}?karyawan_id=${karyawanId}&bulan=${bulan}&tahun=${tahun}`);
+            const data = await resp.json();
+            realAttendanceRate = data.rate ?? 0;
+        } catch (e) {
+            realAttendanceRate = 0;
+        }
+
+        document.getElementById('attendance_loading').classList.add('hidden');
+        calculateAll();
+    }
+
+    document.getElementById('karyawan_id').addEventListener('change', fetchAttendanceRate);
+    document.getElementById('bulan').addEventListener('change', fetchAttendanceRate);
+    document.getElementById('tahun').addEventListener('change', fetchAttendanceRate);
+
     calculateAll();
     </script>
 @endsection

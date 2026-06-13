@@ -5,7 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\AbsensiKaryawan;
 use App\Models\Karyawan;
+use App\Models\PengajuanCuti;
 use App\Models\Pengumuman;
+use App\Models\Performa;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -48,16 +51,16 @@ class DashboardController extends Controller
         $attendanceCounts = AbsensiKaryawan::selectRaw('
             COUNT(*) as total,
             SUM(status_kehadiran = ?) as pending,
-            SUM(status_kehadiran = ?) as hadir,
-            SUM(status_kehadiran = ?) as izin,
-            SUM(status_kehadiran = ?) as sakit,
-            SUM(status_kehadiran = ?) as alpha
+            SUM(status_kehadiran = ?) as present,
+            SUM(status_kehadiran = ?) as permit,
+            SUM(status_kehadiran = ?) as sick,
+            SUM(status_kehadiran = ?) as absent
         ', [
             AbsensiKaryawan::STATUS_PENDING,
-            AbsensiKaryawan::STATUS_HADIR,
-            AbsensiKaryawan::STATUS_IZIN,
-            AbsensiKaryawan::STATUS_SAKIT,
-            AbsensiKaryawan::STATUS_ALPHA,
+            AbsensiKaryawan::STATUS_PRESENT,
+            AbsensiKaryawan::STATUS_PERMIT,
+            AbsensiKaryawan::STATUS_SICK,
+            AbsensiKaryawan::STATUS_ABSENT,
         ])
             ->where('is_change_day', false)
             ->whereDate('tanggal', today())
@@ -66,10 +69,10 @@ class DashboardController extends Controller
         $statistics = [
             'total' => (int) $attendanceCounts->total,
             'pending' => (int) $attendanceCounts->pending,
-            'hadir' => (int) $attendanceCounts->hadir,
-            'izin' => (int) $attendanceCounts->izin,
-            'sakit' => (int) $attendanceCounts->sakit,
-            'alpha' => (int) $attendanceCounts->alpha,
+            'present' => (int) $attendanceCounts->present,
+            'permit' => (int) $attendanceCounts->permit,
+            'sick' => (int) $attendanceCounts->sick,
+            'absent' => (int) $attendanceCounts->absent,
         ];
 
         return view('admin.dashboard', compact(
@@ -169,7 +172,7 @@ class DashboardController extends Controller
 
             return redirect()
                 ->route('admin.karyawan')
-                ->with('success', 'Karyawan berhasil ditambahkan');
+                ->with('success', 'Employee added successfully');
 
         } catch (\Throwable $th) {
 
@@ -254,7 +257,7 @@ class DashboardController extends Controller
 
         return redirect()
             ->route('admin.karyawan')
-            ->with('success', 'Karyawan berhasil diupdate');
+            ->with('success', 'Employee updated successfully');
     }
 
     public function destroyKaryawan($id)
@@ -265,7 +268,7 @@ class DashboardController extends Controller
         if ($karyawan->id === auth()->id()) {
             return redirect()
                 ->route('admin.karyawan')
-                ->with('error', 'Anda tidak dapat menghapus akun sendiri');
+                ->with('error', 'You cannot delete your own account');
         }
 
         // Hapus foto profil jika ada
@@ -277,7 +280,153 @@ class DashboardController extends Controller
 
         return redirect()
             ->route('admin.karyawan')
-            ->with('success', 'Karyawan berhasil dihapus');
+            ->with('success', 'Employee deleted successfully');
+    }
+
+    public function getEmployeeDetail($id)
+    {
+        $karyawan = Karyawan::findOrFail($id);
+        $currentMonth = Carbon::now()->month;
+        $currentYear  = Carbon::now()->year;
+
+        // Attendance rate (all-time)
+        $allAttendances = AbsensiKaryawan::where('karyawan_id', $id)
+            ->whereIn('status_kehadiran', ['present', 'pending', 'permit', 'sick'])
+            ->where('is_change_day', false)
+            ->count();
+
+        $totalWorkingDays = 0;
+        if ($karyawan->tanggal_bergabung) {
+            $totalWorkingDays = $this->countWeekdays(
+                Carbon::parse($karyawan->tanggal_bergabung)->startOfDay(),
+                Carbon::now()->startOfDay()
+            );
+        }
+        $attendanceRate = $totalWorkingDays > 0
+            ? round(($allAttendances / $totalWorkingDays) * 100, 1)
+            : 0;
+
+        // Present this month
+        $presentCount = AbsensiKaryawan::where('karyawan_id', $id)
+            ->whereMonth('tanggal', $currentMonth)
+            ->whereYear('tanggal', $currentYear)
+            ->where('status_kehadiran', 'present')
+            ->count();
+
+        // Late this month
+        $lateCount = 0;
+        $monthRecords = AbsensiKaryawan::where('karyawan_id', $id)
+            ->whereMonth('tanggal', $currentMonth)
+            ->whereYear('tanggal', $currentYear)
+            ->where('status_kehadiran', 'present')
+            ->whereNotNull('jam_masuk')
+            ->get();
+        foreach ($monthRecords as $r) {
+            if (Carbon::parse($r->jam_masuk)->format('H:i:s') > '08:00:00') $lateCount++;
+        }
+
+        // Absent this month — only count records explicitly marked as 'absent'
+        $absentCount = AbsensiKaryawan::where('karyawan_id', $id)
+            ->whereMonth('tanggal', $currentMonth)
+            ->whereYear('tanggal', $currentYear)
+            ->where('is_change_day', false)
+            ->where('status_kehadiran', AbsensiKaryawan::STATUS_ABSENT)
+            ->count();
+
+        // Recent attendances (last 5)
+        $recentAttendances = AbsensiKaryawan::where('karyawan_id', $id)
+            ->where('is_change_day', false)
+            ->orderBy('tanggal', 'desc')
+            ->limit(5)
+            ->get()
+            ->map(fn($a) => [
+                'tanggal'    => $a->tanggal->format('d M Y'),
+                'jam_masuk'  => $a->jam_masuk  ? Carbon::parse($a->jam_masuk)->format('H:i')  : '-',
+                'jam_pulang' => $a->jam_pulang ? Carbon::parse($a->jam_pulang)->format('H:i') : '-',
+                'status'     => $a->status_kehadiran,
+            ]);
+
+        // Leave usage
+        $annualUsed    = PengajuanCuti::where('karyawan_id', $id)->where('jenis_cuti', 'tahunan')->whereIn('status', ['disetujui', 'approved'])->sum('total_hari');
+        $sickUsed      = PengajuanCuti::where('karyawan_id', $id)->where('jenis_cuti', 'sakit')->whereIn('status', ['disetujui', 'approved'])->sum('total_hari');
+        $emergencyUsed = PengajuanCuti::where('karyawan_id', $id)->where('jenis_cuti', 'penting')->whereIn('status', ['disetujui', 'approved'])->sum('total_hari');
+        $otherUsed     = PengajuanCuti::where('karyawan_id', $id)->where('jenis_cuti', 'lainnya')->whereIn('status', ['disetujui', 'approved'])->sum('total_hari');
+
+        $leaveRequests = PengajuanCuti::where('karyawan_id', $id)
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get()
+            ->map(fn($l) => [
+                'tanggal_mulai'   => $l->tanggal_mulai->format('d/m/Y'),
+                'tanggal_selesai' => $l->tanggal_selesai->format('d/m/Y'),
+                'jenis_cuti'      => $l->jenis_cuti_label,
+                'total_hari'      => $l->total_hari,
+                'status'          => $l->status,
+            ]);
+
+        // Performance
+        $latestPerf = Performa::where('karyawan_id', $id)
+            ->orderBy('tahun', 'desc')
+            ->orderBy('bulan', 'desc')
+            ->first();
+
+        $prevPerf = null;
+        if ($latestPerf) {
+            $prevMonth = $latestPerf->bulan - 1;
+            $prevYear  = $latestPerf->tahun;
+            if ($prevMonth === 0) { $prevMonth = 12; $prevYear--; }
+            $prevPerf = Performa::where('karyawan_id', $id)
+                ->where('tahun', $prevYear)->where('bulan', $prevMonth)->first();
+        }
+
+        $perfChange = 0;
+        if ($latestPerf && $prevPerf) {
+            $perfChange = $latestPerf->performance_score - $prevPerf->performance_score;
+        } elseif ($latestPerf) {
+            $perfChange = $latestPerf->performance_score;
+        }
+
+        // Performance history (current year, all 12 months)
+        $histMonths = [];
+        $histScores = [];
+        for ($m = 1; $m <= 12; $m++) {
+            $p = Performa::where('karyawan_id', $id)->where('tahun', $currentYear)->where('bulan', $m)->first();
+            $histMonths[] = Carbon::create($currentYear, $m, 1)->format('M');
+            $histScores[] = $p?->performance_score ?? 0;
+        }
+
+        return response()->json([
+            'attendance' => [
+                'rate'    => $attendanceRate,
+                'present' => $presentCount,
+                'late'    => $lateCount,
+                'absent'  => $absentCount,
+                'recent'  => $recentAttendances,
+            ],
+            'leave' => [
+                'annual_used'    => (int) $annualUsed,
+                'annual_quota'   => 12,
+                'sick_used'      => (int) $sickUsed,
+                'sick_quota'     => 12,
+                'emergency_used' => (int) $emergencyUsed,
+                'emergency_quota'=> 12,
+                'other_used'     => (int) $otherUsed,
+                'other_quota'    => 12,
+                'requests'       => $leaveRequests,
+            ],
+            'performance' => [
+                'latest_score' => $latestPerf?->performance_score ?? 0,
+                'rating_label' => $latestPerf?->rating['label'] ?? 'No Data',
+                'rating_color' => $latestPerf?->rating['color'] ?? 'gray',
+                'change'       => $perfChange,
+                'quality'      => $latestPerf?->quality ?? 0,
+                'productivity' => $latestPerf?->productivity ?? 0,
+                'teamwork'     => $latestPerf?->teamwork ?? 0,
+                'discipline'   => $latestPerf?->discipline ?? 0,
+                'kpi_score'    => $latestPerf?->kpi_score ?? 0,
+                'history'      => ['months' => $histMonths, 'scores' => $histScores],
+            ],
+        ]);
     }
 
     public function showKaryawanPassword($id)
@@ -288,5 +437,23 @@ class DashboardController extends Controller
             'hashed_password' => $karyawan->kata_sandi,
             'message' => 'This is the hashed password. In production, password reset functionality should be used instead.',
         ]);
+    }
+
+    private function countWeekdays(Carbon $start, Carbon $end): int
+    {
+        if ($start->gt($end)) return 0;
+
+        $totalDays  = $start->diffInDays($end) + 1; // inclusive
+        $fullWeeks  = intdiv($totalDays, 7);
+        $weekdays   = $fullWeeks * 6;
+        $extra      = $totalDays % 7;
+        $dow        = $start->dayOfWeek; // 0=Sun … 6=Sat
+
+        for ($i = 0; $i < $extra; $i++) {
+            $d = ($dow + $i) % 7;
+            if ($d >= 1 && $d <= 6) $weekdays++;
+        }
+
+        return $weekdays;
     }
 }

@@ -133,7 +133,7 @@
                         </p>
 
                         <h2 id="presentCount" class="text-3xl font-bold text-green-900">
-                            {{ $monthAbcense->where('status_kehadiran', 'hadir')->count() }}
+                            {{ $monthAbcense->where('status_kehadiran', 'present')->count() }}
                         </h2>
                     </div>
 
@@ -144,7 +144,7 @@
                         </p>
 
                         <h2 id="permissionCount" class="text-3xl font-bold text-indigo-600">
-                            {{ $monthAbcense->where('status_kehadiran', 'izin')->count() }}
+                            {{ $monthAbcense->where('status_kehadiran', 'permit')->count() }}
                         </h2>
                     </div>
 
@@ -155,7 +155,7 @@
                         </p>
 
                         <h2 id="sickCount" class="text-3xl font-bold text-red-600">
-                            {{ $monthAbcense->where('status_kehadiran', 'sakit')->count() }}
+                            {{ $monthAbcense->where('status_kehadiran', 'sick')->count() }}
                         </h2>
                     </div>
 
@@ -195,9 +195,9 @@
 
                             <option value="">All Status</option>
                             <option value="pending">Pending</option>
-                            <option value="hadir">Present</option>
-                            <option value="izin">Permission</option>
-                            <option value="sakit">Sick</option>
+                            <option value="present">Present</option>
+                            <option value="permit">Permission</option>
+                            <option value="sick">Sick</option>
                         </select>
                     </div>
 
@@ -259,9 +259,9 @@
                                     @php
                                         $badgeClass = match ($item->status_kehadiran) {
                                             'pending' => 'bg-yellow-100 text-yellow-700',
-                                            'hadir' => 'bg-green-100 text-green-700',
-                                            'izin' => 'bg-blue-100 text-blue-700',
-                                            'sakit' => 'bg-purple-100 text-purple-700',
+                                            'present' => 'bg-green-100 text-green-700',
+                                            'permit' => 'bg-blue-100 text-blue-700',
+                                            'sick' => 'bg-purple-100 text-purple-700',
                                             default => 'bg-red-100 text-red-700',
                                         };
                                     @endphp
@@ -353,19 +353,19 @@
                         case 'pending':
                             statusClass = 'bg-yellow-100 text-yellow-700';
                             break;
-                        case 'hadir':
+                        case 'present':
                             statusClass = 'bg-emerald-100 text-emerald-700';
                             break;
-                        case 'izin':
-                            statusClass = 'bg-yellow-100 text-yellow-700';
+                        case 'permit':
+                            statusClass = 'bg-blue-100 text-blue-700';
                             break;
-                        case 'sakit':
+                        case 'sick':
                             statusClass = 'bg-purple-100 text-purple-700';
                             break;
                         case 'change day pending':
                             statusClass = 'bg-yellow-100 text-yellow-700';
                             break;
-                        case 'alpha':
+                        case 'absent':
                             statusClass = 'bg-red-100 text-red-700';
                             break;
                     }

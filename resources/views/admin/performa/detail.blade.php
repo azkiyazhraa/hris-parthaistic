@@ -173,7 +173,7 @@
                                         </p>
                                     </div>
 
-                                    <div>
+                                    {{-- <div>
                                         <p class="font-semibold text-blue-900">
                                             Late
                                         </p>
@@ -181,7 +181,7 @@
                                         <p class="text-gray-400">
                                             {{ $item->attendance_summary->late }}
                                         </p>
-                                    </div>
+                                    </div> --}}
 
                                     <div>
                                         <p class="font-semibold text-blue-900">

@@ -21,7 +21,7 @@ class BreakController extends Controller
             ->first();
             
         if ($activeBreak) {
-            return redirect()->back()->with('error', 'Anda sedang dalam waktu istirahat!');
+            return redirect()->back()->with('error', 'You are already on a break!');
         }
         
         // Cek apakah absensi milik user yang login
@@ -30,11 +30,11 @@ class BreakController extends Controller
             ->first();
             
         if (!$absensi) {
-            return redirect()->back()->with('error', 'Data absensi tidak ditemukan!');
+            return redirect()->back()->with('error', 'Attendance record not found!');
         }
         
         if ($absensi->jam_pulang) {
-            return redirect()->back()->with('error', 'Anda sudah checkout!');
+            return redirect()->back()->with('error', 'You have already checked out!');
         }
         
         // Create break
@@ -60,7 +60,7 @@ class BreakController extends Controller
             ->first();
             
         if (!$break) {
-            return redirect()->back()->with('error', 'Tidak ada break yang aktif!');
+            return redirect()->back()->with('error', 'No active break found!');
         }
         
         $breakEnd = now();

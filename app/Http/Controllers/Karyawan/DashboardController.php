@@ -207,9 +207,9 @@ class DashboardController extends Controller
             ],
 
             'summary' => [
-                'present' => $allAttendance->where('status_kehadiran', 'hadir')->count(),
-                'permission' => $allAttendance->where('status_kehadiran', 'izin')->count(),
-                'sick' => $allAttendance->where('status_kehadiran', 'sakit')->count(),
+                'present' => $allAttendance->where('status_kehadiran', 'present')->count(),
+                'permission' => $allAttendance->where('status_kehadiran', 'permit')->count(),
+                'sick' => $allAttendance->where('status_kehadiran', 'sick')->count(),
                 'pending' => $allAttendance->where('status_kehadiran', 'pending')->count(),
             ],
         ]);

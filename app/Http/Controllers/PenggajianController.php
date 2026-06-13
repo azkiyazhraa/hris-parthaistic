@@ -110,7 +110,7 @@ class PenggajianController extends Controller
 
         if ($exists) {
             return redirect()->back()
-                ->with('error', 'Penggajian untuk karyawan ini pada periode tersebut sudah ada')
+                ->with('error', 'A payroll entry for this employee in that period already exists')
                 ->withInput();
         }
 
@@ -159,7 +159,7 @@ class PenggajianController extends Controller
         }
 
         return redirect()->route('admin.penggajian.index')
-            ->with('success', 'Data penggajian berhasil ditambahkan');
+            ->with('success', 'Payroll data added successfully');
     }
 
     public function adminEdit($id)
@@ -187,7 +187,7 @@ class PenggajianController extends Controller
 
         if ($exists) {
             return redirect()->back()
-                ->with('error', 'Penggajian untuk karyawan ini pada periode tersebut sudah ada')
+                ->with('error', 'A payroll entry for this employee in that period already exists')
                 ->withInput();
         }
 
@@ -228,14 +228,14 @@ class PenggajianController extends Controller
         if ($penggajian->wasChanged('status')) {
             Notifikasi::create([
                 'user_id' => $karyawan->id,
-                'judul' => 'Status Penggajian Diupdate',
-                'pesan' => 'Status penggajian periode '.$this->getBulanText($request->bulan)." {$request->tahun} telah diubah menjadi ".strtoupper($request->status),
+                'judul' => 'Payroll Status Updated',
+                'pesan' => 'Your payroll status for '.$this->getBulanText($request->bulan)." {$request->tahun} has been changed to ".strtoupper($request->status),
                 'tipe_notifikasi' => 'penggajian',
             ]);
         }
 
         return redirect()->route('admin.penggajian.index')
-            ->with('success', 'Data penggajian berhasil diupdate');
+            ->with('success', 'Payroll data updated successfully');
     }
 
     public function adminDestroy($id)
@@ -244,13 +244,13 @@ class PenggajianController extends Controller
 
         if ($penggajian->status == Penggajian::STATUS_PAID) {
             return redirect()->route('admin.penggajian.index')
-                ->with('error', 'Penggajian yang sudah dibayar tidak dapat dihapus');
+                ->with('error', 'Paid payroll cannot be deleted');
         }
 
         $penggajian->delete();
 
         return redirect()->route('admin.penggajian.index')
-            ->with('success', 'Data penggajian berhasil dihapus');
+            ->with('success', 'Payroll data deleted successfully');
     }
 
     public function adminUpdateStatus(Request $request, $id)
@@ -289,13 +289,13 @@ class PenggajianController extends Controller
 
         Notifikasi::create([
             'user_id' => $penggajian->karyawan_id,
-            'judul' => 'Status Penggajian Diupdate',
-            'pesan' => 'Status penggajian periode '.$this->getBulanText($penggajian->bulan)." {$penggajian->tahun} telah diubah menjadi ".strtoupper($request->status),
+            'judul' => 'Payroll Status Updated',
+            'pesan' => 'Your payroll status for '.$this->getBulanText($penggajian->bulan)." {$penggajian->tahun} has been changed to ".strtoupper($request->status),
             'tipe_notifikasi' => 'penggajian',
         ]);
 
         return redirect()->route('admin.penggajian.index')
-            ->with('success', 'Status penggajian berhasil diupdate');
+            ->with('success', 'Payroll status updated successfully');
     }
 
     public function adminShow($id)
@@ -364,7 +364,7 @@ class PenggajianController extends Controller
         $karyawan = $penggajian->karyawan;
 
         if (! $karyawan || ! $karyawan->email) {
-            return redirect()->back()->with('error', 'Email karyawan tidak ditemukan');
+            return redirect()->back()->with('error', 'Employee email not found');
         }
 
         try {
@@ -380,9 +380,9 @@ class PenggajianController extends Controller
             $penggajian->payslip_sent_by = Auth::user()->nama_lengkap;
             $penggajian->save();
 
-            return redirect()->back()->with('success', 'Slip gaji berhasil dikirim (notifikasi)');
+            return redirect()->back()->with('success', 'Payslip notification sent successfully');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal mengirim: '.$e->getMessage());
+            return redirect()->back()->with('error', 'Failed to send: '.$e->getMessage());
         }
     }
 

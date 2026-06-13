@@ -156,12 +156,12 @@
 
                                             <option value="approved"
                                                 {{ $item->change_day_status == 'approved' ? 'selected' : '' }}>
-                                                Disetujui
+                                                Approved
                                             </option>
 
                                             <option value="rejected"
                                                 {{ $item->change_day_status == 'rejected' ? 'selected' : '' }}>
-                                                Ditolak
+                                                Rejected
                                             </option>
                                         </select>
                                     </form>
@@ -215,18 +215,18 @@
                 value: inputNote,
                 isConfirmed
             } = await Swal.fire({
-                title: `Ubah status menjadi ${selectedStatus}?`,
+                title: `Change status to ${selectedStatus}?`,
                 input: 'textarea',
                 inputLabel: selectedStatus === 'rejected' ?
-                    'Alasan penolakan' : 'Catatan (opsional)',
+                    'Rejection reason' : 'Note (optional)',
                 inputPlaceholder: selectedStatus === 'rejected' ?
-                    'Masukkan alasan penolakan...' : 'Tambahkan catatan...',
+                    'Enter rejection reason...' : 'Add a note...',
                 inputAttributes: {
                     'aria-label': 'Type your note here'
                 },
                 showCancelButton: true,
-                confirmButtonText: 'Simpan',
-                cancelButtonText: 'Batal',
+                confirmButtonText: 'Save',
+                cancelButtonText: 'Cancel',
                 reverseButtons: true,
 
                 customClass: {
@@ -238,7 +238,7 @@
                 buttonsStyling: false,
                 inputValidator: (value) => {
                     if (selectedStatus === 'rejected' && !value) {
-                        return 'Alasan penolakan wajib diisi';
+                        return 'Rejection reason is required';
                     }
                 }
             });
@@ -391,7 +391,7 @@
                 })
                 .catch(error => {
                     console.error(error);
-                    alert('Gagal memuat detail data');
+                    alert('Failed to load data. Please try again.');
                 });
         }
 

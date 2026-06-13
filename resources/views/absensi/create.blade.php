@@ -31,9 +31,9 @@
                         </label>
                         <select name="jenis_absensi" id="jenis_absensi" required
                             class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-700 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition appearance-none">
-                            <option value="masuk">Present</option>
-                            <option value="izin">Leave</option>
-                            <option value="sakit">Sick</option>
+                            <option value="checkin">Present</option>
+                            <option value="permit">Leave</option>
+                            <option value="sick">Sick</option>
                         </select>
                     </div>
 

@@ -75,7 +75,7 @@ class LeaveController extends Controller
             $sisaKuota = 12 - $kuotaTerpakai;
 
             if ($totalHari > $sisaKuota) {
-                return redirect()->back()->with('error', 'Sisa kuota cuti tahunan Anda tidak mencukupi. Sisa kuota: '.$sisaKuota.' hari')->withInput();
+                return redirect()->back()->with('error', 'Insufficient annual leave quota. Remaining quota: '.$sisaKuota.' days')->withInput();
             }
         }
 
@@ -100,7 +100,7 @@ class LeaveController extends Controller
             'sisa_kuota' => 12,
         ]);
 
-        return redirect()->route('cuti.index')->with('success', 'Pengajuan cuti berhasil dikirim');
+        return redirect()->route('cuti.index')->with('success', 'Leave request submitted successfully');
     }
 
     // Employee: Show leave details
@@ -118,7 +118,7 @@ class LeaveController extends Controller
         $cuti = PengajuanCuti::where('karyawan_id', Auth::id())->findOrFail($id);
 
         if ($cuti->status != 'pending') {
-            return redirect()->route('cuti.index')->with('error', 'Pengajuan cuti yang sudah diproses tidak dapat diubah');
+            return redirect()->route('cuti.index')->with('error', 'A processed leave request cannot be changed');
         }
 
         $tahunSekarang = date('Y');
@@ -140,7 +140,7 @@ class LeaveController extends Controller
         $cuti = PengajuanCuti::where('karyawan_id', Auth::id())->findOrFail($id);
 
         if ($cuti->status != 'pending') {
-            return redirect()->route('cuti.index')->with('error', 'Pengajuan cuti yang sudah diproses tidak dapat diubah');
+            return redirect()->route('cuti.index')->with('error', 'A processed leave request cannot be changed');
         }
 
         $request->validate([
@@ -165,7 +165,7 @@ class LeaveController extends Controller
             $sisaKuota = 12 - $kuotaTerpakai;
 
             if ($totalHari > $sisaKuota) {
-                return redirect()->back()->with('error', 'Sisa kuota cuti tahunan Anda tidak mencukupi. Sisa kuota: '.$sisaKuota.' hari')->withInput();
+                return redirect()->back()->with('error', 'Insufficient annual leave quota. Remaining quota: '.$sisaKuota.' days')->withInput();
             }
         }
 
@@ -186,7 +186,7 @@ class LeaveController extends Controller
 
         $cuti->update($updateData);
 
-        return redirect()->route('cuti.index')->with('success', 'Pengajuan cuti berhasil diupdate');
+        return redirect()->route('cuti.index')->with('success', 'Leave request updated successfully');
     }
 
     // Employee: Delete/Cancel leave request
@@ -195,7 +195,7 @@ class LeaveController extends Controller
         $cuti = PengajuanCuti::where('karyawan_id', Auth::id())->findOrFail($id);
 
         if ($cuti->status != 'pending') {
-            return redirect()->route('cuti.index')->with('error', 'Pengajuan cuti yang sudah diproses tidak dapat dibatalkan');
+            return redirect()->route('cuti.index')->with('error', 'A processed leave request cannot be cancelled');
         }
 
         if ($cuti->lampiran) {
@@ -204,7 +204,7 @@ class LeaveController extends Controller
 
         $cuti->delete();
 
-        return redirect()->route('cuti.index')->with('success', 'Pengajuan cuti berhasil dibatalkan');
+        return redirect()->route('cuti.index')->with('success', 'Leave request cancelled successfully');
     }
 
     // Admin/HR: Index all leave requests
@@ -273,20 +273,20 @@ class LeaveController extends Controller
 
         $cuti->save();
 
-        $statusText = $request->status == 'disetujui' ? 'disetujui' : 'ditolak';
-        $message = 'Pengajuan cuti Anda periode '.Carbon::parse($cuti->tanggal_mulai)->format('d/m/Y').' - '.Carbon::parse($cuti->tanggal_selesai)->format('d/m/Y')." telah $statusText";
+        $statusText = $request->status == 'disetujui' ? 'approved' : 'rejected';
+        $message = 'Your leave request for '.Carbon::parse($cuti->tanggal_mulai)->format('d/m/Y').' - '.Carbon::parse($cuti->tanggal_selesai)->format('d/m/Y')." has been $statusText";
 
         if ($request->filled('catatan')) {
-            $message .= ' dengan catatan: '.$request->catatan;
+            $message .= ' with note: '.$request->catatan;
         }
 
         Notifikasi::create([
             'user_id' => $cuti->karyawan_id,
-            'judul' => 'Status Pengajuan Cuti',
+            'judul' => 'Leave Request Status Updated',
             'pesan' => $message,
             'tipe_notifikasi' => 'cuti',
         ]);
 
-        return redirect()->route('admin.leave.index')->with('success', 'Status pengajuan cuti berhasil diupdate');
+        return redirect()->route('admin.leave.index')->with('success', 'Leave status updated successfully');
     }
 }

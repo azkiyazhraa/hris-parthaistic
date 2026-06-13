@@ -369,10 +369,6 @@
                                         <p class="text-emerald-500">${presentCount} Days</p>
                                     </div>
                                     <div>
-                                        <p class="font-semibold text-blue-900">Late</p>
-                                        <p class="text-yellow-500">${lateCount} Days</p>
-                                    </div>
-                                    <div>
                                         <p class="font-semibold text-blue-900">Absent</p>
                                         <p class="text-red-500">${absentCount} Days</p>
                                     </div>

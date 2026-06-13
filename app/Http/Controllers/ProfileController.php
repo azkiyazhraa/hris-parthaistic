@@ -24,7 +24,8 @@ class ProfileController extends Controller
 
         // Hitung attendance rate all time
         $allAttendances = AbsensiKaryawan::where('karyawan_id', $karyawan->id)
-            ->whereIn('status_kehadiran', ['hadir', 'masuk', 'izin', 'sakit'])
+            ->whereIn('status_kehadiran', ['present', 'pending', 'permit', 'sick'])
+            ->where('is_change_day', false)
             ->count();
 
         $totalWorkingDaysAllTime = $this->getTotalWorkingDaysAllTime($karyawan);
@@ -34,7 +35,7 @@ class ProfileController extends Controller
         $presentCount = AbsensiKaryawan::where('karyawan_id', $karyawan->id)
             ->whereMonth('tanggal', $currentMonth)
             ->whereYear('tanggal', $currentYear)
-            ->whereIn('status_kehadiran', ['hadir', 'masuk'])
+            ->where('status_kehadiran', 'present')
             ->count();
 
         $lateCount = $this->calculateLateCount($karyawan->id, $currentMonth, $currentYear);
@@ -44,7 +45,7 @@ class ProfileController extends Controller
         $recordedDays = AbsensiKaryawan::where('karyawan_id', $karyawan->id)
             ->whereMonth('tanggal', $currentMonth)
             ->whereYear('tanggal', $currentYear)
-            ->whereIn('status_kehadiran', ['hadir', 'masuk', 'izin', 'sakit'])
+            ->whereIn('status_kehadiran', ['present', 'permit', 'sick'])
             ->count();
         $absentCount = max(0, $totalWorkingDays - $recordedDays);
 
@@ -229,7 +230,7 @@ class ProfileController extends Controller
         $currentDate = $startDate->copy();
 
         while ($currentDate <= $endDate) {
-            if ($currentDate->dayOfWeek >= Carbon::MONDAY && $currentDate->dayOfWeek <= Carbon::FRIDAY) {
+            if ($currentDate->dayOfWeek >= Carbon::MONDAY && $currentDate->dayOfWeek <= Carbon::SATURDAY) {
                 $workingDays++;
             }
             $currentDate->addDay();
@@ -238,26 +239,27 @@ class ProfileController extends Controller
         return $workingDays;
     }
 
-    private function getTotalWorkingDaysAllTime($karyawan)
+    private function getTotalWorkingDaysAllTime($karyawan): int
     {
-        if (!$karyawan->tanggal_bergabung) {
-            return 0;
+        if (!$karyawan->tanggal_bergabung) return 0;
+
+        $start = Carbon::parse($karyawan->tanggal_bergabung)->startOfDay();
+        $end   = Carbon::now()->startOfDay();
+
+        if ($start->gt($end)) return 0;
+
+        $totalDays = $start->diffInDays($end) + 1;
+        $fullWeeks = intdiv($totalDays, 7);
+        $weekdays  = $fullWeeks * 6;
+        $extra     = $totalDays % 7;
+        $dow       = $start->dayOfWeek; // 0=Sun … 6=Sat
+
+        for ($i = 0; $i < $extra; $i++) {
+            $d = ($dow + $i) % 7;
+            if ($d >= 1 && $d <= 6) $weekdays++;
         }
 
-        $startDate = Carbon::parse($karyawan->tanggal_bergabung);
-        $endDate = Carbon::now();
-
-        $workingDays = 0;
-        $currentDate = $startDate->copy();
-
-        while ($currentDate <= $endDate) {
-            if ($currentDate->dayOfWeek >= Carbon::MONDAY && $currentDate->dayOfWeek <= Carbon::FRIDAY) {
-                $workingDays++;
-            }
-            $currentDate->addDay();
-        }
-
-        return $workingDays;
+        return $weekdays;
     }
 
     private function calculateLateCount($karyawanId, $month, $year)
@@ -267,7 +269,7 @@ class ProfileController extends Controller
         $absensi = AbsensiKaryawan::where('karyawan_id', $karyawanId)
             ->whereMonth('tanggal', $month)
             ->whereYear('tanggal', $year)
-            ->whereIn('status_kehadiran', ['hadir', 'masuk'])
+            ->where('status_kehadiran', 'present')
             ->whereNotNull('jam_masuk')
             ->get();
 

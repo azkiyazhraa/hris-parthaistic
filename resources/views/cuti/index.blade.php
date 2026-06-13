@@ -80,12 +80,12 @@
                             class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none">
 
                             <option value="">All Leave Types</option>
-                            <option value="tahunan">Annual Leave</option>
-                            <option value="sakit">Sick Leave</option>
-                            <option value="melahirkan">Parental Leave</option>
-                            <option value="penting">Personal Leave</option>
-                            <option value="ibadah">Religious Leave</option>
-                            <option value="lainnya">Other Leave</option>
+                            <option value="Annual">Annual Leave</option>
+                            <option value="Sick">Sick Leave</option>
+                            <option value="Parental">Parental Leave</option>
+                            <option value="Personal">Personal Leave</option>
+                            <option value="Ibadah">Religious Leave</option>
+                            <option value="Other">Other Leave</option>
                         </select>
                     </div>
 
@@ -100,9 +100,9 @@
                     </button>
                 </div>
 
-                @include('cuti.create')
-
             </div>
+
+            @include('cuti.create')
 
             <div class="overflow-x-auto">
                 <table class="w-full min-w-[800px] md:min-w-full text-sm text-left">
@@ -117,25 +117,39 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @php
+                            $leaveTypeMap = [
+                                'tahunan'   => ['label' => 'Annual Leave',   'key' => 'annual'],
+                                'sakit'     => ['label' => 'Sick Leave',     'key' => 'sick'],
+                                'melahirkan'=> ['label' => 'Parental Leave', 'key' => 'parental'],
+                                'penting'   => ['label' => 'Personal Leave', 'key' => 'personal'],
+                                'ibadah'    => ['label' => 'Religious Leave','key' => 'ibadah'],
+                                'lainnya'   => ['label' => 'Other Leave',    'key' => 'other'],
+                            ];
+                        @endphp
                         @forelse($cuti as $item)
+                            @php
+                                $leaveInfo = $leaveTypeMap[strtolower($item->jenis_cuti)] ?? ['label' => ucfirst($item->jenis_cuti), 'key' => strtolower($item->jenis_cuti)];
+                            @endphp
                             <tr class="leave-row border-b border-gray-100 hover:bg-blue-50/40 transition"
                                 data-status="{{ strtolower($item->status) }}"
-                                data-type="{{ strtolower($item->jenis_cuti) }}">
-                                <td class="py-3 text-gray-700">{{ $item->jenis_cuti }}</td>
+                                data-type="{{ $leaveInfo['key'] }}">
+                                <td class="py-3 text-gray-700">{{ $leaveInfo['label'] }}</td>
                                 <td class="py-3 text-gray-700">{{ date('d M Y', strtotime($item->tanggal_mulai)) }}</td>
                                 <td class="py-3 text-gray-700">{{ date('d M Y', strtotime($item->tanggal_selesai)) }}</td>
                                 <td class="py-3 text-gray-700">{{ $item->total_hari }}</td>
                                 <td class="py-3">
                                     @php
-    $badge = match ($item->status) {
-        'pending' => 'bg-yellow-100 text-yellow-800',
-        'disetujui' => 'bg-green-100 text-green-800',
-        'ditolak' => 'bg-red-100 text-red-800',
-    };
+                                        $statusMap = [
+                                            'pending'   => ['label' => 'Pending',  'badge' => 'bg-yellow-100 text-yellow-800'],
+                                            'disetujui' => ['label' => 'Approved', 'badge' => 'bg-green-100 text-green-800'],
+                                            'ditolak'   => ['label' => 'Rejected', 'badge' => 'bg-red-100 text-red-800'],
+                                        ];
+                                        $statusInfo = $statusMap[strtolower($item->status)] ?? ['label' => ucfirst($item->status), 'badge' => 'bg-gray-100 text-gray-700'];
                                     @endphp
 
-                                    <span class="px-3 py-1 rounded-full text-xs font-medium {{ $badge }}">
-                                        {{ ucfirst($item->status) }}
+                                    <span class="px-3 py-1 rounded-full text-xs font-medium {{ $statusInfo['badge'] }}">
+                                        {{ $statusInfo['label'] }}
                                     </span>
                                 </td>
                                 <td class="py-3">
@@ -225,23 +239,14 @@
 
                     const reason = data.alasan || '-';
 
-                    let statusClass = 'bg-gray-100 text-gray-700';
-
-                    switch ((data.status || '').toLowerCase()) {
-                        case 'pending':
-                            statusClass = 'bg-pending-100 text-pending-700';
-                            break;
-                        case 'disetujui':
-                            statusClass = 'bg-green-100 text-green-700';
-                            break;
-                        case 'ditolak':
-                            statusClass = 'bg-red-100 text-red-700';
-                            break;
-                    }
-
-                    const statusText = data.status ?
-                        data.status.charAt(0).toUpperCase() + data.status.slice(1).toLowerCase() :
-                        '-';
+                    const statusMap = {
+                        'pending'   : { text: 'Pending',  cls: 'bg-yellow-100 text-yellow-700' },
+                        'disetujui' : { text: 'Approved', cls: 'bg-green-100 text-green-700'   },
+                        'ditolak'   : { text: 'Rejected', cls: 'bg-red-100 text-red-700'       },
+                    };
+                    const statusInfo  = statusMap[(data.status || '').toLowerCase()] || { text: data.status || '-', cls: 'bg-gray-100 text-gray-700' };
+                    const statusClass = statusInfo.cls;
+                    const statusText  = statusInfo.text;
 
                     const notes = data.catatan;
 

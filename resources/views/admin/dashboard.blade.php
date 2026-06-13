@@ -124,15 +124,15 @@
                     <div class="flex justify-between mb-4">
                         <div class="grid grid-cols-4 text-center gap-4">
                             <div class="flex items-end justify-center">
-                                <p class="text-2xl font-bold text-blue-900 leading-none">{{ $statistics['hadir'] }}</p>
+                                <p class="text-2xl font-bold text-blue-900 leading-none">{{ $statistics['present'] }}</p>
                                 <p class="text-xs text-gray-500 ml-1">Present</p>
                             </div>
                             <div class="flex items-end justify-center">
-                                <p class="text-2xl font-bold text-blue-900 leading-none">{{ $statistics['izin'] }}</p>
+                                <p class="text-2xl font-bold text-blue-900 leading-none">{{ $statistics['permit'] }}</p>
                                 <p class="text-xs text-gray-500 ml-1">Permission</p>
                             </div>
                             <div class="flex items-end justify-center">
-                                <p class="text-2xl font-bold text-blue-900 leading-none">{{ $statistics['sakit'] }}</p>
+                                <p class="text-2xl font-bold text-blue-900 leading-none">{{ $statistics['sick'] }}</p>
                                 <p class="text-xs text-gray-500 ml-1">Sick</p>
                             </div>
                             <div class="flex items-end justify-center">
@@ -180,10 +180,10 @@
                                                 $status = $item->status_kehadiran;
                                                 $statusMap = [
                                                     'pending' => ['Pending', 'bg-yellow-100 text-yellow-800'],
-                                                    'hadir' => ['Hadir', 'bg-green-100 text-green-800'],
-                                                    'izin' => ['Izin', 'bg-blue-100 text-blue-800'],
-                                                    'sakit' => ['Sakit', 'bg-purple-100 text-purple-800'],
-                                                    'alpha' => ['Alpha', 'bg-red-100 text-red-800'],
+                                                    'present' => ['Present', 'bg-green-100 text-green-800'],
+                                                    'permit' => ['Permit', 'bg-blue-100 text-blue-800'],
+                                                    'sick' => ['Sick', 'bg-purple-100 text-purple-800'],
+                                                    'absent' => ['Absent', 'bg-red-100 text-red-800'],
                                                 ];
                                                 [$label, $class] = $statusMap[$status] ?? ['Unknown', 'bg-gray-100 text-gray-800'];
                                             @endphp

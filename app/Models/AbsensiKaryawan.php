@@ -50,20 +50,26 @@ class AbsensiKaryawan extends Model
     const CHANGE_DAY_APPROVED = 'approved';
     const CHANGE_DAY_REJECTED = 'rejected';
 
-    // Status constants untuk Absensi Regular
+    // Status constants for regular attendance
     const STATUS_PENDING = 'pending';
-    const STATUS_HADIR = 'hadir';
-    const STATUS_IZIN = 'izin';
-    const STATUS_SAKIT = 'sakit';
-    const STATUS_ALPHA = 'alpha';
-    const STATUS_MASUK = 'masuk'; // Untuk absensi masuk
+    const STATUS_PRESENT = 'present';
+    const STATUS_PERMIT  = 'permit';
+    const STATUS_SICK    = 'sick';
+    const STATUS_ABSENT  = 'absent';
+
+    // Keep old names as aliases for backward compatibility during transition
+    const STATUS_HADIR = 'present';
+    const STATUS_IZIN  = 'permit';
+    const STATUS_SAKIT = 'sick';
+    const STATUS_ALPHA = 'absent';
+    const STATUS_MASUK = 'present';
 
     public function getChangeDayStatusBadgeAttribute()
     {
         return match($this->change_day_status) {
-            self::CHANGE_DAY_PENDING => '<span class="bg-yellow-200 text-yellow-800 py-1 px-3 rounded-full text-xs">Pending</span>',
-            self::CHANGE_DAY_APPROVED => '<span class="bg-green-200 text-green-800 py-1 px-3 rounded-full text-xs">Disetujui</span>',
-            self::CHANGE_DAY_REJECTED => '<span class="bg-red-200 text-red-800 py-1 px-3 rounded-full text-xs">Ditolak</span>',
+            self::CHANGE_DAY_PENDING  => '<span class="bg-yellow-200 text-yellow-800 py-1 px-3 rounded-full text-xs">Pending</span>',
+            self::CHANGE_DAY_APPROVED => '<span class="bg-green-200 text-green-800 py-1 px-3 rounded-full text-xs">Approved</span>',
+            self::CHANGE_DAY_REJECTED => '<span class="bg-red-200 text-red-800 py-1 px-3 rounded-full text-xs">Rejected</span>',
             default => '<span class="bg-gray-200 text-gray-800 py-1 px-3 rounded-full text-xs">' . ucfirst($this->change_day_status ?? '') . '</span>',
         };
     }
@@ -72,15 +78,21 @@ class AbsensiKaryawan extends Model
     {
         $colors = [
             self::STATUS_PENDING => 'yellow',
-            self::STATUS_HADIR => 'green',
-            self::STATUS_IZIN => 'blue',
-            self::STATUS_SAKIT => 'purple',
-            self::STATUS_ALPHA => 'red',
-            self::STATUS_MASUK => 'green',
+            self::STATUS_PRESENT => 'green',
+            self::STATUS_PERMIT  => 'blue',
+            self::STATUS_SICK    => 'purple',
+            self::STATUS_ABSENT  => 'red',
+        ];
+        $labels = [
+            self::STATUS_PENDING => 'PENDING',
+            self::STATUS_PRESENT => 'PRESENT',
+            self::STATUS_PERMIT  => 'PERMIT',
+            self::STATUS_SICK    => 'SICK',
+            self::STATUS_ABSENT  => 'ABSENT',
         ];
         $color = $colors[$this->status_kehadiran] ?? 'gray';
-        $text = strtoupper($this->status_kehadiran == 'masuk' ? 'HADIR' : $this->status_kehadiran);
-        
+        $text  = $labels[$this->status_kehadiran] ?? strtoupper($this->status_kehadiran);
+
         return "<span class='bg-{$color}-200 text-{$color}-800 py-1 px-3 rounded-full text-xs'>{$text}</span>";
     }
 

@@ -144,6 +144,7 @@ Route::middleware(['auth', 'admin'])
         Route::put('/karyawan/{id}', [AdminDashboardController::class, 'updateKaryawan'])->name('karyawan.update');
         Route::delete('/karyawan/{id}', [AdminDashboardController::class, 'destroyKaryawan'])->name('karyawan.destroy');
         Route::get('/karyawan/{id}/show-password', [AdminDashboardController::class, 'showPassword'])->name('karyawan.show-password');
+        Route::get('/karyawan/{id}/employee-detail', [AdminDashboardController::class, 'getEmployeeDetail'])->name('karyawan.employee-detail');
 
         // Absensi Management for Admin/HR
         Route::prefix('absensi')
@@ -205,6 +206,7 @@ Route::middleware(['auth', 'admin'])
                 Route::get('/bulk', [PerformaController::class, 'adminBulkCreate'])->name('bulk');
                 Route::post('/bulk', [PerformaController::class, 'adminBulkStore'])->name('bulk.store');
                 Route::get('/karyawan/{id}', [PerformaController::class, 'getKaryawanData'])->name('get-karyawan');
+                Route::get('/attendance-rate', [PerformaController::class, 'getAttendanceRate'])->name('attendance-rate');
                 Route::post('/', [PerformaController::class, 'adminStore'])->name('store');
                 Route::get('/{id}/edit', [PerformaController::class, 'adminEdit'])->name('edit');
                 Route::put('/{id}', [PerformaController::class, 'adminUpdate'])->name('update');

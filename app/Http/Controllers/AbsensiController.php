@@ -61,11 +61,11 @@ class AbsensiController extends Controller
     {
         // Validasi dasar dulu
         $request->validate([
-            'jenis_absensi' => 'required|in:masuk,izin,sakit,change_day',
+            'jenis_absensi' => 'required|in:checkin,permit,sick,change_day',
         ]);
 
         // Validasi per jenis
-        if ($request->jenis_absensi === 'masuk') {
+        if ($request->jenis_absensi === 'checkin') {
             $request->validate([
                 'jam_masuk' => 'required',
                 'lokasi_masuk' => 'required|string|max:255',
@@ -126,7 +126,7 @@ class AbsensiController extends Controller
                     DB::rollBack();
 
                     return redirect()->route('absensi.index')
-                        ->with('error', 'Anda sudah memiliki pengajuan change day untuk periode tersebut');
+                        ->with('error', 'You already have a change day request for that period');
                 }
 
                 AbsensiKaryawan::create([
@@ -158,11 +158,11 @@ class AbsensiController extends Controller
                 DB::commit();
 
                 return redirect()->route('absensi.index')
-                    ->with('success', 'Pengajuan change day berhasil dikirim, menunggu persetujuan HR/Admin');
+                    ->with('success', 'Change day request submitted, pending HR/Admin approval');
             }
 
-            // ── ABSENSI MASUK ────────────────────────────────────────────────
-            elseif ($request->jenis_absensi === 'masuk') {
+            // ── CHECK-IN ─────────────────────────────────────────────────────
+            elseif ($request->jenis_absensi === 'checkin') {
                 // Cek apakah sudah ada absensi hari ini (apapun jenisnya, bukan change day)
                 $existingAbsensi = AbsensiKaryawan::where('karyawan_id', $karyawan->id)
                     ->whereDate('tanggal', $today)
@@ -172,8 +172,8 @@ class AbsensiController extends Controller
                 if ($existingAbsensi) {
                     DB::rollBack();
                     $pesan = $existingAbsensi->jam_masuk
-                        ? 'Anda sudah melakukan absensi masuk hari ini'
-                        : 'Anda sudah memiliki pengajuan (izin/sakit) untuk hari ini';
+                        ? 'You have already checked in today'
+                        : 'You already have a permit/sick submission for today';
 
                     return redirect()->route('absensi.index')->with('error', $pesan);
                 }
@@ -193,11 +193,11 @@ class AbsensiController extends Controller
                 DB::commit();
 
                 return redirect()->route('absensi.index')
-                    ->with('success', 'Absensi masuk berhasil ditambahkan, menunggu persetujuan HR/Admin');
+                    ->with('success', 'Check-in submitted successfully, pending HR/Admin approval');
             }
 
-            // ── IZIN ─────────────────────────────────────────────────────────
-            elseif ($request->jenis_absensi === 'izin') {
+            // ── PERMIT ───────────────────────────────────────────────────────
+            elseif ($request->jenis_absensi === 'permit') {
                 $existingAbsensi = AbsensiKaryawan::where('karyawan_id', $karyawan->id)
                     ->whereDate('tanggal', $today)
                     ->where('is_change_day', false)
@@ -207,15 +207,15 @@ class AbsensiController extends Controller
                     DB::rollBack();
 
                     return redirect()->route('absensi.index')
-                        ->with('error', 'Anda sudah melakukan pengajuan untuk hari ini');
+                        ->with('error', 'You have already submitted attendance for today');
                 }
 
                 AbsensiKaryawan::create([
                     'karyawan_id' => $karyawan->id,
                     'nama_karyawan' => $karyawan->nama_lengkap,
                     'tanggal' => $today,
-                    'status_kehadiran' => 'izin',
-                    'keterangan' => $request->keterangan ?: 'Izin tidak masuk',
+                    'status_kehadiran' => AbsensiKaryawan::STATUS_PERMIT,
+                    'keterangan' => $request->keterangan ?: 'Permit',
                     'attachment' => $attachmentPath,
                     'is_change_day' => false,
                 ]);
@@ -223,11 +223,11 @@ class AbsensiController extends Controller
                 DB::commit();
 
                 return redirect()->route('absensi.index')
-                    ->with('success', 'Pengajuan izin berhasil dikirim');
+                    ->with('success', 'Permit request submitted successfully');
             }
 
-            // ── SAKIT ────────────────────────────────────────────────────────
-            elseif ($request->jenis_absensi === 'sakit') {
+            // ── SICK ─────────────────────────────────────────────────────────
+            elseif ($request->jenis_absensi === 'sick') {
                 $existingAbsensi = AbsensiKaryawan::where('karyawan_id', $karyawan->id)
                     ->whereDate('tanggal', $today)
                     ->where('is_change_day', false)
@@ -237,15 +237,15 @@ class AbsensiController extends Controller
                     DB::rollBack();
 
                     return redirect()->route('absensi.index')
-                        ->with('error', 'Anda sudah melakukan pengajuan untuk hari ini');
+                        ->with('error', 'You have already submitted attendance for today');
                 }
 
                 AbsensiKaryawan::create([
                     'karyawan_id' => $karyawan->id,
                     'nama_karyawan' => $karyawan->nama_lengkap,
                     'tanggal' => $today,
-                    'status_kehadiran' => 'sakit',
-                    'keterangan' => $request->keterangan ?: 'Sakit',
+                    'status_kehadiran' => AbsensiKaryawan::STATUS_SICK,
+                    'keterangan' => $request->keterangan ?: 'Sick',
                     'attachment' => $attachmentPath,
                     'is_change_day' => false,
                 ]);
@@ -253,20 +253,20 @@ class AbsensiController extends Controller
                 DB::commit();
 
                 return redirect()->route('absensi.index')
-                    ->with('success', 'Pengajuan sakit berhasil dikirim');
+                    ->with('success', 'Sick leave request submitted successfully');
             }
 
             DB::commit();
 
             return redirect()->route('absensi.index')
-                ->with('success', 'Absensi berhasil ditambahkan');
+                ->with('success', 'Attendance submitted successfully');
 
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Absensi store error: '.$e->getMessage());
 
             return redirect()->route('absensi.index')
-                ->with('error', 'Terjadi kesalahan: '.$e->getMessage());
+                ->with('error', 'An error occurred: '.$e->getMessage());
         }
     }
 
@@ -279,7 +279,7 @@ class AbsensiController extends Controller
         if ($absensi->is_change_day) {
             if ($absensi->change_day_status !== AbsensiKaryawan::CHANGE_DAY_PENDING) {
                 return redirect()->route('absensi.index')
-                    ->with('error', 'Pengajuan change day yang sudah diproses tidak dapat diedit');
+                    ->with('error', 'A processed change day request cannot be edited');
             }
 
             return view('absensi.edit_change_day', compact('absensi'));
@@ -287,12 +287,12 @@ class AbsensiController extends Controller
 
         if ($absensi->status_kehadiran !== AbsensiKaryawan::STATUS_PENDING) {
             return redirect()->route('absensi.index')
-                ->with('error', 'Absensi yang sudah disetujui tidak dapat diedit');
+                ->with('error', 'Approved attendance cannot be edited');
         }
 
         if ($absensi->jam_pulang) {
             return redirect()->route('absensi.index')
-                ->with('error', 'Absensi yang sudah pulang tidak dapat diedit');
+                ->with('error', 'Attendance with check-out recorded cannot be edited');
         }
 
         return view('absensi.edit', compact('absensi'));
@@ -307,7 +307,7 @@ class AbsensiController extends Controller
             if ($absensi->change_day_status !== AbsensiKaryawan::CHANGE_DAY_PENDING) {
                 return redirect()
                     ->route('absensi.index')
-                    ->with('error', 'Pengajuan change day yang sudah diproses tidak dapat diedit');
+                    ->with('error', 'A processed change day request cannot be edited');
             }
 
             $validated = $request->validate([
@@ -342,14 +342,14 @@ class AbsensiController extends Controller
 
             return redirect()
                 ->route('absensi.index')
-                ->with('success', 'Pengajuan change day berhasil diupdate');
+                ->with('success', 'Change day request updated successfully');
         }
 
         // Regular absensi hanya bisa diedit sebelum check-out
         if ($absensi->jam_pulang) {
             return redirect()
                 ->route('absensi.index')
-                ->with('error', 'Absensi yang sudah check-out tidak dapat diedit');
+                ->with('error', 'Attendance with check-out recorded cannot be edited');
         }
 
         $updateData = [
@@ -371,7 +371,7 @@ class AbsensiController extends Controller
 
         return redirect()
             ->route('absensi.index')
-            ->with('success', 'Absensi berhasil diupdate');
+            ->with('success', 'Attendance updated successfully');
     }
 
     public function absensiPulang(Request $request, $id)
@@ -383,12 +383,12 @@ class AbsensiController extends Controller
 
         if ($absensi->jam_pulang) {
             return redirect()->route('absensi.index')
-                ->with('error', 'Anda sudah melakukan absensi pulang');
+                ->with('error', 'You have already checked out');
         }
 
         if (! $absensi->jam_masuk) {
             return redirect()->route('absensi.index')
-                ->with('error', 'Anda belum melakukan absensi masuk');
+                ->with('error', 'You have not checked in yet');
         }
 
         $request->validate([
@@ -424,12 +424,12 @@ class AbsensiController extends Controller
             DB::commit();
 
             return redirect()->route('absensi.index')
-                ->with('success', 'Absensi pulang berhasil dicatat. Total jam kerja: '.number_format($totalJam, 2).' jam');
+                ->with('success', 'Check-out recorded. Total working hours: '.number_format($totalJam, 2).'h');
         } catch (\Exception $e) {
             DB::rollBack();
 
             return redirect()->route('absensi.index')
-                ->with('error', 'Terjadi kesalahan: '.$e->getMessage());
+                ->with('error', 'An error occurred: '.$e->getMessage());
         }
     }
 
@@ -444,7 +444,7 @@ class AbsensiController extends Controller
         $absensi->delete();
 
         return redirect()->route('absensi.index')
-            ->with('success', 'Pengajuan change day berhasil dibatalkan');
+            ->with('success', 'Change day request cancelled successfully');
     }
 
     // ==================== ADMIN/HR SECTION ====================
@@ -458,10 +458,10 @@ class AbsensiController extends Controller
 
         $statistics = [
             'total' => AbsensiKaryawan::where('is_change_day', false)->count(),
-            'pending' => AbsensiKaryawan::where('status_kehadiran', 'Pending')->where('is_change_day', false)->count(),
-            'hadir' => AbsensiKaryawan::where('status_kehadiran', AbsensiKaryawan::STATUS_HADIR)->where('is_change_day', false)->count(),
-            'izin' => AbsensiKaryawan::where('status_kehadiran', AbsensiKaryawan::STATUS_IZIN)->where('is_change_day', false)->count(),
-            'sakit' => AbsensiKaryawan::where('status_kehadiran', AbsensiKaryawan::STATUS_SAKIT)->where('is_change_day', false)->count(),
+            'pending' => AbsensiKaryawan::where('status_kehadiran', AbsensiKaryawan::STATUS_PENDING)->where('is_change_day', false)->count(),
+            'present' => AbsensiKaryawan::where('status_kehadiran', AbsensiKaryawan::STATUS_PRESENT)->where('is_change_day', false)->count(),
+            'permit' => AbsensiKaryawan::where('status_kehadiran', AbsensiKaryawan::STATUS_PERMIT)->where('is_change_day', false)->count(),
+            'sick' => AbsensiKaryawan::where('status_kehadiran', AbsensiKaryawan::STATUS_SICK)->where('is_change_day', false)->count(),
         ];
 
         return view('admin.absensi.index', compact('absensi', 'statistics'));
@@ -486,7 +486,7 @@ class AbsensiController extends Controller
             if ($request->change_day_status === AbsensiKaryawan::CHANGE_DAY_APPROVED) {
                 $updateData['change_day_disetujui_pada'] = now();
                 $updateData['change_day_disetujui_oleh'] = Auth::id();
-                $updateData['status_kehadiran'] = AbsensiKaryawan::STATUS_HADIR;
+                $updateData['status_kehadiran'] = AbsensiKaryawan::STATUS_PRESENT;
                 $updateData['jam_masuk'] = $absensi->change_day_jam_mulai;
                 $updateData['jam_pulang'] = $absensi->change_day_jam_selesai;
 
@@ -495,19 +495,19 @@ class AbsensiController extends Controller
                     $updateData['total_jam_kerja'] = $totalJam;
                 }
             } elseif ($request->change_day_status === AbsensiKaryawan::CHANGE_DAY_REJECTED) {
-                $updateData['status_kehadiran'] = AbsensiKaryawan::STATUS_ALPHA;
+                $updateData['status_kehadiran'] = AbsensiKaryawan::STATUS_ABSENT;
             }
 
             $absensi->update($updateData);
 
-            $statusText = $request->change_day_status === 'approved' ? 'disetujui' : 'ditolak';
-            $message = 'Pengajuan change day Anda pada tanggal '.
+            $statusText = $request->change_day_status === 'approved' ? 'approved' : 'rejected';
+            $message = 'Your change day request for '.
                 ($absensi->change_day_tanggal_awal ? $absensi->change_day_tanggal_awal->format('d/m/Y') : '-').
-                " telah {$statusText}";
+                " has been {$statusText}";
 
             Notifikasi::create([
                 'user_id' => $absensi->karyawan_id,
-                'judul' => 'Status Change Day Diupdate',
+                'judul' => 'Change Day Status Updated',
                 'pesan' => $message,
                 'tipe_notifikasi' => 'absensi',
             ]);
@@ -515,13 +515,13 @@ class AbsensiController extends Controller
             DB::commit();
 
             return redirect()->route('admin.changeday.index')
-                ->with('success', 'Status change day berhasil diupdate');
+                ->with('success', 'Change day status updated successfully');
 
         } catch (\Exception $e) {
             DB::rollBack();
 
             return redirect()->route('admin.absensi.index')
-                ->with('error', 'Terjadi kesalahan: '.$e->getMessage());
+                ->with('error', 'An error occurred: '.$e->getMessage());
         }
     }
 
@@ -532,14 +532,14 @@ class AbsensiController extends Controller
         DB::beginTransaction();
         try {
             $request->validate([
-                'status_kehadiran' => 'required|in:pending,hadir,izin,sakit',
+                'status_kehadiran' => 'required|in:pending,present,permit,sick',
             ]);
 
             $updateData = [
                 'status_kehadiran' => $request->status_kehadiran,
             ];
 
-            if ($request->status_kehadiran === AbsensiKaryawan::STATUS_HADIR) {
+            if ($request->status_kehadiran === AbsensiKaryawan::STATUS_PRESENT) {
                 $updateData['jam_masuk'] = $absensi->jam_masuk ?: now()->format('H:i');
                 $updateData['jam_pulang'] = $absensi->jam_pulang ?: now()->format('H:i');
 
@@ -561,21 +561,21 @@ class AbsensiController extends Controller
 
             Notifikasi::create([
                 'user_id' => $absensi->karyawan_id,
-                'judul' => 'Status Absensi Diupdate',
-                'pesan' => "Status absensi Anda pada tanggal {$absensi->tanggal->format('d/m/Y')} telah diupdate menjadi {$request->status_kehadiran}",
+                'judul' => 'Attendance Status Updated',
+                'pesan' => "Your attendance on {$absensi->tanggal->format('d/m/Y')} has been updated to {$request->status_kehadiran}",
                 'tipe_notifikasi' => 'absensi',
             ]);
 
             DB::commit();
 
             return redirect()->route('admin.absensi.index')
-                ->with('success', 'Status absensi berhasil diupdate');
+                ->with('success', 'Attendance status updated successfully');
 
         } catch (\Exception $e) {
             DB::rollBack();
 
             return redirect()->route('admin.absensi.index')
-                ->with('error', 'Terjadi kesalahan: '.$e->getMessage());
+                ->with('error', 'An error occurred: '.$e->getMessage());
         }
     }
 

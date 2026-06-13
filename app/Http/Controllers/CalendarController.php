@@ -262,24 +262,25 @@ class CalendarController extends Controller
             $statusText = ucfirst($item->status_kehadiran);
 
             switch ($item->status_kehadiran) {
-                case 'hadir':
-                case 'masuk':
+                case 'present':
                     $statusColor = 'green';
                     $statusIcon = '✅';
-                    $statusText = 'Hadir';
+                    $statusText = 'Present';
                     break;
-                case 'izin':
+                case 'permit':
                     $statusColor = 'blue';
                     $statusIcon = '📝';
+                    $statusText = 'Permit';
                     break;
-                case 'sakit':
+                case 'sick':
                     $statusColor = 'purple';
                     $statusIcon = '🤒';
+                    $statusText = 'Sick';
                     break;
-                case 'alpha':
+                case 'absent':
                     $statusColor = 'red';
                     $statusIcon = '❌';
-                    $statusText = 'Alpha';
+                    $statusText = 'Absent';
                     break;
             }
 

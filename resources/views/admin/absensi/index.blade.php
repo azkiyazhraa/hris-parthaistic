@@ -30,7 +30,7 @@
                     <div class="p-5 border-b lg:border-b-0 border-r border-gray-100 text-center">
                         <p class="text-xs text-green-600 mb-1 uppercase tracking-wide">Present</p>
                         <p class="text-2xl font-semibold text-green-600">
-                            {{ $statistics['hadir'] ?? 0 }}
+                            {{ $statistics['present'] ?? 0 }}
                         </p>
                     </div>
 
@@ -44,14 +44,14 @@
                     <div class="p-5 border-b lg:border-b-0 border-r border-gray-100 text-center">
                         <p class="text-xs text-purple-600 mb-1 uppercase tracking-wide">Permission</p>
                         <p class="text-2xl font-semibold text-purple-600">
-                            {{ $statistics['izin'] ?? 0 }}
+                            {{ $statistics['permit'] ?? 0 }}
                         </p>
                     </div>
 
                     <div class="p-5 border-b lg:border-b-0 border-r border-gray-100 text-center">
                         <p class="text-xs text-red-600 mb-1 uppercase tracking-wide">Sick</p>
                         <p class="text-2xl font-semibold text-red-600">
-                            {{ $statistics['sakit'] ?? 0 }}
+                            {{ $statistics['sick'] ?? 0 }}
                         </p>
                     </div>
                 </div>
@@ -83,10 +83,10 @@
 
                                 <option value="">All Status</option>
                                 <option value="pending">Pending</option>
-                                <option value="hadir">Present</option>
-                                <option value="izin">Permission</option>
-                                <option value="sakit">Sick</option>
-                                <option value="alpha">Alpha</option>
+                                <option value="present">Present</option>
+                                <option value="permit">Permission</option>
+                                <option value="sick">Sick</option>
+                                <option value="absent">Absent</option>
                                 <option value="approved">Approved</option>
                                 <option value="rejected">Rejected</option>
                             </select>
@@ -101,7 +101,6 @@
                             <tr class="text-gray-400 font-medium text-xs uppercase tracking-wide border-b">
                                 <th class="text-left pb-3 whitespace-nowrap">Name</th>
                                 <th class="text-left pb-3 whitespace-nowrap">Role</th>
-                                <th class="text-left pb-3 whitespace-nowrap">Type</th>
                                 <th class="text-left pb-3 whitespace-nowrap">Date</th>
                                 <th class="text-left pb-3 whitespace-nowrap">Check-In</th>
                                 <th class="text-left pb-3 whitespace-nowrap">Check-Out</th>
@@ -151,16 +150,7 @@
                                         </span>
                                     </td>
 
-                                    <td class="py-3">
-                                        @if ($item->is_change_day)
-                                            <span
-                                                class="bg-yellow-200 text-yellow-800 text-xs px-2 py-0.5 rounded-full">Change
-                                                Day</span>
-                                        @else
-                                            <span
-                                                class="bg-blue-200 text-blue-800 text-xs px-2 py-0.5 rounded-full">Regular</span>
-                                        @endif
-                                    </td>
+                                    
 
                                     <td class="py-3">
                                         @if ($item->is_change_day)
@@ -199,10 +189,10 @@
                                         @php
                                             $statusStyles = [
                                                 'pending' => 'bg-yellow-100 text-yellow-800',
-                                                'hadir' => 'bg-green-100 text-green-800',
-                                                'izin' => 'bg-blue-100 text-blue-800',
-                                                'sakit' => 'bg-purple-100 text-purple-800',
-                                                'alpha' => 'bg-red-100 text-red-800',
+                                                'present' => 'bg-green-100 text-green-800',
+                                                'permit' => 'bg-blue-100 text-blue-800',
+                                                'sick' => 'bg-purple-100 text-purple-800',
+                                                'absent' => 'bg-red-100 text-red-800',
                                             ];
 
                                             $currentStatusClass =
@@ -218,17 +208,17 @@
                                                 <option value="pending"
                                                     {{ $item->status_kehadiran == 'pending' ? 'selected' : '' }}>
                                                     Pending</option>
-                                                <option value="hadir"
-                                                    {{ $item->status_kehadiran == 'hadir' ? 'selected' : '' }}>Hadir
+                                                <option value="present"
+                                                    {{ $item->status_kehadiran == 'present' ? 'selected' : '' }}>Present
                                                 </option>
-                                                <option value="izin"
-                                                    {{ $item->status_kehadiran == 'izin' ? 'selected' : '' }}>Izin
+                                                <option value="permit"
+                                                    {{ $item->status_kehadiran == 'permit' ? 'selected' : '' }}>Permit
                                                 </option>
-                                                <option value="sakit"
-                                                    {{ $item->status_kehadiran == 'sakit' ? 'selected' : '' }}>Sakit
+                                                <option value="sick"
+                                                    {{ $item->status_kehadiran == 'sick' ? 'selected' : '' }}>Sick
                                                 </option>
-                                                <option value="alpha"
-                                                    {{ $item->status_kehadiran == 'alpha' ? 'selected' : '' }}>Alpha
+                                                <option value="absent"
+                                                    {{ $item->status_kehadiran == 'absent' ? 'selected' : '' }}>Absent
                                                 </option>
                                             </select>
                                         </form>
@@ -280,12 +270,12 @@
     <script>
         function updateStatus(id) {
             Swal.fire({
-                title: 'Ubah status absensi?',
-                text: 'Perubahan akan langsung disimpan.',
+                title: 'Change absence status?',
+                text: 'Changes will be saved immediately.',
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonText: 'Ya, ubah',
-                cancelButtonText: 'Batal',
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'Cancel',
                 reverseButtons: true,
                 buttonsStyling: false,
                 customClass: {
@@ -301,12 +291,12 @@
 
         function updateChangeDayStatus(id) {
             Swal.fire({
-                title: 'Ubah status change day?',
-                text: 'Perubahan akan langsung disimpan.',
+                title: 'Change status change day?',
+                text: 'Changes will be saved immediately.',
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonText: 'Ya, ubah',
-                cancelButtonText: 'Batal',
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'Cancel',
                 reverseButtons: true,
                 buttonsStyling: false,
                 customClass: {
@@ -354,19 +344,19 @@
                     let statusClass = 'bg-gray-100 text-gray-700';
 
                     switch ((data.status_kehadiran || '').toLowerCase()) {
-                        case 'hadir':
+                        case 'present':
                             statusClass = 'bg-emerald-100 text-emerald-700';
                             break;
-                        case 'izin':
-                            statusClass = 'bg-yellow-100 text-yellow-700';
+                        case 'permit':
+                            statusClass = 'bg-blue-100 text-blue-700';
                             break;
-                        case 'sakit':
+                        case 'sick':
                             statusClass = 'bg-purple-100 text-purple-700';
                             break;
                         case 'change day pending':
                             statusClass = 'bg-yellow-100 text-yellow-700';
                             break;
-                        case 'alpha':
+                        case 'absent':
                             statusClass = 'bg-red-100 text-red-700';
                             break;
                     }

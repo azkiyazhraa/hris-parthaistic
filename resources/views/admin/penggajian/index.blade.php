@@ -270,7 +270,7 @@
                                 <div class="grid grid-cols-2 gap-x-8 gap-y-3 text-sm">
                                 <div>
                                     <p class="text-gray-400 text-xs">Name</p>
-                                    <p class="font-semibold text-gray-800">${name}</p>
+                                    <p class="font-semibold text-gray-800">${nama}</p>
                                 </div>
 
                                 <div>
@@ -292,7 +292,7 @@
 
                             <div class="w-20 h-20 rounded-full border-4 border-blue-900 overflow-hidden bg-gray-100 shrink-0">
                                 <img
-                                src="${photo}"
+                                src="${foto}"
                                 class="w-full h-full object-cover"
                                 onerror="
                                     this.src =

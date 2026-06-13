@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name', 'HRIS Management') }}</title>
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <link href="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.css" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -215,7 +216,7 @@
                         <ul class="py-2 text-sm text-gray-700">
                             <li>
                                 <a href="{{ route('profile.edit') }}" class="block px-4 py-2 hover:bg-gray-100">
-                                    Setting
+                                    Profile
                                 </a>
                             </li>
                         </ul>

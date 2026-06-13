@@ -61,7 +61,7 @@ class PengumumanController extends Controller
         // Create notifications for targeted users
         $this->sendNotifications($pengumuman);
 
-        return redirect()->route('admin.dashboard')->with('success', 'Pengumuman berhasil dibuat dan notifikasi telah dikirim');
+        return redirect()->route('admin.dashboard')->with('success', 'Announcement created and notifications sent successfully');
     }
 
     public function show($id)
@@ -113,7 +113,7 @@ class PengumumanController extends Controller
         $pengumuman->update($data);
 
         return redirect()->route('admin.pengumuman.index')
-            ->with('success', 'Pengumuman berhasil diupdate');
+            ->with('success', 'Announcement updated successfully');
     }
 
     public function destroy($id)
@@ -127,7 +127,7 @@ class PengumumanController extends Controller
         $pengumuman->delete();
 
         return redirect()->route('admin.pengumuman.index')
-            ->with('success', 'Pengumuman berhasil dihapus');
+            ->with('success', 'Announcement deleted successfully');
     }
 
     private function sendNotifications($pengumuman)

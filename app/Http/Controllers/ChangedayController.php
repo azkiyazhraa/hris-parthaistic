@@ -116,7 +116,7 @@ class ChangedayController extends Controller
         AbsensiKaryawan::create($data);
 
         return redirect()->route('changeday.index')
-            ->with('success', 'Pengajuan change day berhasil dikirim');
+            ->with('success', 'Change day request submitted successfully');
     }
 
     public function show($id)

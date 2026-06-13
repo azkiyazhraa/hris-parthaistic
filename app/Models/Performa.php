@@ -65,17 +65,10 @@ class Performa extends Model
             return 0; // Return 0 jika tidak ada hari kerja yang relevan
         }
 
-        // Hitung jumlah hadir (termasuk status 'masuk', 'hadir')
-        $hadir = $absensi->whereIn('status_kehadiran', ['hadir', 'masuk'])->count();
-        
-        // Hitung jumlah izin
-        $izin = $absensi->where('status_kehadiran', 'izin')->count();
-        
-        // Hitung jumlah sakit
-        $sakit = $absensi->where('status_kehadiran', 'sakit')->count();
+        $hadir = $absensi->whereIn('status_kehadiran', ['present', 'pending'])->count();
+        $izin  = $absensi->where('status_kehadiran', 'permit')->count();
+        $sakit = $absensi->where('status_kehadiran', 'sick')->count();
 
-        // Hitung persentase kehadiran
-        // Rumus: ((Hadir + Izin + Sakit) / Total Hari Kerja Relevan) * 100
         $attendanceRate = round((($hadir + $izin + $sakit) / $totalWorkingDays) * 100);
         
         // Maksimal 100%
@@ -116,8 +109,8 @@ class Performa extends Model
         $currentDate = $startDate->copy();
 
         while ($currentDate <= $endDate) {
-            // Senin (1) - Jumat (5)
-            if ($currentDate->dayOfWeek >= Carbon::MONDAY && $currentDate->dayOfWeek <= Carbon::FRIDAY) {
+            // Senin (1) - Sabtu (6)
+            if ($currentDate->dayOfWeek >= Carbon::MONDAY && $currentDate->dayOfWeek <= Carbon::SATURDAY) {
                 $workingDays++;
             }
             $currentDate->addDay();
@@ -136,7 +129,7 @@ class Performa extends Model
         $absensi = AbsensiKaryawan::where('karyawan_id', $karyawanId)
             ->whereMonth('tanggal', $bulan)
             ->whereYear('tanggal', $tahun)
-            ->whereIn('status_kehadiran', ['hadir', 'masuk'])
+            ->where('status_kehadiran', 'present')
             ->whereNotNull('jam_masuk')
             ->get();
 
@@ -162,35 +155,12 @@ class Performa extends Model
      */
     public static function calculateAbsentCount($karyawanId, $bulan, $tahun)
     {
-        $karyawan = Karyawan::find($karyawanId);
-        
-        // Hitung hari kerja yang relevan (mempertimbangkan join_date)
-        $totalWorkingDays = self::getRelevantWorkingDays($karyawan, $bulan, $tahun);
-        
-        if ($totalWorkingDays == 0) {
-            return 0;
-        }
-        
-        // Ambil data absensi
-        $absensi = AbsensiKaryawan::where('karyawan_id', $karyawanId)
+        return AbsensiKaryawan::where('karyawan_id', $karyawanId)
             ->whereMonth('tanggal', $bulan)
             ->whereYear('tanggal', $tahun)
-            ->get();
-
-        // Hitung hari yang tercatat (hadir, izin, sakit)
-        $recordedDays = $absensi->whereIn('status_kehadiran', ['hadir', 'masuk', 'izin', 'sakit'])->count();
-        
-        // Hitung alpha yang tercatat di database
-        $alphaRecorded = AbsensiKaryawan::where('karyawan_id', $karyawanId)
-            ->whereMonth('tanggal', $bulan)
-            ->whereYear('tanggal', $tahun)
-            ->where('status_kehadiran', 'alpha')
+            ->where('is_change_day', false)
+            ->where('status_kehadiran', 'absent')
             ->count();
-
-        // Total absent = hari kerja relevan - hari tercatat (hadir/izin/sakit)
-        $totalAbsent = max(0, $totalWorkingDays - $recordedDays);
-        
-        return $totalAbsent;
     }
 
     /**
@@ -201,7 +171,7 @@ class Performa extends Model
         $absensi = AbsensiKaryawan::where('karyawan_id', $karyawanId)
             ->whereMonth('tanggal', $bulan)
             ->whereYear('tanggal', $tahun)
-            ->whereIn('status_kehadiran', ['hadir', 'masuk'])
+            ->where('status_kehadiran', 'present')
             ->count();
 
         return $absensi;
@@ -220,8 +190,8 @@ class Performa extends Model
         $currentDate = $startDate->copy();
 
         while ($currentDate <= $endDate) {
-            // Senin (1) - Jumat (5)
-            if ($currentDate->dayOfWeek >= Carbon::MONDAY && $currentDate->dayOfWeek <= Carbon::FRIDAY) {
+            // Senin (1) - Sabtu (6)
+            if ($currentDate->dayOfWeek >= Carbon::MONDAY && $currentDate->dayOfWeek <= Carbon::SATURDAY) {
                 $workingDays++;
             }
             $currentDate->addDay();
@@ -242,42 +212,25 @@ class Performa extends Model
         return $kpiScore;
     }
 
-    // Calculate performance score with weights
+    // Calculate performance score: (KPI Score + Attendance Rate) / 2
     public static function calculatePerformanceScore($attendance_rate, $quality, $productivity, $teamwork, $discipline, $kpi_score)
     {
-        // Weight distribution
-        $weights = [
-            'attendance_rate' => 0.15, // 15%
-            'quality' => 0.20,         // 20%
-            'productivity' => 0.20,    // 20%
-            'teamwork' => 0.15,        // 15%
-            'discipline' => 0.15,      // 15%
-            'kpi_score' => 0.15,       // 15%
-        ];
-        
-        $score = ($attendance_rate * $weights['attendance_rate']) +
-                 ($quality * $weights['quality']) +
-                 ($productivity * $weights['productivity']) +
-                 ($teamwork * $weights['teamwork']) +
-                 ($discipline * $weights['discipline']) +
-                 ($kpi_score * $weights['kpi_score']);
-        
-        return round($score);
+        return round(($kpi_score + $attendance_rate) / 2);
     }
 
     // Get rating based on performance score
     public function getRatingAttribute()
     {
         if ($this->performance_score >= 90) {
-            return ['label' => 'Sangat Baik (A)', 'color' => 'green'];
+            return ['label' => 'Excellent (A)', 'color' => 'green'];
         } elseif ($this->performance_score >= 75) {
-            return ['label' => 'Baik (B)', 'color' => 'blue'];
+            return ['label' => 'Good (B)', 'color' => 'blue'];
         } elseif ($this->performance_score >= 60) {
-            return ['label' => 'Cukup (C)', 'color' => 'yellow'];
+            return ['label' => 'Fair (C)', 'color' => 'yellow'];
         } elseif ($this->performance_score >= 50) {
-            return ['label' => 'Kurang (D)', 'color' => 'orange'];
+            return ['label' => 'Poor (D)', 'color' => 'orange'];
         } else {
-            return ['label' => 'Sangat Kurang (E)', 'color' => 'red'];
+            return ['label' => 'Very Poor (E)', 'color' => 'red'];
         }
     }
 
@@ -285,9 +238,9 @@ class Performa extends Model
     public function getBulanTextAttribute()
     {
         $bulan = [
-            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
-            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
-            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+            1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
+            5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August',
+            9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'
         ];
         return $bulan[$this->bulan] ?? '-';
     }

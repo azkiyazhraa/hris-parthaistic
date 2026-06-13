@@ -21,9 +21,9 @@
             <div class="mb-4 bg-blue-50 border-l-4 border-blue-500 p-4">
                 <p class="text-blue-700 text-sm">
                     <strong>Auto Calculation Information :</strong><br>
-                    - KPI Score = Average of (Productivity + Discipline + Quality + Teamwork)<br>
-                    - Attendance Rate = Same as KPI Score<br>
-                    - Performance Score = Weighted Calculation off all components 
+                    - KPI Score = Average of (Quality + Productivity + Teamwork + Discipline)<br>
+                    - Attendance Rate = Saved from real attendance data at time of creation<br>
+                    - Performance Score = (KPI Score + Attendance Rate) / 2
                 </p>
             </div>
 
@@ -145,37 +145,38 @@
     </div>
 
     <script>
+        const savedAttendanceRate = {{ $performa->attendance_rate ?? 0 }};
+
         function calculateAll() {
-            let quality = parseInt(document.getElementById('quality').value) || 0;
-            let productivity = parseInt(document.getElementById('productivity').value) || 0;
-            let teamwork = parseInt(document.getElementById('teamwork').value) || 0;
-            let discipline = parseInt(document.getElementById('discipline').value) || 0;
+            const quality      = parseInt(document.getElementById('quality').value)      || 0;
+            const productivity = parseInt(document.getElementById('productivity').value) || 0;
+            const teamwork     = parseInt(document.getElementById('teamwork').value)     || 0;
+            const discipline   = parseInt(document.getElementById('discipline').value)   || 0;
 
             ['quality', 'productivity', 'teamwork', 'discipline'].forEach(f => {
                 document.getElementById(f + '_bar').style.width = document.getElementById(f).value + '%';
             });
 
-            let kpiScore = Math.round((quality + productivity + teamwork + discipline) / 4);
-            let attendanceRate = kpiScore;
-
-            document.getElementById('kpi_score').value = kpiScore;
+            const kpiScore = Math.round((quality + productivity + teamwork + discipline) / 4);
+            document.getElementById('kpi_score').value          = kpiScore;
             document.getElementById('kpi_score_display').innerText = kpiScore;
-            document.getElementById('attendance_rate').value = attendanceRate;
-            document.getElementById('attendance_rate_display').innerText = attendanceRate;
 
-            let total = Math.round((attendanceRate * 0.15) + (quality * 0.20) + (productivity * 0.20) + (teamwork * 0.15) + (discipline * 0.15) + (kpiScore * 0.15));
+            // Attendance rate stays as saved — not recalculated from KPI
+            const attendanceRate = savedAttendanceRate;
 
-            document.getElementById('performance_score').value = total;
+            const total = Math.round((kpiScore + attendanceRate) / 2);
+            document.getElementById('performance_score').value          = total;
             document.getElementById('performance_score_display').innerText = total;
 
             let rating = '', ratingColor = '';
-            if (total >= 90) { rating = 'Sangat Baik (A)'; ratingColor = 'green'; }
-            else if (total >= 75) { rating = 'Baik (B)'; ratingColor = 'blue'; }
-            else if (total >= 60) { rating = 'Cukup (C)'; ratingColor = 'yellow'; }
-            else if (total >= 50) { rating = 'Kurang (D)'; ratingColor = 'orange'; }
-            else { rating = 'Sangat Kurang (E)'; ratingColor = 'red'; }
+            if      (total >= 90) { rating = 'Excellent (A)'; ratingColor = 'green';  }
+            else if (total >= 75) { rating = 'Good (B)';      ratingColor = 'blue';   }
+            else if (total >= 60) { rating = 'Fair (C)';      ratingColor = 'yellow'; }
+            else if (total >= 50) { rating = 'Poor (D)';      ratingColor = 'orange'; }
+            else                  { rating = 'Very Poor (E)'; ratingColor = 'red';    }
 
-            document.getElementById('rating_display').innerHTML = '<span class="bg-' + ratingColor + '-100 text-' + ratingColor + '-800 py-1 px-3 rounded-full text-xs">' + rating + '</span>';
+            document.getElementById('rating_display').innerHTML =
+                '<span class="bg-' + ratingColor + '-100 text-' + ratingColor + '-800 py-1 px-3 rounded-full text-xs">' + rating + '</span>';
         }
         calculateAll();
     </script>

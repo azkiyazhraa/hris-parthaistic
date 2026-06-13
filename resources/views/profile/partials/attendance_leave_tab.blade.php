@@ -35,21 +35,6 @@
             </div>
         </div>
 
-        <!-- Late Card -->
-        <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl p-4 text-white shadow-lg">
-            <div class="flex justify-between items-start">
-                <div>
-                    <p class="text-yellow-100 text-sm">Late</p>
-                    <p class="text-3xl font-bold mt-1">{{ $lateCount }}</p>
-                </div>
-                <div class="bg-white/20 rounded-full p-2">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                </div>
-            </div>
-        </div>
-
         <!-- Absent Card -->
         <div class="bg-gradient-to-br from-red-500 to-red-600 rounded-xl p-4 text-white shadow-lg">
             <div class="flex justify-between items-start">
@@ -96,17 +81,17 @@
                             <td class="px-6 py-4 whitespace-nowrap">
                                 @php
                                     $statusClass = match($attendance->status_kehadiran) {
-                                        'hadir', 'masuk' => 'bg-green-100 text-green-800',
-                                        'izin' => 'bg-blue-100 text-blue-800',
-                                        'sakit' => 'bg-purple-100 text-purple-800',
-                                        'alpha' => 'bg-red-100 text-red-800',
+                                        'present' => 'bg-green-100 text-green-800',
+                                        'permit' => 'bg-blue-100 text-blue-800',
+                                        'sick' => 'bg-purple-100 text-purple-800',
+                                        'absent' => 'bg-red-100 text-red-800',
                                         default => 'bg-gray-100 text-gray-800',
                                     };
                                     $statusText = match($attendance->status_kehadiran) {
-                                        'hadir', 'masuk' => 'On Time',
-                                        'izin' => 'Permit',
-                                        'sakit' => 'Sick',
-                                        'alpha' => 'Absent',
+                                        'present' => 'Present',
+                                        'permit' => 'Permit',
+                                        'sick' => 'Sick',
+                                        'absent' => 'Absent',
                                         default => ucfirst($attendance->status_kehadiran),
                                     };
                                 @endphp

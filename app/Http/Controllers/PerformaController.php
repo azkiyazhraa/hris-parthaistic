@@ -159,6 +159,8 @@ class PerformaController extends Controller
                         'task_done' => rand(80, 200),
                         'status_performance' => $this->getStatusPerformance($latestPerforma->performance_score),
                         'quarter' => $latestPerforma->quarter,
+                        'bulan' => $latestPerforma->bulan,
+                        'tahun' => $latestPerforma->tahun,
                     ]);
                 }
             }
@@ -235,6 +237,23 @@ class PerformaController extends Controller
         ]);
     }
 
+    public function getAttendanceRate(Request $request)
+    {
+        $request->validate([
+            'karyawan_id' => 'required|exists:karyawans,id',
+            'bulan'       => 'required|integer|between:1,12',
+            'tahun'       => 'required|integer|min:2020',
+        ]);
+
+        $rate = Performa::calculateAttendanceRateFromAbsensi(
+            $request->karyawan_id,
+            $request->bulan,
+            $request->tahun
+        );
+
+        return response()->json(['rate' => $rate]);
+    }
+
     public function adminStore(Request $request)
     {
         $request->validate([
@@ -292,7 +311,7 @@ class PerformaController extends Controller
 
         if ($exists) {
             return redirect()->back()
-                ->with('error', 'Penilaian performa untuk karyawan ini pada periode tersebut sudah ada')
+                ->with('error', 'A performance review for this employee in that period already exists')
                 ->withInput();
         }
 
@@ -325,7 +344,7 @@ class PerformaController extends Controller
         ]);
 
         return redirect()->route('admin.performa.index')
-            ->with('success', 'Penilaian performa berhasil ditambahkan');
+            ->with('success', 'Performance review added successfully');
     }
 
     public function adminEdit($id)
@@ -399,7 +418,7 @@ class PerformaController extends Controller
 
         if ($exists) {
             return redirect()->back()
-                ->with('error', 'Penilaian performa untuk karyawan ini pada periode tersebut sudah ada')
+                ->with('error', 'A performance review for this employee in that period already exists')
                 ->withInput();
         }
 
@@ -425,7 +444,7 @@ class PerformaController extends Controller
         ]);
 
         return redirect()->route('admin.performa.index')
-            ->with('success', 'Penilaian performa berhasil diupdate');
+            ->with('success', 'Performance review updated successfully');
     }
 
     public function adminDestroy($id)
@@ -434,7 +453,7 @@ class PerformaController extends Controller
         $performa->delete();
 
         return redirect()->route('admin.performa.index')
-            ->with('success', 'Penilaian performa berhasil dihapus');
+            ->with('success', 'Performance review deleted successfully');
     }
 
     public function adminShow($id)
