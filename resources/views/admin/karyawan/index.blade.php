@@ -108,7 +108,7 @@
                     <thead>
                         <tr class="text-gray-400 font-medium text-xs uppercase tracking-wide border-b">
                             <th class="text-left pb-3 whitespace-nowrap">Name</th>
-                            <th class="text-left pb-3 whitespace-nowrap">Role</th>
+                            <th class="text-left pb-3 whitespace-nowrap">Position</th>
                             <th class="text-left pb-3 whitespace-nowrap">Join Date</th>
                             <th class="text-left pb-3 whitespace-nowrap">Employement Type</th>
                             <th class="text-left pb-3 whitespace-nowrap">Action</th>
@@ -116,96 +116,81 @@
                     </thead>
                     <tbody>
                         @foreach ($karyawans as $item)
-                            <tr class="employee-row border-b border-gray-100 hover:bg-blue-50/40 transition"
-                                data-search="{{ strtolower($item->nama_lengkap . ' ' . $item->email . ' ' . $item->nip) }}"
-                                data-status="{{ strtolower($item->status) }}">
-                                <td class="py-3">
-                                    <div class="flex items-center gap-3">
+                            {{-- HANYA TAMPILKAN JIKA BUKAN HR --}}
+                            @if ($item->role !== 'hr')
+                                <tr class="employee-row border-b border-gray-100 hover:bg-blue-50/40 transition"
+                                    data-search="{{ strtolower($item->nama_lengkap . ' ' . $item->email . ' ' . $item->nip . ' ' . ($item->jabatan_display ?? '')) }}"
+                                    data-status="{{ strtolower($item->status) }}">
+                                    <td class="py-3">
+                                        <div class="flex items-center gap-3">
+                                            @php
+                                                $fotoUrl = $item->foto_profil
+                                                    ? Storage::url($item->foto_profil)
+                                                    : 'https://ui-avatars.com/api/?background=2563EB&color=fff&size=100&name=' .
+                                                        urlencode($item->nama_lengkap);
+                                            @endphp
+
+                                            <div
+                                                class="w-9 h-9 rounded-full bg-blue-100 border border-blue-200 overflow-hidden shrink-0">
+                                                <img src="{{ $fotoUrl }}" alt="{{ $item->nama_lengkap }}"
+                                                    class="w-full h-full object-cover" loading="lazy"
+                                                    onerror="this.src='https://ui-avatars.com/api/?background=2563EB&color=fff&size=100&name={{ urlencode($item->nama_lengkap) }}'">
+                                            </div>
+                                            <div>
+                                                <span class="font-medium text-gray-800">{{ $item->nama_lengkap }}</span><br>
+                                                <span class="text-xs text-gray-500">{{ $item->nip }}</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-3">
+                                        <span
+                                            class="bg-violet-100 text-violet-800 py-1 px-3 rounded-full text-xs font-medium">
+                                            {{ $item->jabatan_display ?? ucfirst($item->role) }}
+                                        </span>
+                                    </td>
+                                    <td class="py-3 text-gray-700">
+                                        {{ $item->tanggal_bergabung ? date('d F Y', strtotime($item->tanggal_bergabung)) : '-' }}
+                                    </td>
+                                    <td class="py-3">
                                         @php
-                                            $fotoUrl = $item->foto_profil
-                                                ? Storage::url($item->foto_profil)
-                                                : 'https://ui-avatars.com/api/?background=2563EB&color=fff&size=100&name=' .
-                                                    urlencode($item->nama_lengkap);
+                                            $statusClass = match ($item->status) {
+                                                'Permanent' => 'bg-green-100 text-green-800',
+                                                'Contract' => 'bg-yellow-100 text-yellow-800',
+                                                'Outsource' => 'bg-orange-100 text-orange-800',
+                                                default => 'bg-gray-100 text-gray-800',
+                                            };
                                         @endphp
 
-                                        <div
-                                            class="w-9 h-9 rounded-full bg-blue-100 border border-blue-200 overflow-hidden shrink-0">
-                                            <img src="{{ $fotoUrl }}" alt="{{ $item->nama_lengkap }}"
-                                                class="w-full h-full object-cover" loading="lazy"
-                                                onerror="this.src='https://ui-avatars.com/api/?background=2563EB&color=fff&size=100&name={{ urlencode($item->nama_lengkap) }}'">
-                                        </div>
-                                        <div>
-                                            <span class="font-medium text-gray-800">{{ $item->nama_lengkap }}</span><br>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="py-3">
-                                    @php
-                                        $statusClass = match ($item->role) {
-                                            'admin' => 'bg-blue-100 text-blue-800',
-                                            'hr' => 'bg-emerald-100 text-emerald-800',
-                                            'karyawan' => 'bg-violet-100 text-violet-800',
-                                            default => 'bg-gray-100 text-gray-800',
-                                        };
-                                    @endphp
-
-                                    <span class="{{ $statusClass }} py-1 px-3 rounded-full text-xs font-medium">
-                                        {{ ucfirst($item->role) }}
-                                    </span>
-                                </td>
-                                <td class="py-3 text-gray-700">{{ date('d F Y', strtotime($item->tanggal_bergabung)) }}</td>
-                                <td class="py-3">
-                                    @php
-                                        $statusClass = match ($item->status) {
-                                            'Permanent' => 'bg-green-100 text-green-800',
-                                            'Contract' => 'bg-yellow-100 text-yellow-800',
-                                            'Outsource' => 'bg-orange-100 text-orange-800',
-                                            default => 'bg-gray-100 text-gray-800',
-                                        };
-                                    @endphp
-
-                                    <span class="{{ $statusClass }} py-1 px-3 rounded-full text-xs font-medium">
-                                        {{ $item->status }}
-                                    </span>
-                                </td>
-                                <td class="py-3">
-                                    <div class="flex items-center gap-2">
-                                        <a class="text-blue-500 hover:text-blue-700 cursor-pointer"
-                                            onclick="showEmployeeDetail({{ $item->id }})"
-                                            data-modal-target="default-modal" data-modal-toggle="default-modal">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                            </svg>
-                                        </a>
-
-                                        <a data-modal-target="employee-modal-edit-{{ $item->id }}"
-                                            data-modal-toggle="employee-modal-edit-{{ $item->id }}"
-                                            class="text-yellow-500 hover:text-yellow-700 cursor-pointer">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                            </svg>
-                                        </a>
-
-                                        <form action="{{ route('admin.karyawan.destroy', $item->id) }}" method="POST"
-                                            class="inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="button" class="text-red-500 hover:text-red-700 btn-delete">
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                    viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-                                                    class="w-5 h-5">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                        <span class="{{ $statusClass }} py-1 px-3 rounded-full text-xs font-medium">
+                                            {{ $item->status }}
+                                        </span>
+                                    </td>
+                                    <td class="py-3">
+                                        <div class="flex items-center gap-2">
+                                            <a class="text-blue-500 hover:text-blue-700 cursor-pointer"
+                                                onclick="showEmployeeDetail({{ $item->id }})"
+                                                data-modal-target="default-modal" data-modal-toggle="default-modal">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                 </svg>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                            @include('admin.karyawan.edit')
+                                            </a>
+
+                                            <a data-modal-target="employee-modal-edit-{{ $item->id }}"
+                                                data-modal-toggle="employee-modal-edit-{{ $item->id }}"
+                                                class="text-yellow-500 hover:text-yellow-700 cursor-pointer">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                </svg>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @include('admin.karyawan.edit')
+                            @endif
                         @endforeach
                         <tr id="emptySearchRow" style="display:none;">
                             <td colspan="5" class="text-center py-4 text-gray-400">

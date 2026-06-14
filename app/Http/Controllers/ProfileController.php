@@ -8,105 +8,121 @@ use App\Models\PengajuanCuti;
 use App\Models\Performa;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class ProfileController extends Controller
 {
     public function edit()
     {
-        $karyawan = Auth::user();
+        $karyawan = auth()->user();
 
-        // Data untuk tab Attendance & Leave
+        // Attendance data
         $currentMonth = Carbon::now()->month;
         $currentYear = Carbon::now()->year;
 
-        // Hitung attendance rate all time
+        // Attendance rate
         $allAttendances = AbsensiKaryawan::where('karyawan_id', $karyawan->id)
             ->whereIn('status_kehadiran', ['present', 'pending', 'permit', 'sick'])
             ->where('is_change_day', false)
             ->count();
 
-        $totalWorkingDaysAllTime = $this->getTotalWorkingDaysAllTime($karyawan);
-        $attendanceRate = $totalWorkingDaysAllTime > 0 ? round(($allAttendances / $totalWorkingDaysAllTime) * 100, 1) : 0;
+        $totalWorkingDays = 0;
+        if ($karyawan->tanggal_bergabung) {
+            $totalWorkingDays = $this->countWeekdays(
+                Carbon::parse($karyawan->tanggal_bergabung)->startOfDay(),
+                Carbon::now()->startOfDay()
+            );
+        }
+        $attendanceRate = $totalWorkingDays > 0
+            ? round(($allAttendances / $totalWorkingDays) * 100, 1)
+            : 0;
 
-        // Hitung present, late, absent untuk bulan ini
+        // Present this month
         $presentCount = AbsensiKaryawan::where('karyawan_id', $karyawan->id)
             ->whereMonth('tanggal', $currentMonth)
             ->whereYear('tanggal', $currentYear)
             ->where('status_kehadiran', 'present')
             ->count();
 
-        $lateCount = $this->calculateLateCount($karyawan->id, $currentMonth, $currentYear);
-
-        // Hitung absent untuk bulan ini
-        $totalWorkingDays = $this->getWorkingDaysInMonth($currentMonth, $currentYear);
-        $recordedDays = AbsensiKaryawan::where('karyawan_id', $karyawan->id)
+        // Late this month
+        $lateCount = 0;
+        $monthRecords = AbsensiKaryawan::where('karyawan_id', $karyawan->id)
             ->whereMonth('tanggal', $currentMonth)
             ->whereYear('tanggal', $currentYear)
-            ->whereIn('status_kehadiran', ['present', 'permit', 'sick'])
-            ->count();
-        $absentCount = max(0, $totalWorkingDays - $recordedDays);
+            ->where('status_kehadiran', 'present')
+            ->whereNotNull('jam_masuk')
+            ->get();
+        foreach ($monthRecords as $r) {
+            if (Carbon::parse($r->jam_masuk)->format('H:i:s') > '08:00:00') $lateCount++;
+        }
 
-        // Recent attendances (last 5)
+        // Absent this month
+        $absentCount = AbsensiKaryawan::where('karyawan_id', $karyawan->id)
+            ->whereMonth('tanggal', $currentMonth)
+            ->whereYear('tanggal', $currentYear)
+            ->where('is_change_day', false)
+            ->where('status_kehadiran', AbsensiKaryawan::STATUS_ABSENT)
+            ->count();
+
+        // Recent attendances
         $recentAttendances = AbsensiKaryawan::where('karyawan_id', $karyawan->id)
+            ->where('is_change_day', false)
             ->orderBy('tanggal', 'desc')
             ->limit(5)
-            ->get();
+            ->get()
+            ->map(fn($a) => [
+                'tanggal'    => $a->tanggal->format('d M Y'),
+                'jam_masuk'  => $a->jam_masuk  ? Carbon::parse($a->jam_masuk)->format('H:i')  : '-',
+                'jam_pulang' => $a->jam_pulang ? Carbon::parse($a->jam_pulang)->format('H:i') : '-',
+                'status'     => $a->status_kehadiran,
+            ]);
 
-        // Leave quotas and usage
-        $annualLeaveUsed = PengajuanCuti::where('karyawan_id', $karyawan->id)
-            ->where('jenis_cuti', 'tahunan')
-            ->whereIn('status', ['disetujui', 'approved'])
-            ->sum('total_hari');
+        // Leave usage
+        $annualLeaveUsed    = PengajuanCuti::where('karyawan_id', $karyawan->id)->where('jenis_cuti', 'tahunan')->whereIn('status', ['disetujui', 'approved'])->sum('total_hari');
+        $sickLeaveUsed      = PengajuanCuti::where('karyawan_id', $karyawan->id)->where('jenis_cuti', 'sakit')->whereIn('status', ['disetujui', 'approved'])->sum('total_hari');
+        $emergencyLeaveUsed = PengajuanCuti::where('karyawan_id', $karyawan->id)->where('jenis_cuti', 'penting')->whereIn('status', ['disetujui', 'approved'])->sum('total_hari');
+        $otherLeaveUsed     = PengajuanCuti::where('karyawan_id', $karyawan->id)->where('jenis_cuti', 'lainnya')->whereIn('status', ['disetujui', 'approved'])->sum('total_hari');
 
-        $sickLeaveUsed = PengajuanCuti::where('karyawan_id', $karyawan->id)
-            ->where('jenis_cuti', 'sakit')
-            ->whereIn('status', ['disetujui', 'approved'])
-            ->sum('total_hari');
-
-        $emergencyLeaveUsed = PengajuanCuti::where('karyawan_id', $karyawan->id)
-            ->where('jenis_cuti', 'penting')
-            ->whereIn('status', ['disetujui', 'approved'])
-            ->sum('total_hari');
-
-        $otherLeaveUsed = PengajuanCuti::where('karyawan_id', $karyawan->id)
-            ->where('jenis_cuti', 'lainnya')
-            ->whereIn('status', ['disetujui', 'approved'])
-            ->sum('total_hari');
-
-        // Leave requests (all status)
         $leaveRequests = PengajuanCuti::where('karyawan_id', $karyawan->id)
             ->orderBy('created_at', 'desc')
             ->limit(5)
-            ->get();
+            ->get()
+            ->map(fn($l) => [
+                'tanggal_mulai'   => $l->tanggal_mulai->format('d/m/Y'),
+                'tanggal_selesai' => $l->tanggal_selesai->format('d/m/Y'),
+                'jenis_cuti'      => $l->jenis_cuti_label,
+                'total_hari'      => $l->total_hari,
+                'status'          => $l->status,
+            ]);
 
-        // Data untuk tab Performance
+        // Performance
         $latestPerformance = Performa::where('karyawan_id', $karyawan->id)
             ->orderBy('tahun', 'desc')
             ->orderBy('bulan', 'desc')
             ->first();
 
-        // Calculate performance change
-        $previousPerformance = Performa::where('karyawan_id', $karyawan->id)
-            ->where('tahun', $latestPerformance?->tahun ?? Carbon::now()->year)
-            ->where('bulan', ($latestPerformance?->bulan ?? Carbon::now()->month) - 1)
-            ->first();
+        $prevPerf = null;
+        if ($latestPerformance) {
+            $prevMonth = $latestPerformance->bulan - 1;
+            $prevYear  = $latestPerformance->tahun;
+            if ($prevMonth === 0) { $prevMonth = 12; $prevYear--; }
+            $prevPerf = Performa::where('karyawan_id', $karyawan->id)
+                ->where('tahun', $prevYear)->where('bulan', $prevMonth)->first();
+        }
 
         $performanceChange = 0;
-        if ($latestPerformance && $previousPerformance) {
-            $performanceChange = $latestPerformance->performance_score - $previousPerformance->performance_score;
+        if ($latestPerformance && $prevPerf) {
+            $performanceChange = $latestPerformance->performance_score - $prevPerf->performance_score;
         } elseif ($latestPerformance) {
             $performanceChange = $latestPerformance->performance_score;
         }
 
-        // Task summary (example data - adjust based on your actual task system)
-        $todoTasks = 5;
-        $inProgressTasks = 3;
-        $doneTasks = 8;
-        $totalTasks = $todoTasks + $inProgressTasks + $doneTasks;
-        $taskCompletionRate = $totalTasks > 0 ? round(($doneTasks / $totalTasks) * 100) : 0;
+        $taskCompletionRate = $latestPerformance?->kpi_score ?? 0;
+        $todoTasks = 0;
+        $inProgressTasks = 0;
+        $doneTasks = 0;
 
         return view('profile.edit', compact(
             'karyawan',
@@ -122,137 +138,161 @@ class ProfileController extends Controller
             'leaveRequests',
             'latestPerformance',
             'performanceChange',
+            'taskCompletionRate',
             'todoTasks',
             'inProgressTasks',
-            'doneTasks',
-            'taskCompletionRate'
+            'doneTasks'
         ));
     }
 
     public function update(Request $request)
     {
-        $karyawan = Auth::user();
+        $karyawan = auth()->user();
 
-        $validated = $request->validate([
-            'nama_lengkap' => 'required|string|max:255',
-            'email' => 'required|email|unique:karyawans,email,' . $karyawan->id,
-            'alamat' => 'nullable|string',
-            'tempat_lahir' => 'nullable|string|max:100',
-            'jenis_kelamin' => 'nullable|in:Laki-laki,Perempuan',
-            'status_pernikahan' => 'nullable|in:Belum Menikah,Menikah,Cerai',
-            'nomor_telepon' => 'nullable|string|max:20',
-            'nik' => 'nullable|string|max:20',
-            'npwp' => 'nullable|string|max:20',
-            'tanggal_lahir' => 'nullable|date',
-            'agama' => 'nullable|string|max:20',
-            'pendidikan_terakhir' => 'nullable|string|max:100',
-            'universitas' => 'nullable|string|max:200',
-            'jurusan' => 'nullable|string|max:200',
-            'tahun_lulus' => 'nullable|integer|min:1900|max:' . date('Y'),
-            'nama_kontak_darurat' => 'nullable|string|max:255',
-            'telepon_kontak_darurat' => 'nullable|string|max:20',
-            'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-        ]);
+        try {
+            // Jika hanya upload foto (dari AJAX)
+            if ($request->hasFile('foto_profil') && !$request->has('nama_depan') && !$request->has('email')) {
+                $request->validate([
+                    'foto_profil' => 'image|mimes:jpg,jpeg,png|max:2048',
+                ]);
 
-        if ($request->hasFile('foto_profil')) {
-            if ($karyawan->foto_profil && Storage::disk('public')->exists($karyawan->foto_profil)) {
-                Storage::disk('public')->delete($karyawan->foto_profil);
+                $fotoPath = $request->file('foto_profil')->store('karyawan', 'public');
+
+                // Hapus foto lama
+                if (!empty($karyawan->foto_profil) && Storage::disk('public')->exists($karyawan->foto_profil)) {
+                    Storage::disk('public')->delete($karyawan->foto_profil);
+                }
+
+                $karyawan->update(['foto_profil' => $fotoPath]);
+
+                if ($request->ajax()) {
+                    return response()->json(['success' => true, 'message' => 'Photo updated successfully']);
+                }
+                return redirect()->route('profile.edit')->with('success', 'Photo updated successfully');
             }
 
-            $path = $request->file('foto_profil')->store('profile-photos', 'public');
-            $validated['foto_profil'] = $path;
+            // Validasi untuk update profil lengkap
+            $validated = $request->validate([
+                'nama_depan' => 'required|string|max:100',
+                'nama_belakang' => 'required|string|max:100',
+                'email' => ['required', 'email', Rule::unique('karyawans')->ignore($karyawan->id)],
+                'nomor_telepon' => 'nullable|string|max:30',
+                'alamat' => 'nullable|string',
+                'tempat_lahir' => 'nullable|string|max:100',
+                'tanggal_lahir' => 'nullable|date',
+                'jenis_kelamin' => 'nullable|in:L,P',
+                'agama' => 'nullable|string|max:50',
+                'status_pernikahan' => 'nullable|string|max:50',
+                'nik' => 'nullable|string|max:50',
+                'npwp' => 'nullable|string|max:50',
+                'pendidikan_terakhir' => 'nullable|in:SMP,SMA/MA,SMK,D1,D2,D3,S1,S2',
+                'universitas' => 'nullable|string|max:150',
+                'jurusan' => 'nullable|string|max:150',
+                'tahun_lulus' => 'nullable|digits:4',
+                'nama_kontak_darurat' => 'nullable|string|max:100',
+                'telepon_kontak_darurat' => 'nullable|string|max:30',
+                'nama_bank' => 'nullable|string|max:50',
+                'nomor_rekening' => 'nullable|string|max:30',
+                'foto_profil' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            ]);
+
+            $updateData = [
+                'nama_depan' => $validated['nama_depan'],
+                'nama_belakang' => $validated['nama_belakang'],
+                'nama_lengkap' => $validated['nama_depan'] . ' ' . $validated['nama_belakang'],
+                'email' => $validated['email'],
+                'nomor_telepon' => $validated['nomor_telepon'] ?? $karyawan->nomor_telepon,
+                'alamat' => $validated['alamat'] ?? $karyawan->alamat,
+                'tempat_lahir' => $validated['tempat_lahir'] ?? $karyawan->tempat_lahir,
+                'tanggal_lahir' => $validated['tanggal_lahir'] ?? $karyawan->tanggal_lahir,
+                'jenis_kelamin' => $validated['jenis_kelamin'] ?? $karyawan->jenis_kelamin,
+                'agama' => $validated['agama'] ?? $karyawan->agama,
+                'status_pernikahan' => $validated['status_pernikahan'] ?? $karyawan->status_pernikahan,
+                'nik' => $validated['nik'] ?? $karyawan->nik,
+                'npwp' => $validated['npwp'] ?? $karyawan->npwp,
+                'pendidikan_terakhir' => $validated['pendidikan_terakhir'] ?? $karyawan->pendidikan_terakhir,
+                'pendidikan_terakhir_new' => $validated['pendidikan_terakhir'] ?? $karyawan->pendidikan_terakhir_new,
+                'universitas' => $validated['universitas'] ?? $karyawan->universitas,
+                'jurusan' => $validated['jurusan'] ?? $karyawan->jurusan,
+                'tahun_lulus' => $validated['tahun_lulus'] ?? $karyawan->tahun_lulus,
+                'nama_kontak_darurat' => $validated['nama_kontak_darurat'] ?? $karyawan->nama_kontak_darurat,
+                'telepon_kontak_darurat' => $validated['telepon_kontak_darurat'] ?? $karyawan->telepon_kontak_darurat,
+                'nama_bank' => $validated['nama_bank'] ?? $karyawan->nama_bank,
+                'nomor_rekening' => $validated['nomor_rekening'] ?? $karyawan->nomor_rekening,
+            ];
+
+            // Handle foto profil
+            if ($request->hasFile('foto_profil')) {
+                if (!empty($karyawan->foto_profil) && Storage::disk('public')->exists($karyawan->foto_profil)) {
+                    Storage::disk('public')->delete($karyawan->foto_profil);
+                }
+                $updateData['foto_profil'] = $request->file('foto_profil')->store('karyawan', 'public');
+            }
+
+            $karyawan->update($updateData);
+
+            if ($request->ajax()) {
+                return response()->json(['success' => true, 'message' => 'Profile updated successfully']);
+            }
+            return redirect()->route('profile.edit')->with('success', 'Profile updated successfully');
+
+        } catch (\Throwable $th) {
+            if ($request->ajax()) {
+                return response()->json(['success' => false, 'message' => $th->getMessage()], 422);
+            }
+            return redirect()->back()->withInput()->with('error', 'Error: ' . $th->getMessage());
         }
-
-        $karyawan->update($validated);
-
-        if ($request->ajax()) {
-            return response()->json(['success' => true, 'message' => 'Profile updated successfully']);
-        }
-
-        return redirect()->route('profile.edit')->with('success', 'Profile updated successfully.');
     }
 
     public function updatePassword(Request $request)
     {
-        $request->validate([
+        $karyawan = auth()->user();
+
+        $validated = $request->validate([
             'current_password' => 'required',
-            'new_password' => 'required|min:8|confirmed',
+            'new_password' => 'required|min:6|confirmed',
         ]);
 
-        $karyawan = Auth::user();
-
-        if (!Hash::check($request->current_password, $karyawan->password)) {
-            return back()->withErrors(['current_password' => 'Current password is incorrect.']);
+        // Verifikasi password lama
+        if (!Hash::check($validated['current_password'], $karyawan->kata_sandi)) {
+            return redirect()->back()->withErrors(['current_password' => 'Current password is incorrect']);
         }
 
         $karyawan->update([
-            'password' => Hash::make($request->new_password),
+            'kata_sandi' => Hash::make($validated['new_password']),
         ]);
 
-        return redirect()->route('profile.edit')->with('success', 'Password updated successfully.');
+        return redirect()->route('profile.edit')->with('success', 'Password updated successfully');
     }
 
-    public function performanceChartData(Request $request)
+    public function performanceChartData()
     {
-        $karyawan = Auth::user();
-        $year = $request->get('year', Carbon::now()->year);
+        $karyawan = auth()->user();
+        $currentYear = Carbon::now()->year;
 
-        $months = [];
-        $scores = [];
-
-        for ($month = 1; $month <= 12; $month++) {
-            $performance = Performa::where('karyawan_id', $karyawan->id)
-                ->where('tahun', $year)
-                ->where('bulan', $month)
-                ->first();
-
-            $months[] = Carbon::create($year, $month, 1)->format('M');
-            $scores[] = $performance?->performance_score ?? 0;
+        $histMonths = [];
+        $histScores = [];
+        for ($m = 1; $m <= 12; $m++) {
+            $p = Performa::where('karyawan_id', $karyawan->id)->where('tahun', $currentYear)->where('bulan', $m)->first();
+            $histMonths[] = Carbon::create($currentYear, $m, 1)->format('M');
+            $histScores[] = $p?->performance_score ?? 0;
         }
 
         return response()->json([
-            'months' => $months,
-            'scores' => $scores,
+            'months' => $histMonths,
+            'scores' => $histScores,
         ]);
     }
 
-    private function getWorkingDaysInMonth($month, $year)
+    private function countWeekdays(Carbon $start, Carbon $end): int
     {
-        $startDate = Carbon::create($year, $month, 1);
-        $endDate = $startDate->copy()->endOfMonth();
-
-        $today = Carbon::now();
-        if ($endDate->gt($today) && $startDate->lte($today)) {
-            $endDate = $today->copy();
-        }
-
-        $workingDays = 0;
-        $currentDate = $startDate->copy();
-
-        while ($currentDate <= $endDate) {
-            if ($currentDate->dayOfWeek >= Carbon::MONDAY && $currentDate->dayOfWeek <= Carbon::SATURDAY) {
-                $workingDays++;
-            }
-            $currentDate->addDay();
-        }
-
-        return $workingDays;
-    }
-
-    private function getTotalWorkingDaysAllTime($karyawan): int
-    {
-        if (!$karyawan->tanggal_bergabung) return 0;
-
-        $start = Carbon::parse($karyawan->tanggal_bergabung)->startOfDay();
-        $end   = Carbon::now()->startOfDay();
-
         if ($start->gt($end)) return 0;
 
-        $totalDays = $start->diffInDays($end) + 1;
-        $fullWeeks = intdiv($totalDays, 7);
-        $weekdays  = $fullWeeks * 6;
-        $extra     = $totalDays % 7;
-        $dow       = $start->dayOfWeek; // 0=Sun … 6=Sat
+        $totalDays  = $start->diffInDays($end) + 1;
+        $fullWeeks  = intdiv($totalDays, 7);
+        $weekdays   = $fullWeeks * 6;
+        $extra      = $totalDays % 7;
+        $dow        = $start->dayOfWeek;
 
         for ($i = 0; $i < $extra; $i++) {
             $d = ($dow + $i) % 7;
@@ -260,30 +300,5 @@ class ProfileController extends Controller
         }
 
         return $weekdays;
-    }
-
-    private function calculateLateCount($karyawanId, $month, $year)
-    {
-        $jamMasukNormal = Carbon::parse('08:00:00');
-
-        $absensi = AbsensiKaryawan::where('karyawan_id', $karyawanId)
-            ->whereMonth('tanggal', $month)
-            ->whereYear('tanggal', $year)
-            ->where('status_kehadiran', 'present')
-            ->whereNotNull('jam_masuk')
-            ->get();
-
-        $lateCount = 0;
-
-        foreach ($absensi as $record) {
-            if ($record->jam_masuk) {
-                $jamMasuk = Carbon::parse($record->jam_masuk);
-                if ($jamMasuk->format('H:i:s') > $jamMasukNormal->format('H:i:s')) {
-                    $lateCount++;
-                }
-            }
-        }
-
-        return $lateCount;
     }
 }

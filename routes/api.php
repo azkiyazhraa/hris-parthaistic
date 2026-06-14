@@ -4,21 +4,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\PenggajianApiController;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-*/
-
-// Simple API Authentication Middleware (optional)
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-// Public API Routes (no authentication required)
 Route::prefix('v1')->group(function () {
-    
-    // Penggajian Routes
+
     Route::get('/penggajian', [PenggajianApiController::class, 'index']);
     Route::get('/penggajian/summary', [PenggajianApiController::class, 'getSummary']);
     Route::get('/penggajian/karyawan/{karyawan_id}', [PenggajianApiController::class, 'getByKaryawan']);
@@ -31,7 +22,6 @@ Route::prefix('v1')->group(function () {
     Route::post('/penggajian/{id}/send-payslip', [PenggajianApiController::class, 'sendPayslip']);
 });
 
-// Fallback route
 Route::fallback(function () {
     return response()->json([
         'success' => false,

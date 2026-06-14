@@ -142,7 +142,6 @@ Route::middleware(['auth', 'admin'])
         Route::post('/karyawan', [AdminDashboardController::class, 'storeKaryawan'])->name('karyawan.store');
         Route::get('/karyawan/{id}/edit', [AdminDashboardController::class, 'editKaryawan'])->name('karyawan.edit');
         Route::put('/karyawan/{id}', [AdminDashboardController::class, 'updateKaryawan'])->name('karyawan.update');
-        Route::delete('/karyawan/{id}', [AdminDashboardController::class, 'destroyKaryawan'])->name('karyawan.destroy');
         Route::get('/karyawan/{id}/show-password', [AdminDashboardController::class, 'showPassword'])->name('karyawan.show-password');
         Route::get('/karyawan/{id}/employee-detail', [AdminDashboardController::class, 'getEmployeeDetail'])->name('karyawan.employee-detail');
 
