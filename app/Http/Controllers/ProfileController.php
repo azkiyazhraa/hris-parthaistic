@@ -30,86 +30,68 @@ class ProfileController extends Controller
 
         $totalWorkingDays = 0;
         if ($karyawan->tanggal_bergabung) {
-            $totalWorkingDays = $this->countWeekdays(
-                Carbon::parse($karyawan->tanggal_bergabung)->startOfDay(),
-                Carbon::now()->startOfDay()
-            );
+            $totalWorkingDays = $this->countWeekdays(Carbon::parse($karyawan->tanggal_bergabung)->startOfDay(), Carbon::now()->startOfDay());
         }
-        $attendanceRate = $totalWorkingDays > 0
-            ? round(($allAttendances / $totalWorkingDays) * 100, 1)
-            : 0;
+        $attendanceRate = $totalWorkingDays > 0 ? round(($allAttendances / $totalWorkingDays) * 100, 1) : 0;
 
         // Present this month
-        $presentCount = AbsensiKaryawan::where('karyawan_id', $karyawan->id)
-            ->whereMonth('tanggal', $currentMonth)
-            ->whereYear('tanggal', $currentYear)
-            ->where('status_kehadiran', 'present')
-            ->count();
+        $presentCount = AbsensiKaryawan::where('karyawan_id', $karyawan->id)->whereMonth('tanggal', $currentMonth)->whereYear('tanggal', $currentYear)->where('status_kehadiran', 'present')->count();
 
         // Late this month
         $lateCount = 0;
-        $monthRecords = AbsensiKaryawan::where('karyawan_id', $karyawan->id)
-            ->whereMonth('tanggal', $currentMonth)
-            ->whereYear('tanggal', $currentYear)
-            ->where('status_kehadiran', 'present')
-            ->whereNotNull('jam_masuk')
-            ->get();
+        $monthRecords = AbsensiKaryawan::where('karyawan_id', $karyawan->id)->whereMonth('tanggal', $currentMonth)->whereYear('tanggal', $currentYear)->where('status_kehadiran', 'present')->whereNotNull('jam_masuk')->get();
         foreach ($monthRecords as $r) {
-            if (Carbon::parse($r->jam_masuk)->format('H:i:s') > '08:00:00') $lateCount++;
+            if (Carbon::parse($r->jam_masuk)->format('H:i:s') > '08:00:00') {
+                $lateCount++;
+            }
         }
 
         // Absent this month
-        $absentCount = AbsensiKaryawan::where('karyawan_id', $karyawan->id)
-            ->whereMonth('tanggal', $currentMonth)
-            ->whereYear('tanggal', $currentYear)
-            ->where('is_change_day', false)
-            ->where('status_kehadiran', AbsensiKaryawan::STATUS_ABSENT)
-            ->count();
+        $absentCount = AbsensiKaryawan::where('karyawan_id', $karyawan->id)->whereMonth('tanggal', $currentMonth)->whereYear('tanggal', $currentYear)->where('is_change_day', false)->where('status_kehadiran', AbsensiKaryawan::STATUS_ABSENT)->count();
 
         // Recent attendances
-        $recentAttendances = AbsensiKaryawan::where('karyawan_id', $karyawan->id)
-            ->where('is_change_day', false)
-            ->orderBy('tanggal', 'desc')
-            ->limit(5)
-            ->get()
-            ->map(fn($a) => [
-                'tanggal'    => $a->tanggal->format('d M Y'),
-                'jam_masuk'  => $a->jam_masuk  ? Carbon::parse($a->jam_masuk)->format('H:i')  : '-',
-                'jam_pulang' => $a->jam_pulang ? Carbon::parse($a->jam_pulang)->format('H:i') : '-',
-                'status'     => $a->status_kehadiran,
-            ]);
+        $recentAttendances = AbsensiKaryawan::where('karyawan_id', $karyawan->id)->where('is_change_day', false)->orderBy('tanggal', 'desc')->limit(5)->get();
 
         // Leave usage
-        $annualLeaveUsed    = PengajuanCuti::where('karyawan_id', $karyawan->id)->where('jenis_cuti', 'tahunan')->whereIn('status', ['disetujui', 'approved'])->sum('total_hari');
-        $sickLeaveUsed      = PengajuanCuti::where('karyawan_id', $karyawan->id)->where('jenis_cuti', 'sakit')->whereIn('status', ['disetujui', 'approved'])->sum('total_hari');
-        $emergencyLeaveUsed = PengajuanCuti::where('karyawan_id', $karyawan->id)->where('jenis_cuti', 'penting')->whereIn('status', ['disetujui', 'approved'])->sum('total_hari');
-        $otherLeaveUsed     = PengajuanCuti::where('karyawan_id', $karyawan->id)->where('jenis_cuti', 'lainnya')->whereIn('status', ['disetujui', 'approved'])->sum('total_hari');
+        $annualLeaveUsed = PengajuanCuti::where('karyawan_id', $karyawan->id)
+            ->where('jenis_cuti', 'tahunan')
+            ->whereIn('status', ['disetujui', 'approved'])
+            ->sum('total_hari');
+        $sickLeaveUsed = PengajuanCuti::where('karyawan_id', $karyawan->id)
+            ->where('jenis_cuti', 'sakit')
+            ->whereIn('status', ['disetujui', 'approved'])
+            ->sum('total_hari');
+        $emergencyLeaveUsed = PengajuanCuti::where('karyawan_id', $karyawan->id)
+            ->where('jenis_cuti', 'penting')
+            ->whereIn('status', ['disetujui', 'approved'])
+            ->sum('total_hari');
+        $otherLeaveUsed = PengajuanCuti::where('karyawan_id', $karyawan->id)
+            ->where('jenis_cuti', 'lainnya')
+            ->whereIn('status', ['disetujui', 'approved'])
+            ->sum('total_hari');
 
-        $leaveRequests = PengajuanCuti::where('karyawan_id', $karyawan->id)
-            ->orderBy('created_at', 'desc')
-            ->limit(5)
-            ->get()
-            ->map(fn($l) => [
-                'tanggal_mulai'   => $l->tanggal_mulai->format('d/m/Y'),
+        $leaveRequests = PengajuanCuti::where('karyawan_id', $karyawan->id)->orderBy('created_at', 'desc')->limit(5)->get()->map(
+            fn($l) => [
+                'tanggal_mulai' => $l->tanggal_mulai->format('d/m/Y'),
                 'tanggal_selesai' => $l->tanggal_selesai->format('d/m/Y'),
-                'jenis_cuti'      => $l->jenis_cuti_label,
-                'total_hari'      => $l->total_hari,
-                'status'          => $l->status,
-            ]);
+                'jenis_cuti' => $l->jenis_cuti_label,
+                'total_hari' => $l->total_hari,
+                'status' => $l->status,
+            ],
+        );
 
         // Performance
-        $latestPerformance = Performa::where('karyawan_id', $karyawan->id)
-            ->orderBy('tahun', 'desc')
-            ->orderBy('bulan', 'desc')
-            ->first();
+        $latestPerformance = Performa::where('karyawan_id', $karyawan->id)->orderBy('tahun', 'desc')->orderBy('bulan', 'desc')->first();
 
         $prevPerf = null;
         if ($latestPerformance) {
             $prevMonth = $latestPerformance->bulan - 1;
-            $prevYear  = $latestPerformance->tahun;
-            if ($prevMonth === 0) { $prevMonth = 12; $prevYear--; }
-            $prevPerf = Performa::where('karyawan_id', $karyawan->id)
-                ->where('tahun', $prevYear)->where('bulan', $prevMonth)->first();
+            $prevYear = $latestPerformance->tahun;
+            if ($prevMonth === 0) {
+                $prevMonth = 12;
+                $prevYear--;
+            }
+            $prevPerf = Performa::where('karyawan_id', $karyawan->id)->where('tahun', $prevYear)->where('bulan', $prevMonth)->first();
         }
 
         $performanceChange = 0;
@@ -124,25 +106,7 @@ class ProfileController extends Controller
         $inProgressTasks = 0;
         $doneTasks = 0;
 
-        return view('profile.edit', compact(
-            'karyawan',
-            'attendanceRate',
-            'presentCount',
-            'lateCount',
-            'absentCount',
-            'recentAttendances',
-            'annualLeaveUsed',
-            'sickLeaveUsed',
-            'emergencyLeaveUsed',
-            'otherLeaveUsed',
-            'leaveRequests',
-            'latestPerformance',
-            'performanceChange',
-            'taskCompletionRate',
-            'todoTasks',
-            'inProgressTasks',
-            'doneTasks'
-        ));
+        return view('profile.edit', compact('karyawan', 'attendanceRate', 'presentCount', 'lateCount', 'absentCount', 'recentAttendances', 'annualLeaveUsed', 'sickLeaveUsed', 'emergencyLeaveUsed', 'otherLeaveUsed', 'leaveRequests', 'latestPerformance', 'performanceChange', 'taskCompletionRate', 'todoTasks', 'inProgressTasks', 'doneTasks'));
     }
 
     public function update(Request $request)
@@ -235,12 +199,14 @@ class ProfileController extends Controller
                 return response()->json(['success' => true, 'message' => 'Profile updated successfully']);
             }
             return redirect()->route('profile.edit')->with('success', 'Profile updated successfully');
-
         } catch (\Throwable $th) {
             if ($request->ajax()) {
                 return response()->json(['success' => false, 'message' => $th->getMessage()], 422);
             }
-            return redirect()->back()->withInput()->with('error', 'Error: ' . $th->getMessage());
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', 'Error: ' . $th->getMessage());
         }
     }
 
@@ -255,7 +221,9 @@ class ProfileController extends Controller
 
         // Verifikasi password lama
         if (!Hash::check($validated['current_password'], $karyawan->kata_sandi)) {
-            return redirect()->back()->withErrors(['current_password' => 'Current password is incorrect']);
+            return redirect()
+                ->back()
+                ->withErrors(['current_password' => 'Current password is incorrect']);
         }
 
         $karyawan->update([
@@ -286,17 +254,21 @@ class ProfileController extends Controller
 
     private function countWeekdays(Carbon $start, Carbon $end): int
     {
-        if ($start->gt($end)) return 0;
+        if ($start->gt($end)) {
+            return 0;
+        }
 
-        $totalDays  = $start->diffInDays($end) + 1;
-        $fullWeeks  = intdiv($totalDays, 7);
-        $weekdays   = $fullWeeks * 6;
-        $extra      = $totalDays % 7;
-        $dow        = $start->dayOfWeek;
+        $totalDays = $start->diffInDays($end) + 1;
+        $fullWeeks = intdiv($totalDays, 7);
+        $weekdays = $fullWeeks * 6;
+        $extra = $totalDays % 7;
+        $dow = $start->dayOfWeek;
 
         for ($i = 0; $i < $extra; $i++) {
             $d = ($dow + $i) % 7;
-            if ($d >= 1 && $d <= 6) $weekdays++;
+            if ($d >= 1 && $d <= 6) {
+                $weekdays++;
+            }
         }
 
         return $weekdays;

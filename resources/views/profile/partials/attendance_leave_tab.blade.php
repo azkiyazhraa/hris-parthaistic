@@ -35,6 +35,21 @@
             </div>
         </div>
 
+        <!-- Late Card -->
+        <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl p-4 text-white shadow-lg">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-yellow-100 text-sm">Late</p>
+                    <p class="text-3xl font-bold mt-1">{{ $lateCount }}</p>
+                </div>
+                <div class="bg-white/20 rounded-full p-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
         <!-- Absent Card -->
         <div class="bg-gradient-to-br from-red-500 to-red-600 rounded-xl p-4 text-white shadow-lg">
             <div class="flex justify-between items-start">
@@ -70,13 +85,13 @@
                     @forelse($recentAttendances as $attendance)
                         <tr class="hover:bg-gray-50">
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {{ \Carbon\Carbon::parse($attendance->tanggal)->format('d F Y') }}
+                                {{ $attendance->tanggal ? \Carbon\Carbon::parse($attendance->tanggal)->format('d F Y') : '-' }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                {{ $attendance->jam_masuk ? \Carbon\Carbon::parse($attendance->jam_masuk)->format('h.i A') : '-' }}
+                                {{ $attendance->jam_masuk ? \Carbon\Carbon::parse($attendance->jam_masuk)->format('H.i') : '-' }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                {{ $attendance->jam_pulang ? \Carbon\Carbon::parse($attendance->jam_pulang)->format('h.i A') : '-' }}
+                                {{ $attendance->jam_pulang ? \Carbon\Carbon::parse($attendance->jam_pulang)->format('H.i') : '-' }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 @php
@@ -92,7 +107,7 @@
                                         'permit' => 'Permit',
                                         'sick' => 'Sick',
                                         'absent' => 'Absent',
-                                        default => ucfirst($attendance->status_kehadiran),
+                                        default => ucfirst($attendance->status_kehadiran ?? 'pending'),
                                     };
                                 @endphp
                                 <span class="px-2 py-1 text-xs rounded-full {{ $statusClass }}">{{ $statusText }}</span>
@@ -192,33 +207,25 @@
                     @forelse($leaveRequests as $leave)
                         <tr class="hover:bg-gray-50">
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {{ \Carbon\Carbon::parse($leave->tanggal_mulai)->format('d/m/Y') }} - {{ \Carbon\Carbon::parse($leave->tanggal_selesai)->format('d/m/Y') }}
+                                {{ \Carbon\Carbon::parse($leave['tanggal_mulai'])->format('d/m/Y') }} - {{ \Carbon\Carbon::parse($leave['tanggal_selesai'])->format('d/m/Y') }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                @php
-                                    $typeLabels = [
-                                        'tahunan' => 'Annual Leave',
-                                        'sakit' => 'Sick Leave',
-                                        'penting' => 'Emergency Leave',
-                                        'lainnya' => 'Other Leave',
-                                    ];
-                                @endphp
-                                {{ $typeLabels[$leave->jenis_cuti] ?? ucfirst($leave->jenis_cuti) }}
+                                {{ $leave['jenis_cuti'] }}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $leave->total_hari }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $leave['total_hari'] }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 @php
-                                    $statusClass = match($leave->status) {
+                                    $statusClass = match($leave['status']) {
                                         'disetujui', 'approved' => 'bg-green-100 text-green-800',
                                         'ditolak', 'rejected' => 'bg-red-100 text-red-800',
                                         'pending' => 'bg-yellow-100 text-yellow-800',
                                         default => 'bg-gray-100 text-gray-800',
                                     };
-                                    $statusText = match($leave->status) {
+                                    $statusText = match($leave['status']) {
                                         'disetujui', 'approved' => 'Approved',
                                         'ditolak', 'rejected' => 'Rejected',
                                         'pending' => 'Requested',
-                                        default => ucfirst($leave->status),
+                                        default => ucfirst($leave['status']),
                                     };
                                 @endphp
                                 <span class="px-2 py-1 text-xs rounded-full {{ $statusClass }}">{{ $statusText }}</span>
