@@ -125,15 +125,30 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                        <select name="status"
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Status <span
+                                class="text-red-500">*</span></label>
+                        <select name="status" id="statusSelectEdit{{ $item->id }}"
+                            onchange="toggleEndDateEdit({{ $item->id }})" required
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                            <option value="Permanent" {{ $item->status === 'Permanent' ? 'selected' : '' }}>Permanent
-                            </option>
-                            <option value="Contract" {{ $item->status === 'Contract' ? 'selected' : '' }}>Contract
-                            </option>
-                            <option value="Outsource" {{ $item->status === 'Outsource' ? 'selected' : '' }}>Outsource
-                            </option>
+                            <optgroup label="Active">
+                                <option value="Full-time" {{ $item->status === 'Full-time' ? 'selected' : '' }}>
+                                    Full-time</option>
+                                <option value="Contract" {{ $item->status === 'Contract' ? 'selected' : '' }}>Contract
+                                </option>
+                                <option value="Internship" {{ $item->status === 'Internship' ? 'selected' : '' }}>
+                                    Internship</option>
+                            </optgroup>
+                            <optgroup label="Inactive">
+                                <option value="Resigned" {{ $item->status === 'Resigned' ? 'selected' : '' }}>Resigned
+                                </option>
+                                <option value="Contract Ended"
+                                    {{ $item->status === 'Contract Ended' ? 'selected' : '' }}>Contract Ended</option>
+                                <option value="Internship Completed"
+                                    {{ $item->status === 'Internship Completed' ? 'selected' : '' }}>Internship
+                                    Completed</option>
+                                <option value="Terminated" {{ $item->status === 'Terminated' ? 'selected' : '' }}>
+                                    Terminated</option>
+                            </optgroup>
                         </select>
                     </div>
 
@@ -143,6 +158,42 @@
                             value="{{ $item->tanggal_bergabung ? $item->tanggal_bergabung->format('Y-m-d') : '' }}"
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
+
+                    @php
+                        $inactiveStatuses = ['Resigned', 'Contract Ended', 'Internship Completed', 'Terminated'];
+                        $isInactive = in_array($item->status, $inactiveStatuses);
+                    @endphp
+
+                    <div id="endDateFieldEdit{{ $item->id }}"
+                        style="display:{{ $isInactive ? 'block' : 'none' }};">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">End Date <span
+                                class="text-red-500">*</span></label>
+                        <input type="date" name="end_date"
+                            value="{{ $item->end_date ? $item->end_date->format('Y-m-d') : '' }}"
+                            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+
+                    <div id="reasonResignedFieldEdit{{ $item->id }}"
+                        style="display:{{ $isInactive ? 'block' : 'none' }};">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Reason</label>
+                        <textarea name="reason_resigned" rows="2"
+                            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                            placeholder="Reason for leaving...">{{ $item->reason_resigned }}</textarea>
+                    </div>
+
+                    {{-- Tampilkan total hari kerja jika status inactive --}}
+                    @if ($isInactive && $item->total_hari_kerja > 0)
+                        <div class="md:col-span-2 bg-gray-50 rounded-lg p-3 border border-gray-200">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Total Working Days</label>
+                            <p class="text-lg font-semibold text-gray-800">
+                                {{ number_format($item->total_hari_kerja) }} days
+                                <span
+                                    class="text-sm font-normal text-gray-500">({{ $item->total_hari_kerja_formatted }})</span>
+                            </p>
+                            <p class="text-xs text-gray-400 mt-1">Calculated automatically from Join Date to End Date
+                            </p>
+                        </div>
+                    @endif
                 </div>
             </div>
 
@@ -296,6 +347,21 @@
             lainnyaField.style.display = 'block';
         } else {
             lainnyaField.style.display = 'none';
+        }
+    }
+
+    function toggleEndDateEdit(id) {
+        const statusSelect = document.getElementById('statusSelectEdit' + id);
+        const endDateField = document.getElementById('endDateFieldEdit' + id);
+        const reasonField = document.getElementById('reasonResignedFieldEdit' + id);
+        const inactiveStatuses = ['Resigned', 'Contract Ended', 'Internship Completed', 'Terminated'];
+
+        if (inactiveStatuses.includes(statusSelect.value)) {
+            endDateField.style.display = 'block';
+            reasonField.style.display = 'block';
+        } else {
+            endDateField.style.display = 'none';
+            reasonField.style.display = 'none';
         }
     }
 </script>

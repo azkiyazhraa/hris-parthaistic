@@ -17,24 +17,31 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // Total karyawan selain admin
-        $totalKaryawan = Karyawan::where('role', '!=', 'admin')->count();
+        // Total karyawan selain admin & hr
+        $totalKaryawan = Karyawan::where('role', '!=', 'admin')->where('role', '!=', 'hr')->count();
 
-        // Hitung status karyawan sekaligus
-        $statusCounts = Karyawan::selectRaw(
-            "
-            SUM(status = 'permanent') as permanent,
-            SUM(status = 'contract') as contract,
-            SUM(status = 'outsource') as outsource
-        ",
-        )
-            ->where('role', '!=', 'admin')
-            ->first();
+        // Hitung status karyawan - cara aman untuk MySQL
+        $fulltime = Karyawan::where('role', '!=', 'admin')->where('role', '!=', 'hr')->where('status', 'Full-time')->count();
+
+        $contract = Karyawan::where('role', '!=', 'admin')->where('role', '!=', 'hr')->where('status', 'Contract')->count();
+
+        $internship = Karyawan::where('role', '!=', 'admin')->where('role', '!=', 'hr')->where('status', 'Internship')->count();
+
+        $resigned = Karyawan::where('role', '!=', 'admin')->where('role', '!=', 'hr')->where('status', 'Resigned')->count();
+
+        $contractEnded = Karyawan::where('role', '!=', 'admin')->where('role', '!=', 'hr')->where('status', 'Contract Ended')->count();
+
+        $internshipCompleted = Karyawan::where('role', '!=', 'admin')->where('role', '!=', 'hr')->where('status', 'Internship Completed')->count();
+
+        $terminated = Karyawan::where('role', '!=', 'admin')->where('role', '!=', 'hr')->where('status', 'Terminated')->count();
 
         // Persentase status
-        $permanent = $totalKaryawan > 0 ? ($statusCounts->permanent / $totalKaryawan) * 100 : 0;
-        $contract = $totalKaryawan > 0 ? ($statusCounts->contract / $totalKaryawan) * 100 : 0;
-        $outsource = $totalKaryawan > 0 ? ($statusCounts->outsource / $totalKaryawan) * 100 : 0;
+        $fulltimePercent = $totalKaryawan > 0 ? ($fulltime / $totalKaryawan) * 100 : 0;
+        $contractPercent = $totalKaryawan > 0 ? ($contract / $totalKaryawan) * 100 : 0;
+        $internshipPercent = $totalKaryawan > 0 ? ($internship / $totalKaryawan) * 100 : 0;
+
+        // Total resigned/terminated employees
+        $resignedEmployees = $resigned + $contractEnded + $internshipCompleted + $terminated;
 
         // Pengumuman terbaru
         $attachment = Pengumuman::latest()->limit(4)->get();
@@ -45,13 +52,13 @@ class DashboardController extends Controller
         // Statistik absensi
         $attendanceCounts = AbsensiKaryawan::selectRaw(
             '
-            COUNT(*) as total,
-            SUM(status_kehadiran = ?) as pending,
-            SUM(status_kehadiran = ?) as present,
-            SUM(status_kehadiran = ?) as permit,
-            SUM(status_kehadiran = ?) as sick,
-            SUM(status_kehadiran = ?) as absent
-        ',
+        COUNT(*) as total,
+        SUM(status_kehadiran = ?) as pending,
+        SUM(status_kehadiran = ?) as present,
+        SUM(status_kehadiran = ?) as permit,
+        SUM(status_kehadiran = ?) as sick,
+        SUM(status_kehadiran = ?) as absent
+    ',
             [AbsensiKaryawan::STATUS_PENDING, AbsensiKaryawan::STATUS_PRESENT, AbsensiKaryawan::STATUS_PERMIT, AbsensiKaryawan::STATUS_SICK, AbsensiKaryawan::STATUS_ABSENT],
         )
             ->where('is_change_day', false)
@@ -59,15 +66,15 @@ class DashboardController extends Controller
             ->first();
 
         $statistics = [
-            'total' => (int) $attendanceCounts->total,
-            'pending' => (int) $attendanceCounts->pending,
-            'present' => (int) $attendanceCounts->present,
-            'permit' => (int) $attendanceCounts->permit,
-            'sick' => (int) $attendanceCounts->sick,
-            'absent' => (int) $attendanceCounts->absent,
+            'total' => (int) ($attendanceCounts->total ?? 0),
+            'pending' => (int) ($attendanceCounts->pending ?? 0),
+            'present' => (int) ($attendanceCounts->present ?? 0),
+            'permit' => (int) ($attendanceCounts->permit ?? 0),
+            'sick' => (int) ($attendanceCounts->sick ?? 0),
+            'absent' => (int) ($attendanceCounts->absent ?? 0),
         ];
 
-        return view('admin.dashboard', compact('totalKaryawan', 'permanent', 'contract', 'outsource', 'attachment', 'absensi', 'statistics'));
+        return view('admin.dashboard', compact('totalKaryawan', 'fulltime', 'contract', 'internship', 'fulltimePercent', 'contractPercent', 'internshipPercent', 'resignedEmployees', 'attachment', 'absensi', 'statistics'));
     }
 
     public function karyawan()
@@ -88,7 +95,7 @@ class DashboardController extends Controller
                 'role' => 'required|in:admin,hr,karyawan',
                 'jabatan' => 'nullable|in:Chief Executive Officer,Chief Operating Officer,Creative Writer,Finance,Business Development,Videographer,Video Editor,Social Media Manager,lainnya',
                 'jabatan_lainnya' => 'nullable|required_if:jabatan,lainnya|string|max:100',
-                'status' => 'required|in:Permanent,Contract,Outsource',
+                'status' => 'required|in:Full-time,Contract,Internship,Resigned,Contract Ended,Internship Completed,Terminated',
                 'pendidikan_terakhir' => 'nullable|in:SMP,SMA/MA,SMK,D1,D2,D3,S1,S2',
                 'nama_bank' => 'nullable|string|max:50',
                 'nomor_rekening' => 'nullable|string|max:30',
@@ -108,10 +115,12 @@ class DashboardController extends Controller
                 'nama_kontak_darurat' => 'nullable|string|max:100',
                 'telepon_kontak_darurat' => 'nullable|string|max:30',
                 'tanggal_bergabung' => 'nullable|date',
+                'end_date' => 'nullable|date',
+                'reason_resigned' => 'nullable|string|max:255',
                 'foto_profil' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             ]);
 
-            // Generate NIP otomatis
+            // Generate NIP
             $lastKaryawan = Karyawan::orderBy('id', 'desc')->first();
             $lastNumber = 0;
             if ($lastKaryawan && preg_match('/EMP(\d+)/', $lastKaryawan->nip, $matches)) {
@@ -125,7 +134,8 @@ class DashboardController extends Controller
                 $fotoPath = $request->file('foto_profil')->store('karyawan', 'public');
             }
 
-            Karyawan::create([
+            // Buat karyawan baru (boot model akan otomatis hitung total_hari_kerja)
+            $karyawan = Karyawan::create([
                 'nip' => $newNip,
                 'email' => $validated['email'],
                 'kata_sandi' => Hash::make($validated['kata_sandi']),
@@ -136,15 +146,16 @@ class DashboardController extends Controller
                 'jabatan' => $validated['jabatan'] ?? null,
                 'jabatan_lainnya' => ($validated['jabatan'] ?? '') === 'lainnya' ? $validated['jabatan_lainnya'] ?? null : null,
                 'status' => $validated['status'],
+                'tanggal_bergabung' => $validated['tanggal_bergabung'] ?? now(),
+                'end_date' => $validated['end_date'] ?? null,
+                'reason_resigned' => $validated['reason_resigned'] ?? null,
                 'pendidikan_terakhir' => $validated['pendidikan_terakhir'] ?? null,
                 'pendidikan_terakhir_new' => $validated['pendidikan_terakhir'] ?? null,
                 'nama_bank' => $validated['nama_bank'] ?? 'BSI',
                 'nomor_rekening' => $validated['nomor_rekening'] ?? null,
-
                 'foto_profil' => $fotoPath,
                 'nomor_telepon' => $validated['nomor_telepon'] ?? null,
                 'alamat' => $validated['alamat'] ?? null,
-                'tanggal_bergabung' => $validated['tanggal_bergabung'] ?? now(),
                 'nik' => $validated['nik'] ?? null,
                 'npwp' => $validated['npwp'] ?? null,
                 'tempat_lahir' => $validated['tempat_lahir'] ?? null,
@@ -159,7 +170,7 @@ class DashboardController extends Controller
                 'telepon_kontak_darurat' => $validated['telepon_kontak_darurat'] ?? null,
             ]);
 
-            return redirect()->route('admin.karyawan')->with('success', 'Employee added successfully');
+            return redirect()->route('admin.karyawan')->with('success', 'Employee added successfully. Working days calculated automatically.');
         } catch (\Throwable $th) {
             return redirect()
                 ->back()
@@ -186,7 +197,7 @@ class DashboardController extends Controller
                 'role' => 'required|in:admin,hr,karyawan',
                 'jabatan' => 'nullable|in:Chief Executive Officer,Chief Operating Officer,Creative Writer,Finance,Business Development,Videographer,Video Editor,Social Media Manager,lainnya',
                 'jabatan_lainnya' => 'nullable|required_if:jabatan,lainnya|string|max:100',
-                'status' => 'required|in:Permanent,Contract,Outsource',
+                'status' => 'required|in:Full-time,Contract,Internship,Resigned,Contract Ended,Internship Completed,Terminated',
                 'pendidikan_terakhir' => 'nullable|in:SMP,SMA/MA,SMK,D1,D2,D3,S1,S2',
                 'nama_bank' => 'nullable|string|max:50',
                 'nomor_rekening' => 'nullable|string|max:30',
@@ -207,6 +218,8 @@ class DashboardController extends Controller
                 'nama_kontak_darurat' => 'nullable|string|max:100',
                 'telepon_kontak_darurat' => 'nullable|string|max:30',
                 'tanggal_bergabung' => 'nullable|date',
+                'end_date' => 'nullable|date',
+                'reason_resigned' => 'nullable|string|max:255',
                 'foto_profil' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             ]);
 
@@ -219,14 +232,15 @@ class DashboardController extends Controller
                 'jabatan' => $validated['jabatan'] ?? null,
                 'jabatan_lainnya' => ($validated['jabatan'] ?? '') === 'lainnya' ? $validated['jabatan_lainnya'] ?? null : null,
                 'status' => $validated['status'],
+                'tanggal_bergabung' => $validated['tanggal_bergabung'] ?? $karyawan->tanggal_bergabung,
+                'end_date' => $validated['end_date'] ?? null,
+                'reason_resigned' => $validated['reason_resigned'] ?? null,
                 'pendidikan_terakhir' => $validated['pendidikan_terakhir'] ?? null,
                 'pendidikan_terakhir_new' => $validated['pendidikan_terakhir'] ?? null,
-                'nama_bank' => $validated['nama_bank'] ?? 'BSI',
-                'nomor_rekening' => $validated['nomor_rekening'] ?? null,
-
+                'nama_bank' => $validated['nama_bank'] ?? $karyawan->nama_bank,
+                'nomor_rekening' => $validated['nomor_rekening'] ?? $karyawan->nomor_rekening,
                 'nomor_telepon' => $validated['nomor_telepon'] ?? $karyawan->nomor_telepon,
                 'alamat' => $validated['alamat'] ?? $karyawan->alamat,
-                'tanggal_bergabung' => $validated['tanggal_bergabung'] ?? $karyawan->tanggal_bergabung,
                 'nik' => $validated['nik'] ?? $karyawan->nik,
                 'npwp' => $validated['npwp'] ?? $karyawan->npwp,
                 'tempat_lahir' => $validated['tempat_lahir'] ?? $karyawan->tempat_lahir,
@@ -252,9 +266,10 @@ class DashboardController extends Controller
                 $updateData['foto_profil'] = $request->file('foto_profil')->store('karyawan', 'public');
             }
 
+            // Update data (boot model akan otomatis hitung total_hari_kerja)
             $karyawan->update($updateData);
 
-            return redirect()->route('admin.karyawan')->with('success', 'Employee updated successfully');
+            return redirect()->route('admin.karyawan')->with('success', 'Employee updated successfully. Working days calculated automatically.');
         } catch (\Throwable $th) {
             return redirect()
                 ->back()
@@ -262,7 +277,6 @@ class DashboardController extends Controller
                 ->with('error', 'Error: ' . $th->getMessage());
         }
     }
-
     public function destroyKaryawan($id)
     {
         // Method ini tidak digunakan lagi (fitur delete dihapus)

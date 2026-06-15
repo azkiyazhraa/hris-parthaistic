@@ -31,11 +31,11 @@
                     <div class="space-y-2 text-xs">
                         <div>
                             <div class="flex justify-between mb-1">
-                                <span>Permanent</span>
-                                <span>{{ number_format($permanent) }}%</span>
+                                <span>Full-time</span>
+                                <span>{{ number_format($fulltimePercent, 1) }}%</span>
                             </div>
                             <div class="w-full bg-gray-200 h-2 rounded-full">
-                                <div class="bg-blue-500 h-2 rounded-full" style="width: {{ round($permanent) }}%">
+                                <div class="bg-blue-500 h-2 rounded-full" style="width: {{ round($fulltimePercent) }}%">
                                 </div>
                             </div>
                         </div>
@@ -43,21 +43,33 @@
                         <div>
                             <div class="flex justify-between mb-1">
                                 <span>Contract</span>
-                                <span>{{ number_format($contract) }}%</span>
+                                <span>{{ number_format($contractPercent, 1) }}%</span>
                             </div>
                             <div class="w-full bg-gray-200 h-2 rounded-full">
-                                <div class="bg-blue-500 h-2 rounded-full" style="width: {{ round($contract) }}%">
+                                <div class="bg-green-500 h-2 rounded-full" style="width: {{ round($contractPercent) }}%">
                                 </div>
                             </div>
                         </div>
 
                         <div>
                             <div class="flex justify-between mb-1">
-                                <span>Outsource</span>
-                                <span>{{ number_format($outsource) }}%</span>
+                                <span>Internship</span>
+                                <span>{{ number_format($internshipPercent, 1) }}%</span>
                             </div>
                             <div class="w-full bg-gray-200 h-2 rounded-full">
-                                <div class="bg-blue-500 h-2 rounded-full" style="width: {{ round($outsource) }}%">
+                                <div class="bg-purple-500 h-2 rounded-full" style="width: {{ round($internshipPercent) }}%">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span>Resigned/Terminated</span>
+                                <span>{{ $resignedEmployees }}</span>
+                            </div>
+                            <div class="w-full bg-gray-200 h-2 rounded-full">
+                                <div class="bg-red-500 h-2 rounded-full"
+                                    style="width: {{ $totalKaryawan > 0 ? round(($resignedEmployees / $totalKaryawan) * 100) : 0 }}%">
                                 </div>
                             </div>
                         </div>
@@ -165,16 +177,24 @@
                                                         : 'https://ui-avatars.com/api/?background=2563EB&color=fff&size=100&name=' .
                                                             urlencode($item->karyawan->nama_lengkap);
                                                 @endphp
-                                                <div class="w-9 h-9 rounded-full bg-blue-100 border border-blue-200 overflow-hidden shrink-0">
-                                                    <img src="{{ $fotoUrl }}" alt="{{ $item->karyawan->nama_lengkap }}"
+                                                <div
+                                                    class="w-9 h-9 rounded-full bg-blue-100 border border-blue-200 overflow-hidden shrink-0">
+                                                    <img src="{{ $fotoUrl }}"
+                                                        alt="{{ $item->karyawan->nama_lengkap }}"
                                                         class="w-full h-full object-cover" loading="lazy">
                                                 </div>
-                                                <span class="font-medium text-gray-800">{{ $item->karyawan->nama_lengkap }}</span>
+                                                <span
+                                                    class="font-medium text-gray-800">{{ $item->karyawan->nama_lengkap }}</span>
                                             </div>
                                         </td>
-                                        <td class="p-3">{{ $item->tanggal ? $item->tanggal->format('d M Y') : '-' }}</td>
-                                        <td class="p-3">{{ $item->jam_masuk ? \Carbon\Carbon::parse($item->jam_masuk)->format('H:i') : '-' }}</td>
-                                        <td class="p-3">{{ $item->jam_pulang ? \Carbon\Carbon::parse($item->jam_pulang)->format('H:i') : '-' }}</td>
+                                        <td class="p-3">{{ $item->tanggal ? $item->tanggal->format('d M Y') : '-' }}
+                                        </td>
+                                        <td class="p-3">
+                                            {{ $item->jam_masuk ? \Carbon\Carbon::parse($item->jam_masuk)->format('H:i') : '-' }}
+                                        </td>
+                                        <td class="p-3">
+                                            {{ $item->jam_pulang ? \Carbon\Carbon::parse($item->jam_pulang)->format('H:i') : '-' }}
+                                        </td>
                                         <td class="p-3">
                                             @php
                                                 $status = $item->status_kehadiran;
@@ -185,16 +205,21 @@
                                                     'sick' => ['Sick', 'bg-purple-100 text-purple-800'],
                                                     'absent' => ['Absent', 'bg-red-100 text-red-800'],
                                                 ];
-                                                [$label, $class] = $statusMap[$status] ?? ['Unknown', 'bg-gray-100 text-gray-800'];
+                                                [$label, $class] = $statusMap[$status] ?? [
+                                                    'Unknown',
+                                                    'bg-gray-100 text-gray-800',
+                                                ];
                                             @endphp
-                                            <span class="inline-flex px-3 py-1 rounded-full text-xs font-medium {{ $class }}">
+                                            <span
+                                                class="inline-flex px-3 py-1 rounded-full text-xs font-medium {{ $class }}">
                                                 {{ $label }}
                                             </span>
-                                         </td>
+                                        </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="p-3 text-center text-gray-400">No attendance records for today.</td>
+                                        <td colspan="5" class="p-3 text-center text-gray-400">No attendance records for
+                                            today.</td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -223,7 +248,8 @@
                     <button onclick="closeDetailModal()"
                         class="w-10 h-10 rounded-xl hover:bg-gray-100 flex items-center justify-center transition">
                         <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
@@ -240,12 +266,19 @@
     {{-- DONUT CHART --}}
     <script>
         var options = {
-            chart: { type: 'donut', height: 250 },
+            chart: {
+                type: 'donut',
+                height: 250
+            },
             series: [80, 10, 10],
             labels: ['Done', 'In Progress', 'To-Do'],
             colors: ['#06b6d4', '#4ade80', '#f43f5e'],
-            legend: { position: 'bottom' },
-            dataLabels: { enabled: false },
+            legend: {
+                position: 'bottom'
+            },
+            dataLabels: {
+                enabled: false
+            },
             plotOptions: {
                 pie: {
                     donut: {
@@ -255,7 +288,9 @@
                             total: {
                                 show: true,
                                 label: 'Progress',
-                                formatter: function() { return '80%'; }
+                                formatter: function() {
+                                    return '80%';
+                                }
                             }
                         }
                     }
@@ -279,7 +314,10 @@
                 if (this.container) this.init();
             }
 
-            init() { this.render(); this.loadEvents(); }
+            init() {
+                this.render();
+                this.loadEvents();
+            }
 
             async loadEvents() {
                 const year = this.currentDate.getFullYear();
@@ -287,8 +325,13 @@
                 try {
                     const response = await fetch(`/calendar/events?year=${year}&month=${month}`);
                     const data = await response.json();
-                    if (data.success) { this.events = data.events; this.renderEvents(); }
-                } catch (error) { console.error('Error loading events:', error); }
+                    if (data.success) {
+                        this.events = data.events;
+                        this.renderEvents();
+                    }
+                } catch (error) {
+                    console.error('Error loading events:', error);
+                }
             }
 
             render() {
@@ -362,9 +405,17 @@
             }
 
             getEventIndicators(events) {
-                const colors = { 'blue': 'bg-blue-500', 'green': 'bg-green-500', 'yellow': 'bg-yellow-500', 'red': 'bg-red-500', 'purple': 'bg-purple-500' };
+                const colors = {
+                    'blue': 'bg-blue-500',
+                    'green': 'bg-green-500',
+                    'yellow': 'bg-yellow-500',
+                    'red': 'bg-red-500',
+                    'purple': 'bg-purple-500'
+                };
                 const topEvents = events.slice(0, 3);
-                return topEvents.map(event => `<div class="w-1.5 h-1.5 rounded-full ${colors[event.color] || 'bg-gray-500'}" title="${event.title}"></div>`).join('');
+                return topEvents.map(event =>
+                    `<div class="w-1.5 h-1.5 rounded-full ${colors[event.color] || 'bg-gray-500'}" title="${event.title}"></div>`
+                    ).join('');
             }
 
             isToday(year, month, day) {
@@ -374,10 +425,18 @@
 
             attachEventListeners() {
                 const prevBtn = this.container.querySelector('.calendar-prev');
-                if (prevBtn) prevBtn.addEventListener('click', () => { this.currentDate.setMonth(this.currentDate.getMonth() - 1); this.render(); this.loadEvents(); });
+                if (prevBtn) prevBtn.addEventListener('click', () => {
+                    this.currentDate.setMonth(this.currentDate.getMonth() - 1);
+                    this.render();
+                    this.loadEvents();
+                });
 
                 const nextBtn = this.container.querySelector('.calendar-next');
-                if (nextBtn) nextBtn.addEventListener('click', () => { this.currentDate.setMonth(this.currentDate.getMonth() + 1); this.render(); this.loadEvents(); });
+                if (nextBtn) nextBtn.addEventListener('click', () => {
+                    this.currentDate.setMonth(this.currentDate.getMonth() + 1);
+                    this.render();
+                    this.loadEvents();
+                });
 
                 const dayBtns = this.container.querySelectorAll('.day-btn');
                 dayBtns.forEach(btn => {
@@ -392,12 +451,26 @@
 
             showDateEvents(date, events) {
                 if (events.length === 0) {
-                    Swal.fire({ title: `No Events`, text: `No events scheduled on ${date}`, icon: 'info', confirmButtonText: 'Close', customClass: { popup: 'rounded-2xl' } });
+                    Swal.fire({
+                        title: `No Events`,
+                        text: `No events scheduled on ${date}`,
+                        icon: 'info',
+                        confirmButtonText: 'Close',
+                        customClass: {
+                            popup: 'rounded-2xl'
+                        }
+                    });
                     return;
                 }
 
                 let eventListHtml = '<div class="space-y-2 max-h-96 overflow-y-auto">';
-                const colorBg = { 'blue': 'bg-blue-100', 'green': 'bg-green-100', 'yellow': 'bg-yellow-100', 'red': 'bg-red-100', 'purple': 'bg-purple-100' };
+                const colorBg = {
+                    'blue': 'bg-blue-100',
+                    'green': 'bg-green-100',
+                    'yellow': 'bg-yellow-100',
+                    'red': 'bg-red-100',
+                    'purple': 'bg-purple-100'
+                };
 
                 events.forEach(event => {
                     eventListHtml += `
@@ -417,11 +490,26 @@
                 });
                 eventListHtml += '</div>';
 
-                Swal.fire({ title: `Events on ${date}`, html: eventListHtml, confirmButtonText: 'Close', customClass: { popup: 'rounded-2xl', confirmButton: 'bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg' } });
+                Swal.fire({
+                    title: `Events on ${date}`,
+                    html: eventListHtml,
+                    confirmButtonText: 'Close',
+                    customClass: {
+                        popup: 'rounded-2xl',
+                        confirmButton: 'bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg'
+                    }
+                });
             }
 
-            escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
-            refresh() { this.loadEvents(); }
+            escapeHtml(text) {
+                if (!text) return '';
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+            refresh() {
+                this.loadEvents();
+            }
         }
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -437,12 +525,19 @@
                 .then(response => response.json())
                 .then(data => {
                     const categoryClass = {
-                        umum: 'bg-blue-100 text-blue-700', kebijakan: 'bg-amber-100 text-amber-700',
-                        pengumuman: 'bg-violet-100 text-violet-700', event: 'bg-emerald-100 text-emerald-700',
+                        umum: 'bg-blue-100 text-blue-700',
+                        kebijakan: 'bg-amber-100 text-amber-700',
+                        pengumuman: 'bg-violet-100 text-violet-700',
+                        event: 'bg-emerald-100 text-emerald-700',
                         penting: 'bg-red-100 text-red-700'
                     };
                     const badgeClass = categoryClass[data.kategori] || 'bg-gray-100 text-gray-700';
-                    const publishDate = data.tanggal_terbit ? new Date(data.tanggal_terbit).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) : '-';
+                    const publishDate = data.tanggal_terbit ? new Date(data.tanggal_terbit).toLocaleDateString(
+                    'id-ID', {
+                        day: '2-digit',
+                        month: 'long',
+                        year: 'numeric'
+                    }) : '-';
 
                     const content = `
                         <div class="space-y-6">
@@ -457,23 +552,23 @@
                                 <p class="text-sm leading-7 text-gray-700 whitespace-pre-line">${escapeHtml(data.konten)}</p>
                             </div>
                             ${data.lampiran ? `
-                                <div class="border border-blue-100 bg-blue-50 rounded-2xl p-4">
-                                    <div class="flex items-center justify-between flex-wrap gap-3">
-                                        <div class="flex items-center gap-3">
-                                            <div class="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
-                                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 16v-8m0 0l-3 3m3-3l3 3M5 20h14"/>
-                                                </svg>
+                                    <div class="border border-blue-100 bg-blue-50 rounded-2xl p-4">
+                                        <div class="flex items-center justify-between flex-wrap gap-3">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
+                                                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 16v-8m0 0l-3 3m3-3l3 3M5 20h14"/>
+                                                    </svg>
+                                                </div>
+                                                <div>
+                                                    <p class="text-sm font-medium text-gray-800">Attachment</p>
+                                                    <p class="text-xs text-gray-500">Click to ciew file</p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p class="text-sm font-medium text-gray-800">Attachment</p>
-                                                <p class="text-xs text-gray-500">Click to ciew file</p>
-                                            </div>
+                                            <a href="/storage/${data.lampiran}" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm transition">View File</a>
                                         </div>
-                                        <a href="/storage/${data.lampiran}" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm transition">View File</a>
                                     </div>
-                                </div>
-                            ` : ''}
+                                ` : ''}
                         </div>
                     `;
                     document.getElementById('detailContent').innerHTML = content;
@@ -482,7 +577,15 @@
                 .catch(error => console.error('Error fetching announcement details:', error));
         }
 
-        function closeDetailModal() { document.getElementById('detailModal').classList.add('hidden'); }
-        function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.add('hidden');
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
     </script>
 @endpush
