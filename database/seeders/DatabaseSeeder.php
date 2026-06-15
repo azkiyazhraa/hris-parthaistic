@@ -5,15 +5,45 @@ namespace Database\Seeders;
 use App\Models\Karyawan;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Carbon\Carbon;
 
 class DatabaseSeeder extends Seeder
 {
+    // Tanggal berdiri perusahaan (digunakan untuk generate NIP)
+    const COMPANY_FOUNDED = '2021-02-24';
+
+    private function generateNip(string $tanggalBergabung, string $jenisKelamin, int $nomorUrut): string
+    {
+        $founded = Carbon::parse(self::COMPANY_FOUNDED)->startOfDay();
+        $join    = Carbon::parse($tanggalBergabung)->startOfDay();
+
+        // Hitung tahun operasional
+        if ($join->lt($founded)) {
+            $tahunOps = 1;
+        } else {
+            $anniversaryThisYear = Carbon::create($join->year, 2, 24)->startOfDay();
+            if ($join->lt($anniversaryThisYear)) {
+                $tahunOps = $join->year - $founded->year;
+            } else {
+                $tahunOps = $join->year - $founded->year + 1;
+            }
+        }
+        $tahunOps = max(1, $tahunOps);
+
+        // Format komponen NIP
+        $X   = (string) $tahunOps;                                    // Tahun operasional
+        $YY  = str_pad($join->month, 2, '0', STR_PAD_LEFT);          // Bulan join (2 digit)
+        $G   = strtoupper($jenisKelamin) === 'L' ? '1' : '2';        // Gender
+        $NNN = str_pad($nomorUrut, 3, '0', STR_PAD_LEFT);            // Nomor urut (3 digit)
+
+        return $X . $YY . $G . $NNN;
+    }
+
     public function run(): void
     {
         $karyawanData = [
-            // Admin - Chief Executive Officer
             [
-                'nip'                    => 'ADMIN001',
+                'nip'                    => '1011001',
                 'email'                  => 'admin@hris.com',
                 'kata_sandi'             => Hash::make('password123'),
                 'nama_depan'             => 'Budi',
@@ -22,13 +52,13 @@ class DatabaseSeeder extends Seeder
                 'role'                   => 'admin',
                 'jabatan'                => 'Chief Executive Officer',
                 'jabatan_lainnya'        => null,
-                'status'                 => 'Permanent',
+                'status'                 => 'Full-time',
                 'nomor_telepon'          => '081200000001',
                 'jenis_kelamin'          => 'L',
                 'agama'                  => 'Islam',
                 'tempat_lahir'           => 'Jakarta',
                 'tanggal_lahir'          => '1985-03-15',
-                'status_pernikahan'      => 'Menikah',
+                'status_pernikahan'      => 'Married',
                 'pendidikan_terakhir'    => 'S1',
                 'pendidikan_terakhir_new'=> 'S1',
                 'universitas'            => 'Universitas Indonesia',
@@ -38,15 +68,16 @@ class DatabaseSeeder extends Seeder
                 'nik'                    => '3171010000000001',
                 'npwp'                   => '12.345.678.9-012.000',
                 'tanggal_bergabung'      => '2020-01-01',
+                'end_date'               => null,
+                'total_hari_kerja'       => 0,
+                'reason_resigned'        => null,
                 'nama_kontak_darurat'    => 'Siti Santoso',
                 'telepon_kontak_darurat' => '081200000011',
                 'nama_bank'              => 'BSI',
                 'nomor_rekening'         => '1234567890',
             ],
-
-            // HR - Chief Operating Officer
             [
-                'nip'                    => 'HR001',
+                'nip'                    => '1032002',
                 'email'                  => 'hr@hris.com',
                 'kata_sandi'             => Hash::make('password123'),
                 'nama_depan'             => 'Dewi',
@@ -55,13 +86,13 @@ class DatabaseSeeder extends Seeder
                 'role'                   => 'hr',
                 'jabatan'                => 'Chief Operating Officer',
                 'jabatan_lainnya'        => null,
-                'status'                 => 'Permanent',
+                'status'                 => 'Full-time',
                 'nomor_telepon'          => '081200000002',
                 'jenis_kelamin'          => 'P',
                 'agama'                  => 'Islam',
                 'tempat_lahir'           => 'Bandung',
                 'tanggal_lahir'          => '1990-07-22',
-                'status_pernikahan'      => 'Menikah',
+                'status_pernikahan'      => 'Married',
                 'pendidikan_terakhir'    => 'S1',
                 'pendidikan_terakhir_new'=> 'S1',
                 'universitas'            => 'Universitas Padjadjaran',
@@ -71,15 +102,16 @@ class DatabaseSeeder extends Seeder
                 'nik'                    => '3273010000000002',
                 'npwp'                   => '12.345.678.9-012.001',
                 'tanggal_bergabung'      => '2021-03-01',
+                'end_date'               => null,
+                'total_hari_kerja'       => 0,
+                'reason_resigned'        => null,
                 'nama_kontak_darurat'    => 'Ahmad Rahayu',
                 'telepon_kontak_darurat' => '081200000012',
                 'nama_bank'              => 'BSI',
                 'nomor_rekening'         => '1234567891',
             ],
-
-            // Karyawan 1 — Permanent — Finance
             [
-                'nip'                    => 'EMP0001',
+                'nip'                    => '1012003',
                 'email'                  => 'azkiya@hris.com',
                 'kata_sandi'             => Hash::make('password123'),
                 'nama_depan'             => 'Azkiya',
@@ -88,13 +120,13 @@ class DatabaseSeeder extends Seeder
                 'role'                   => 'karyawan',
                 'jabatan'                => 'Finance',
                 'jabatan_lainnya'        => null,
-                'status'                 => 'Permanent',
+                'status'                 => 'Full-time',
                 'nomor_telepon'          => '081200000003',
                 'jenis_kelamin'          => 'P',
                 'agama'                  => 'Islam',
                 'tempat_lahir'           => 'Yogyakarta',
                 'tanggal_lahir'          => '1995-04-10',
-                'status_pernikahan'      => 'Belum Menikah',
+                'status_pernikahan'      => 'Single',
                 'pendidikan_terakhir'    => 'S1',
                 'pendidikan_terakhir_new'=> 'S1',
                 'universitas'            => 'Universitas Gadjah Mada',
@@ -104,15 +136,16 @@ class DatabaseSeeder extends Seeder
                 'nik'                    => '3404010000000003',
                 'npwp'                   => '12.345.678.9-012.002',
                 'tanggal_bergabung'      => '2022-01-10',
+                'end_date'               => null,
+                'total_hari_kerja'       => 0,
+                'reason_resigned'        => null,
                 'nama_kontak_darurat'    => 'Zahra Sari',
                 'telepon_kontak_darurat' => '081200000013',
                 'nama_bank'              => 'BSI',
                 'nomor_rekening'         => '1234567892',
             ],
-
-            // Karyawan 2 — Permanent — Videographer
             [
-                'nip'                    => 'EMP0002',
+                'nip'                    => '1071004',
                 'email'                  => 'rizky@hris.com',
                 'kata_sandi'             => Hash::make('password123'),
                 'nama_depan'             => 'Rizky',
@@ -121,13 +154,13 @@ class DatabaseSeeder extends Seeder
                 'role'                   => 'karyawan',
                 'jabatan'                => 'Videographer',
                 'jabatan_lainnya'        => null,
-                'status'                 => 'Permanent',
+                'status'                 => 'Full-time',
                 'nomor_telepon'          => '081200000004',
                 'jenis_kelamin'          => 'L',
                 'agama'                  => 'Islam',
                 'tempat_lahir'           => 'Surabaya',
                 'tanggal_lahir'          => '1993-09-18',
-                'status_pernikahan'      => 'Menikah',
+                'status_pernikahan'      => 'Married',
                 'pendidikan_terakhir'    => 'S1',
                 'pendidikan_terakhir_new'=> 'S1',
                 'universitas'            => 'Institut Teknologi Sepuluh Nopember',
@@ -137,15 +170,16 @@ class DatabaseSeeder extends Seeder
                 'nik'                    => '3578010000000004',
                 'npwp'                   => '12.345.678.9-012.003',
                 'tanggal_bergabung'      => '2021-07-01',
+                'end_date'               => null,
+                'total_hari_kerja'       => 0,
+                'reason_resigned'        => null,
                 'nama_kontak_darurat'    => 'Rina Firmansyah',
                 'telepon_kontak_darurat' => '081200000014',
                 'nama_bank'              => 'BSI',
                 'nomor_rekening'         => '1234567893',
             ],
-
-            // Karyawan 3 — Contract — Creative Writer
             [
-                'nip'                    => 'EMP0003',
+                'nip'                    => '2022005',
                 'email'                  => 'ani@hris.com',
                 'kata_sandi'             => Hash::make('password123'),
                 'nama_depan'             => 'Ani',
@@ -160,7 +194,7 @@ class DatabaseSeeder extends Seeder
                 'agama'                  => 'Islam',
                 'tempat_lahir'           => 'Semarang',
                 'tanggal_lahir'          => '1997-12-05',
-                'status_pernikahan'      => 'Belum Menikah',
+                'status_pernikahan'      => 'Single',
                 'pendidikan_terakhir'    => 'D3',
                 'pendidikan_terakhir_new'=> 'D3',
                 'universitas'            => 'Universitas Diponegoro',
@@ -170,15 +204,16 @@ class DatabaseSeeder extends Seeder
                 'nik'                    => '3374010000000005',
                 'npwp'                   => '12.345.678.9-012.004',
                 'tanggal_bergabung'      => '2023-02-01',
+                'end_date'               => null,
+                'total_hari_kerja'       => 0,
+                'reason_resigned'        => null,
                 'nama_kontak_darurat'    => 'Hadi Rahmawati',
                 'telepon_kontak_darurat' => '081200000015',
                 'nama_bank'              => 'BSI',
                 'nomor_rekening'         => '1234567894',
             ],
-
-            // Karyawan 4 — Contract — Social Media Manager
             [
-                'nip'                    => 'EMP0004',
+                'nip'                    => '3081006',
                 'email'                  => 'dimas@hris.com',
                 'kata_sandi'             => Hash::make('password123'),
                 'nama_depan'             => 'Dimas',
@@ -193,7 +228,7 @@ class DatabaseSeeder extends Seeder
                 'agama'                  => 'Kristen',
                 'tempat_lahir'           => 'Medan',
                 'tanggal_lahir'          => '1996-06-25',
-                'status_pernikahan'      => 'Belum Menikah',
+                'status_pernikahan'      => 'Single',
                 'pendidikan_terakhir'    => 'S1',
                 'pendidikan_terakhir_new'=> 'S1',
                 'universitas'            => 'Universitas Sumatera Utara',
@@ -203,15 +238,16 @@ class DatabaseSeeder extends Seeder
                 'nik'                    => '1271010000000006',
                 'npwp'                   => '12.345.678.9-012.005',
                 'tanggal_bergabung'      => '2023-08-15',
+                'end_date'               => null,
+                'total_hari_kerja'       => 0,
+                'reason_resigned'        => null,
                 'nama_kontak_darurat'    => 'Linda Prasetyo',
                 'telepon_kontak_darurat' => '081200000016',
                 'nama_bank'              => 'BSI',
                 'nomor_rekening'         => '1234567895',
             ],
-
-            // Karyawan 5 — Outsource — Business Development
             [
-                'nip'                    => 'EMP0005',
+                'nip'                    => '3012007',
                 'email'                  => 'sari@hris.com',
                 'kata_sandi'             => Hash::make('password123'),
                 'nama_depan'             => 'Sari',
@@ -220,13 +256,13 @@ class DatabaseSeeder extends Seeder
                 'role'                   => 'karyawan',
                 'jabatan'                => 'Business Development',
                 'jabatan_lainnya'        => null,
-                'status'                 => 'Outsource',
+                'status'                 => 'Internship',
                 'nomor_telepon'          => '081200000007',
                 'jenis_kelamin'          => 'P',
                 'agama'                  => 'Islam',
                 'tempat_lahir'           => 'Makassar',
                 'tanggal_lahir'          => '1998-02-14',
-                'status_pernikahan'      => 'Belum Menikah',
+                'status_pernikahan'      => 'Single',
                 'pendidikan_terakhir'    => 'S1',
                 'pendidikan_terakhir_new'=> 'S1',
                 'universitas'            => 'Universitas Hasanuddin',
@@ -236,15 +272,16 @@ class DatabaseSeeder extends Seeder
                 'nik'                    => '7371010000000007',
                 'npwp'                   => '12.345.678.9-012.006',
                 'tanggal_bergabung'      => '2024-01-02',
+                'end_date'               => null,
+                'total_hari_kerja'       => 0,
+                'reason_resigned'        => null,
                 'nama_kontak_darurat'    => 'Dedi Lestari',
                 'telepon_kontak_darurat' => '081200000017',
                 'nama_bank'              => 'BSI',
                 'nomor_rekening'         => '1234567896',
             ],
-
-            // Karyawan 6 — Permanent — Video Editor
             [
-                'nip'                    => 'EMP0006',
+                'nip'                    => '2061008',
                 'email'                  => 'fajar@hris.com',
                 'kata_sandi'             => Hash::make('password123'),
                 'nama_depan'             => 'Fajar',
@@ -253,13 +290,13 @@ class DatabaseSeeder extends Seeder
                 'role'                   => 'karyawan',
                 'jabatan'                => 'Video Editor',
                 'jabatan_lainnya'        => null,
-                'status'                 => 'Permanent',
+                'status'                 => 'Full-time',
                 'nomor_telepon'          => '081200000008',
                 'jenis_kelamin'          => 'L',
                 'agama'                  => 'Islam',
                 'tempat_lahir'           => 'Malang',
                 'tanggal_lahir'          => '1994-11-08',
-                'status_pernikahan'      => 'Menikah',
+                'status_pernikahan'      => 'Married',
                 'pendidikan_terakhir'    => 'SMK',
                 'pendidikan_terakhir_new'=> 'SMK',
                 'universitas'            => null,
@@ -269,15 +306,16 @@ class DatabaseSeeder extends Seeder
                 'nik'                    => '3573010000000008',
                 'npwp'                   => '12.345.678.9-012.007',
                 'tanggal_bergabung'      => '2022-06-15',
+                'end_date'               => null,
+                'total_hari_kerja'       => 0,
+                'reason_resigned'        => null,
                 'nama_kontak_darurat'    => 'Rani Kurniawan',
                 'telepon_kontak_darurat' => '081200000018',
                 'nama_bank'              => 'BSI',
                 'nomor_rekening'         => '1234567897',
             ],
-
-            // Karyawan 7 — Outsource — Lainnya (Custom: Office Assistant)
             [
-                'nip'                    => 'EMP0007',
+                'nip'                    => '4032009',
                 'email'                  => 'nina@hris.com',
                 'kata_sandi'             => Hash::make('password123'),
                 'nama_depan'             => 'Nina',
@@ -286,13 +324,13 @@ class DatabaseSeeder extends Seeder
                 'role'                   => 'karyawan',
                 'jabatan'                => 'lainnya',
                 'jabatan_lainnya'        => 'Office Assistant',
-                'status'                 => 'Outsource',
+                'status'                 => 'Internship',
                 'nomor_telepon'          => '081200000009',
                 'jenis_kelamin'          => 'P',
                 'agama'                  => 'Islam',
                 'tempat_lahir'           => 'Denpasar',
                 'tanggal_lahir'          => '1999-08-20',
-                'status_pernikahan'      => 'Belum Menikah',
+                'status_pernikahan'      => 'Single',
                 'pendidikan_terakhir'    => 'SMA/MA',
                 'pendidikan_terakhir_new'=> 'SMA/MA',
                 'universitas'            => null,
@@ -302,10 +340,47 @@ class DatabaseSeeder extends Seeder
                 'nik'                    => '5171010000000009',
                 'npwp'                   => '12.345.678.9-012.008',
                 'tanggal_bergabung'      => '2024-03-01',
+                'end_date'               => null,
+                'total_hari_kerja'       => 0,
+                'reason_resigned'        => null,
                 'nama_kontak_darurat'    => 'Wayan Anggraini',
                 'telepon_kontak_darurat' => '081200000019',
                 'nama_bank'              => 'Mandiri',
                 'nomor_rekening'         => '9876543210',
+            ],
+            [
+                'nip'                    => '2031010',
+                'email'                  => 'andri@hris.com',
+                'kata_sandi'             => Hash::make('password123'),
+                'nama_depan'             => 'Andri',
+                'nama_belakang'          => 'Wibowo',
+                'nama_lengkap'           => 'Andri Wibowo',
+                'role'                   => 'karyawan',
+                'jabatan'                => 'Finance',
+                'jabatan_lainnya'        => null,
+                'status'                 => 'Resigned',
+                'nomor_telepon'          => '081200000010',
+                'jenis_kelamin'          => 'L',
+                'agama'                  => 'Islam',
+                'tempat_lahir'           => 'Jakarta',
+                'tanggal_lahir'          => '1992-05-20',
+                'status_pernikahan'      => 'Single',
+                'pendidikan_terakhir'    => 'S1',
+                'pendidikan_terakhir_new'=> 'S1',
+                'universitas'            => 'Universitas Brawijaya',
+                'jurusan'                => 'Ekonomi',
+                'tahun_lulus'            => 2014,
+                'alamat'                 => 'Jl. Merdeka No. 3, Jakarta',
+                'nik'                    => '3171010000000010',
+                'npwp'                   => '12.345.678.9-012.009',
+                'tanggal_bergabung'      => '2022-03-15',
+                'end_date'               => '2025-06-01',
+                'total_hari_kerja'       => 1174,
+                'reason_resigned'        => 'Mendapatkan kesempatan kerja yang lebih baik',
+                'nama_kontak_darurat'    => 'Retno Wibowo',
+                'telepon_kontak_darurat' => '081200000020',
+                'nama_bank'              => 'BSI',
+                'nomor_rekening'         => '1234567898',
             ],
         ];
 
