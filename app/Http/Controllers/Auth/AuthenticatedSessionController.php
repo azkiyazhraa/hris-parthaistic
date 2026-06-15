@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
-use App\Models\Karyawan;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,47 +11,46 @@ use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
 {
+    /**
+     * Display the login view.
+     */
     public function create(): View
     {
         return view('auth.login');
     }
 
-    public function store(Request $request): RedirectResponse
+    /**
+     * Handle an incoming authentication request.
+     */
+    public function store(LoginRequest $request): RedirectResponse
     {
-        $request->validate([
-            'email' => ['required', 'string', 'email'],
-            'password' => ['required', 'string'],
-        ]);
+        $request->authenticate();
+        $request->session()->regenerate();
 
-        $karyawan = Karyawan::where('email', $request->email)->first();
+        // Cek apakah karyawan suspended
+        $user = Auth::user();
+        if ($user->role === 'karyawan' && !$user->isActive()) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
 
-        if ($karyawan && \Hash::check($request->password, $karyawan->kata_sandi)) {
-            Auth::login($karyawan, $request->boolean('remember'));
-            $request->session()->regenerate();
-            
-            // Store plain password temporarily for demo purposes
-            // In production, NEVER store plain passwords
-            session(['temp_password_' . $karyawan->id => $request->password]);
-
-            if ($karyawan->isAdmin() || $karyawan->isHR()) {
-                return redirect()->intended(route('admin.dashboard'));
-            }
-
-            return redirect()->intended(route('karyawan.dashboard'));
+            return redirect()->route('login')
+                ->with('error', 'Your account has been suspended. Reason: ' . $user->suspend_reason . '. Please contact HR/Admin for more information.');
         }
 
-        return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
-        ])->onlyInput('email');
+        // Redirect berdasarkan role
+        if ($user->isAdmin() || $user->isHR()) {
+            return redirect()->intended(route('admin.dashboard', absolute: false));
+        }
+
+        return redirect()->intended(route('karyawan.dashboard', absolute: false));
     }
 
+    /**
+     * Destroy an authenticated session.
+     */
     public function destroy(Request $request): RedirectResponse
     {
-        // Clear temp password from session
-        if (Auth::check()) {
-            session()->forget('temp_password_' . Auth::id());
-        }
-        
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();

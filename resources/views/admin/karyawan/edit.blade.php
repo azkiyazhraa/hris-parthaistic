@@ -1,7 +1,6 @@
 <div id="employee-modal-edit-{{ $item->id }}" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
     <!-- MODAL BOX -->
-    <div
-        class="bg-white w-full max-w-2xl rounded-xl shadow-xl max-h-[90vh] overflow-y-auto p-5 md:p-8 transition-all duration-300">
+    <div class="bg-white w-full max-w-2xl rounded-xl shadow-xl max-h-[90vh] overflow-y-auto p-5 md:p-8 transition-all duration-300">
 
         <!-- HEADER -->
         <div class="flex justify-between items-center mb-4 md:mb-6">
@@ -83,8 +82,7 @@
                         <label class="block text-sm font-medium text-gray-700 mb-1">Role</label>
                         <select name="role"
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                            <option value="karyawan" {{ $item->role === 'karyawan' ? 'selected' : '' }}>Employee
-                            </option>
+                            <option value="karyawan" {{ $item->role === 'karyawan' ? 'selected' : '' }}>Employee</option>
                             <option value="hr" {{ $item->role === 'hr' ? 'selected' : '' }}>HR</option>
                             <option value="admin" {{ $item->role === 'admin' ? 'selected' : '' }}>Admin</option>
                         </select>
@@ -130,24 +128,25 @@
                         <select name="status" id="statusSelectEdit{{ $item->id }}"
                             onchange="toggleEndDateEdit({{ $item->id }})" required
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                            <optgroup label="Active">
+                            <optgroup label="Active (Can Login)">
                                 <option value="Full-time" {{ $item->status === 'Full-time' ? 'selected' : '' }}>
-                                    Full-time</option>
-                                <option value="Contract" {{ $item->status === 'Contract' ? 'selected' : '' }}>Contract
-                                </option>
+                                    ✅ Full-time</option>
+                                <option value="Contract" {{ $item->status === 'Contract' ? 'selected' : '' }}>
+                                    ✅ Contract</option>
                                 <option value="Internship" {{ $item->status === 'Internship' ? 'selected' : '' }}>
-                                    Internship</option>
+                                    ✅ Internship</option>
                             </optgroup>
-                            <optgroup label="Inactive">
-                                <option value="Resigned" {{ $item->status === 'Resigned' ? 'selected' : '' }}>Resigned
-                                </option>
+                            <optgroup label="Suspended (Cannot Login)">
+                                <option value="Resigned" {{ $item->status === 'Resigned' ? 'selected' : '' }}>
+                                    🔒 Resigned</option>
                                 <option value="Contract Ended"
-                                    {{ $item->status === 'Contract Ended' ? 'selected' : '' }}>Contract Ended</option>
+                                    {{ $item->status === 'Contract Ended' ? 'selected' : '' }}>
+                                    🔒 Contract Ended</option>
                                 <option value="Internship Completed"
-                                    {{ $item->status === 'Internship Completed' ? 'selected' : '' }}>Internship
-                                    Completed</option>
+                                    {{ $item->status === 'Internship Completed' ? 'selected' : '' }}>
+                                    🔒 Internship Completed</option>
                                 <option value="Terminated" {{ $item->status === 'Terminated' ? 'selected' : '' }}>
-                                    Terminated</option>
+                                    🔒 Terminated</option>
                             </optgroup>
                         </select>
                     </div>
@@ -164,10 +163,36 @@
                         $isInactive = in_array($item->status, $inactiveStatuses);
                     @endphp
 
+                    {{-- WARNING SUSPEND --}}
+                    <div id="warningInactive{{ $item->id }}" class="md:col-span-2 bg-red-50 border border-red-200 rounded-lg p-4"
+                        style="display:{{ $isInactive ? 'block' : 'none' }};">
+                        <div class="flex items-start gap-3">
+                            <div class="text-red-500 text-xl">⚠️</div>
+                            <div>
+                                <p class="text-sm font-semibold text-red-800">Warning: Suspending Employee</p>
+                                <p class="text-xs text-red-600 mt-1">
+                                    Changing status to "<span id="statusTextEdit{{ $item->id }}">{{ $item->status }}</span>" will:
+                                </p>
+                                <ul class="text-xs text-red-600 mt-1 list-disc list-inside">
+                                    <li>Suspend this employee's account immediately</li>
+                                    <li>Employee will <strong>NOT be able to login</strong></li>
+                                    <li>Set end date automatically (if empty)</li>
+                                    <li>Calculate total working days automatically</li>
+                                </ul>
+                                <p class="text-xs text-green-600 mt-2">
+                                    ✅ To reactivate, change status back to Full-time, Contract, or Internship.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
                     <div id="endDateFieldEdit{{ $item->id }}"
                         style="display:{{ $isInactive ? 'block' : 'none' }};">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">End Date <span
-                                class="text-red-500">*</span></label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            End Date
+                            <span class="text-red-500">*</span>
+                            <span class="text-xs text-gray-400">(auto-filled if empty)</span>
+                        </label>
                         <input type="date" name="end_date"
                             value="{{ $item->end_date ? $item->end_date->format('Y-m-d') : '' }}"
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
@@ -183,14 +208,14 @@
 
                     {{-- Tampilkan total hari kerja jika status inactive --}}
                     @if ($isInactive && $item->total_hari_kerja > 0)
-                        <div class="md:col-span-2 bg-gray-50 rounded-lg p-3 border border-gray-200">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Total Working Days</label>
-                            <p class="text-lg font-semibold text-gray-800">
+                        <div class="md:col-span-2 bg-blue-50 rounded-lg p-3 border border-blue-200">
+                            <label class="block text-sm font-medium text-blue-700 mb-1">📊 Total Working Days</label>
+                            <p class="text-lg font-semibold text-blue-800">
                                 {{ number_format($item->total_hari_kerja) }} days
-                                <span
-                                    class="text-sm font-normal text-gray-500">({{ $item->total_hari_kerja_formatted }})</span>
+                                <span class="text-sm font-normal text-blue-500">({{ $item->total_hari_kerja_formatted }})</span>
                             </p>
-                            <p class="text-xs text-gray-400 mt-1">Calculated automatically from Join Date to End Date
+                            <p class="text-xs text-blue-400 mt-1">
+                                Calculated automatically: {{ $item->tanggal_bergabung ? $item->tanggal_bergabung->format('d M Y') : '-' }} → {{ $item->end_date ? $item->end_date->format('d M Y') : '-' }}
                             </p>
                         </div>
                     @endif
@@ -257,8 +282,7 @@
                         <select name="jenis_kelamin" class="w-full border rounded-lg px-3 py-2">
                             <option value="">Select</option>
                             <option value="L" {{ $item->jenis_kelamin === 'L' ? 'selected' : '' }}>Male</option>
-                            <option value="P" {{ $item->jenis_kelamin === 'P' ? 'selected' : '' }}>Female
-                            </option>
+                            <option value="P" {{ $item->jenis_kelamin === 'P' ? 'selected' : '' }}>Female</option>
                         </select>
                     </div>
                     <div>
@@ -279,9 +303,8 @@
                 <h3 class="text-sm font-semibold text-gray-700 mb-3 border-b pb-2">Education</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Last Education <span
-                                class="text-red-500">*</span></label>
-                        <select name="pendidikan_terakhir" required
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Last Education</label>
+                        <select name="pendidikan_terakhir"
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                             <option value="">Select Education</option>
                             @php
@@ -333,7 +356,9 @@
                 <button type="button" data-modal-hide="employee-modal-edit-{{ $item->id }}"
                     class="px-4 py-2 rounded-lg border text-gray-700 hover:bg-gray-50">Cancel</button>
                 <button type="submit"
-                    class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">Save</button>
+                    class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">
+                        Save Changes
+                </button>
             </div>
         </form>
     </div>
@@ -354,14 +379,26 @@
         const statusSelect = document.getElementById('statusSelectEdit' + id);
         const endDateField = document.getElementById('endDateFieldEdit' + id);
         const reasonField = document.getElementById('reasonResignedFieldEdit' + id);
+        const warningBox = document.getElementById('warningInactive' + id);
+        const statusText = document.getElementById('statusTextEdit' + id);
         const inactiveStatuses = ['Resigned', 'Contract Ended', 'Internship Completed', 'Terminated'];
 
         if (inactiveStatuses.includes(statusSelect.value)) {
             endDateField.style.display = 'block';
             reasonField.style.display = 'block';
+            warningBox.style.display = 'block';
+            if (statusText) statusText.textContent = statusSelect.options[statusSelect.selectedIndex].text.replace('🔒 ', '');
         } else {
             endDateField.style.display = 'none';
             reasonField.style.display = 'none';
+            warningBox.style.display = 'none';
         }
     }
+
+    // Trigger on load
+    document.addEventListener('DOMContentLoaded', function() {
+        @foreach ($karyawans as $item)
+            toggleEndDateEdit({{ $item->id }});
+        @endforeach
+    });
 </script>

@@ -70,14 +70,14 @@ class Karyawan extends Authenticatable
     const STATUS_INTERNSHIP_COMPLETED = 'Internship Completed';
     const STATUS_TERMINATED = 'Terminated';
 
-    // Daftar status aktif
+    // Daftar status aktif (bisa login)
     const ACTIVE_STATUSES = [
         self::STATUS_FULL_TIME,
         self::STATUS_CONTRACT,
         self::STATUS_INTERNSHIP,
     ];
 
-    // Daftar status berhenti
+    // Daftar status berhenti (tidak bisa login)
     const INACTIVE_STATUSES = [
         self::STATUS_RESIGNED,
         self::STATUS_CONTRACT_ENDED,
@@ -149,10 +149,45 @@ class Karyawan extends Authenticatable
         };
     }
 
-    // Cek apakah karyawan aktif
+    // Status badge besar untuk detail
+    public function getStatusBadgeAttribute()
+    {
+        $icons = [
+            self::STATUS_FULL_TIME => '💼',
+            self::STATUS_CONTRACT => '📋',
+            self::STATUS_INTERNSHIP => '🎓',
+            self::STATUS_RESIGNED => '👋',
+            self::STATUS_CONTRACT_ENDED => '📋',
+            self::STATUS_INTERNSHIP_COMPLETED => '🎉',
+            self::STATUS_TERMINATED => '🚫',
+        ];
+
+        $icon = $icons[$this->status] ?? '❓';
+        return $icon . ' ' . $this->status;
+    }
+
+    // Cek apakah karyawan aktif (bisa login)
     public function isActive()
     {
         return in_array($this->status, self::ACTIVE_STATUSES);
+    }
+
+    // Cek apakah karyawan suspended
+    public function isSuspended()
+    {
+        return in_array($this->status, self::INACTIVE_STATUSES);
+    }
+
+    // Alasan suspend dalam bahasa Inggris
+    public function getSuspendReasonAttribute()
+    {
+        return match ($this->status) {
+            self::STATUS_RESIGNED => 'Employee has resigned',
+            self::STATUS_CONTRACT_ENDED => 'Employment contract has ended',
+            self::STATUS_INTERNSHIP_COMPLETED => 'Internship program has been completed',
+            self::STATUS_TERMINATED => 'Employee has been terminated',
+            default => null,
+        };
     }
 
     public function getAuthPassword()
@@ -179,7 +214,7 @@ class Karyawan extends Authenticatable
         return $this->jabatan;
     }
 
-    // Format total hari kerja (1 year, 2 months, 15 days)
+    // Format total hari kerja
     public function getTotalHariKerjaFormattedAttribute()
     {
         if ($this->total_hari_kerja <= 0) return '-';

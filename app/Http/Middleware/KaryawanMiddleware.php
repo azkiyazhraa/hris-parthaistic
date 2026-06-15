@@ -11,6 +11,13 @@ class KaryawanMiddleware
     public function handle(Request $request, Closure $next)
     {
         if (Auth::check() && Auth::user()->role === 'karyawan') {
+            // Cek apakah karyawan aktif
+            if (!Auth::user()->isActive()) {
+                Auth::logout();
+                return redirect()->route('login')
+                    ->with('error', 'Your account has been suspended. Please contact HR/Admin for more information.');
+            }
+
             return $next($request);
         }
 
