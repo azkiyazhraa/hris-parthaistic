@@ -149,7 +149,7 @@ class ProfileController extends Controller
                 'status_pernikahan' => 'nullable|string|max:50',
                 'nik' => 'nullable|string|max:50',
                 'npwp' => 'nullable|string|max:50',
-                'pendidikan_terakhir' => 'nullable|in:SMP,SMA/MA,SMK,D1,D2,D3,S1,S2',
+                'pendidikan_terakhir' => 'nullable|in:SMP,SMA/MA,SMK,D1,D2,D3,D4,S1,S2',
                 'universitas' => 'nullable|string|max:150',
                 'jurusan' => 'nullable|string|max:150',
                 'tahun_lulus' => 'nullable|digits:4',

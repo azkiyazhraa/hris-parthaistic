@@ -15,7 +15,6 @@ use Illuminate\Support\Facades\Storage;
 
 class DashboardController extends Controller
 {
-
     // Tanggal berdiri Parthaistic
     const COMPANY_FOUNDED = '2021-02-24';
 
@@ -28,7 +27,7 @@ class DashboardController extends Controller
     private function getOperationalYear(Carbon $joinDate): int
     {
         $founded = Carbon::parse(self::COMPANY_FOUNDED)->startOfDay();
-        $join    = $joinDate->copy()->startOfDay();
+        $join = $joinDate->copy()->startOfDay();
 
         // Jika join sebelum tanggal berdiri, anggap tahun ke-1
         if ($join->lt($founded)) {
@@ -81,28 +80,23 @@ class DashboardController extends Controller
     {
         $totalKaryawan = Karyawan::where('role', '!=', 'admin')->where('role', '!=', 'hr')->count();
 
-        $fulltime  = Karyawan::where('role', '!=', 'admin')->where('role', '!=', 'hr')->where('status', 'Full-time')->count();
-        $contract  = Karyawan::where('role', '!=', 'admin')->where('role', '!=', 'hr')->where('status', 'Contract')->count();
+        $fulltime = Karyawan::where('role', '!=', 'admin')->where('role', '!=', 'hr')->where('status', 'Full-time')->count();
+        $contract = Karyawan::where('role', '!=', 'admin')->where('role', '!=', 'hr')->where('status', 'Contract')->count();
         $internship = Karyawan::where('role', '!=', 'admin')->where('role', '!=', 'hr')->where('status', 'Internship')->count();
-        $resigned  = Karyawan::where('role', '!=', 'admin')->where('role', '!=', 'hr')->where('status', 'Resigned')->count();
+        $resigned = Karyawan::where('role', '!=', 'admin')->where('role', '!=', 'hr')->where('status', 'Resigned')->count();
         $contractEnded = Karyawan::where('role', '!=', 'admin')->where('role', '!=', 'hr')->where('status', 'Contract Ended')->count();
         $internshipCompleted = Karyawan::where('role', '!=', 'admin')->where('role', '!=', 'hr')->where('status', 'Internship Completed')->count();
         $terminated = Karyawan::where('role', '!=', 'admin')->where('role', '!=', 'hr')->where('status', 'Terminated')->count();
 
-        $fulltimePercent   = $totalKaryawan > 0 ? ($fulltime / $totalKaryawan) * 100 : 0;
-        $contractPercent   = $totalKaryawan > 0 ? ($contract / $totalKaryawan) * 100 : 0;
+        $fulltimePercent = $totalKaryawan > 0 ? ($fulltime / $totalKaryawan) * 100 : 0;
+        $contractPercent = $totalKaryawan > 0 ? ($contract / $totalKaryawan) * 100 : 0;
         $internshipPercent = $totalKaryawan > 0 ? ($internship / $totalKaryawan) * 100 : 0;
 
         $resignedEmployees = $resigned + $contractEnded + $internshipCompleted + $terminated;
 
         $attachment = Pengumuman::latest()->limit(4)->get();
 
-        $absensi = AbsensiKaryawan::with('karyawan')
-            ->where('is_change_day', false)
-            ->whereDate('tanggal', today())
-            ->latest('created_at')
-            ->limit(5)
-            ->get();
+        $absensi = AbsensiKaryawan::with('karyawan')->where('is_change_day', false)->whereDate('tanggal', today())->latest('created_at')->limit(5)->get();
 
         $attendanceCounts = AbsensiKaryawan::selectRaw(
             'COUNT(*) as total,
@@ -111,40 +105,27 @@ class DashboardController extends Controller
              SUM(status_kehadiran = ?) as permit,
              SUM(status_kehadiran = ?) as sick,
              SUM(status_kehadiran = ?) as absent',
-            [
-                AbsensiKaryawan::STATUS_PENDING,
-                AbsensiKaryawan::STATUS_PRESENT,
-                AbsensiKaryawan::STATUS_PERMIT,
-                AbsensiKaryawan::STATUS_SICK,
-                AbsensiKaryawan::STATUS_ABSENT,
-            ]
+            [AbsensiKaryawan::STATUS_PENDING, AbsensiKaryawan::STATUS_PRESENT, AbsensiKaryawan::STATUS_PERMIT, AbsensiKaryawan::STATUS_SICK, AbsensiKaryawan::STATUS_ABSENT],
         )
             ->where('is_change_day', false)
             ->whereDate('tanggal', today())
             ->first();
 
         $statistics = [
-            'total'   => (int) ($attendanceCounts->total ?? 0),
+            'total' => (int) ($attendanceCounts->total ?? 0),
             'pending' => (int) ($attendanceCounts->pending ?? 0),
             'present' => (int) ($attendanceCounts->present ?? 0),
-            'permit'  => (int) ($attendanceCounts->permit ?? 0),
-            'sick'    => (int) ($attendanceCounts->sick ?? 0),
-            'absent'  => (int) ($attendanceCounts->absent ?? 0),
+            'permit' => (int) ($attendanceCounts->permit ?? 0),
+            'sick' => (int) ($attendanceCounts->sick ?? 0),
+            'absent' => (int) ($attendanceCounts->absent ?? 0),
         ];
 
-        return view('admin.dashboard', compact(
-            'totalKaryawan', 'fulltime', 'contract', 'internship',
-            'fulltimePercent', 'contractPercent', 'internshipPercent',
-            'resignedEmployees', 'attachment', 'absensi', 'statistics'
-        ));
+        return view('admin.dashboard', compact('totalKaryawan', 'fulltime', 'contract', 'internship', 'fulltimePercent', 'contractPercent', 'internshipPercent', 'resignedEmployees', 'attachment', 'absensi', 'statistics'));
     }
 
     public function karyawan()
     {
-        $karyawans = Karyawan::where('role', '!=', 'admin')
-            ->where('role', '!=', 'hr')
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $karyawans = Karyawan::where('role', '!=', 'admin')->where('role', '!=', 'hr')->orderBy('created_at', 'desc')->get();
 
         return view('admin.karyawan.index', compact('karyawans'));
     }
@@ -153,35 +134,35 @@ class DashboardController extends Controller
     {
         try {
             $validated = $request->validate([
-                'email'                  => 'required|email|unique:karyawans,email',
-                'nama_depan'             => 'required|string|max:100',
-                'nama_belakang'          => 'required|string|max:100',
-                'kata_sandi'             => 'required|min:6',
-                'role'                   => 'required|in:admin,hr,karyawan',
-                'jabatan'                => 'nullable|in:Chief Executive Officer,Chief Operating Officer,Creative Writer,Finance,Business Development,Videographer,Video Editor,Social Media Manager,lainnya',
-                'jabatan_lainnya'        => 'nullable|required_if:jabatan,lainnya|string|max:100',
-                'status'                 => 'required|in:Full-time,Contract,Internship,Resigned,Contract Ended,Internship Completed,Terminated',
-                'pendidikan_terakhir'    => 'nullable|in:SMP,SMA/MA,SMK,D1,D2,D3,S1,S2',
-                'nama_bank'              => 'nullable|string|max:50',
-                'nomor_rekening'         => 'nullable|string|max:30',
-                'nik'                    => 'nullable|string|max:50',
-                'nomor_telepon'          => 'nullable|string|max:30',
-                'alamat'                 => 'nullable|string',
-                'npwp'                   => 'nullable|string|max:50',
-                'tempat_lahir'           => 'nullable|string|max:100',
-                'tanggal_lahir'          => 'nullable|date',
-                'jenis_kelamin'          => 'nullable|in:L,P',
-                'agama'                  => 'nullable|string|max:50',
-                'status_pernikahan'      => 'nullable|string|max:50',
-                'universitas'            => 'nullable|string|max:150',
-                'jurusan'                => 'nullable|string|max:150',
-                'tahun_lulus'            => 'nullable|digits:4',
-                'nama_kontak_darurat'    => 'nullable|string|max:100',
+                'email' => 'required|email|unique:karyawans,email',
+                'nama_depan' => 'required|string|max:100',
+                'nama_belakang' => 'required|string|max:100',
+                'kata_sandi' => 'required|min:6',
+                'role' => 'required|in:admin,hr,karyawan',
+                'jabatan' => 'nullable|in:Chief Executive Officer,Chief Operating Officer,Creative Writer,Finance,Business Development,Videographer,Video Editor,Social Media Manager,lainnya',
+                'jabatan_lainnya' => 'nullable|required_if:jabatan,lainnya|string|max:100',
+                'status' => 'required|in:Full-time,Contract,Internship,Resigned,Contract Ended,Internship Completed,Terminated',
+                'pendidikan_terakhir' => 'nullable|in:SMP,SMA/MA,SMK,D1,D2,D3,D4,S1,S2',
+                'nama_bank' => 'nullable|string|max:50',
+                'nomor_rekening' => 'nullable|string|max:30',
+                'nik' => 'nullable|string|max:50',
+                'nomor_telepon' => 'nullable|string|max:30',
+                'alamat' => 'nullable|string',
+                'npwp' => 'nullable|string|max:50',
+                'tempat_lahir' => 'nullable|string|max:100',
+                'tanggal_lahir' => 'nullable|date',
+                'jenis_kelamin' => 'nullable|in:L,P',
+                'agama' => 'nullable|string|max:50',
+                'status_pernikahan' => 'nullable|string|max:50',
+                'universitas' => 'nullable|string|max:150',
+                'jurusan' => 'nullable|string|max:150',
+                'tahun_lulus' => 'nullable|digits:4',
+                'nama_kontak_darurat' => 'nullable|string|max:100',
                 'telepon_kontak_darurat' => 'nullable|string|max:30',
-                'tanggal_bergabung'      => 'nullable|date',
-                'end_date'               => 'nullable|date',
-                'reason_resigned'        => 'nullable|string|max:255',
-                'foto_profil'            => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+                'tanggal_bergabung' => 'nullable|date',
+                'end_date' => 'nullable|date',
+                'reason_resigned' => 'nullable|string|max:255',
+                'foto_profil' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             ]);
 
             // Tanggal bergabung (default hari ini jika tidak diisi)
@@ -195,7 +176,7 @@ class DashboardController extends Controller
 
             // Pastikan NIP unik (jika tabrakan, tambah suffix)
             $baseNip = $newNip;
-            $suffix  = 1;
+            $suffix = 1;
             while (Karyawan::where('nip', $newNip)->exists()) {
                 $newNip = $baseNip . 'A' . $suffix;
                 $suffix++;
@@ -209,43 +190,48 @@ class DashboardController extends Controller
 
             // Buat karyawan (model boot() akan auto-hitung total_hari_kerja)
             Karyawan::create([
-                'nip'                    => $newNip,
-                'email'                  => $validated['email'],
-                'kata_sandi'             => Hash::make($validated['kata_sandi']),
-                'nama_depan'             => $validated['nama_depan'],
-                'nama_belakang'          => $validated['nama_belakang'],
-                'nama_lengkap'           => $validated['nama_depan'] . ' ' . $validated['nama_belakang'],
-                'role'                   => $validated['role'],
-                'jabatan'                => $validated['jabatan'] ?? null,
-                'jabatan_lainnya'        => ($validated['jabatan'] ?? '') === 'lainnya' ? ($validated['jabatan_lainnya'] ?? null) : null,
-                'status'                 => $validated['status'],
-                'tanggal_bergabung'      => $tanggalBergabung,
-                'end_date'               => $validated['end_date'] ?? null,
-                'reason_resigned'        => $validated['reason_resigned'] ?? null,
-                'pendidikan_terakhir'    => $validated['pendidikan_terakhir'] ?? null,
+                'nip' => $newNip,
+                'email' => $validated['email'],
+                'kata_sandi' => Hash::make($validated['kata_sandi']),
+                'nama_depan' => $validated['nama_depan'],
+                'nama_belakang' => $validated['nama_belakang'],
+                'nama_lengkap' => $validated['nama_depan'] . ' ' . $validated['nama_belakang'],
+                'role' => $validated['role'],
+                'jabatan' => $validated['jabatan'] ?? null,
+                'jabatan_lainnya' => ($validated['jabatan'] ?? '') === 'lainnya' ? $validated['jabatan_lainnya'] ?? null : null,
+                'status' => $validated['status'],
+                'tanggal_bergabung' => $tanggalBergabung,
+                'end_date' => $validated['end_date'] ?? null,
+                'reason_resigned' => $validated['reason_resigned'] ?? null,
+                'pendidikan_terakhir' => $validated['pendidikan_terakhir'] ?? null,
                 'pendidikan_terakhir_new' => $validated['pendidikan_terakhir'] ?? null,
-                'nama_bank'              => $validated['nama_bank'] ?? 'BSI',
-                'nomor_rekening'         => $validated['nomor_rekening'] ?? null,
-                'foto_profil'            => $fotoPath,
-                'nomor_telepon'          => $validated['nomor_telepon'] ?? null,
-                'alamat'                 => $validated['alamat'] ?? null,
-                'nik'                    => $validated['nik'] ?? null,
-                'npwp'                   => $validated['npwp'] ?? null,
-                'tempat_lahir'           => $validated['tempat_lahir'] ?? null,
-                'tanggal_lahir'          => $validated['tanggal_lahir'] ?? null,
-                'jenis_kelamin'          => $jenisKelamin ?: null,
-                'agama'                  => $validated['agama'] ?? null,
-                'status_pernikahan'      => $validated['status_pernikahan'] ?? null,
-                'universitas'            => $validated['universitas'] ?? null,
-                'jurusan'                => $validated['jurusan'] ?? null,
-                'tahun_lulus'            => $validated['tahun_lulus'] ?? null,
-                'nama_kontak_darurat'    => $validated['nama_kontak_darurat'] ?? null,
+                'nama_bank' => $validated['nama_bank'] ?? 'BSI',
+                'nomor_rekening' => $validated['nomor_rekening'] ?? null,
+                'foto_profil' => $fotoPath,
+                'nomor_telepon' => $validated['nomor_telepon'] ?? null,
+                'alamat' => $validated['alamat'] ?? null,
+                'nik' => $validated['nik'] ?? null,
+                'npwp' => $validated['npwp'] ?? null,
+                'tempat_lahir' => $validated['tempat_lahir'] ?? null,
+                'tanggal_lahir' => $validated['tanggal_lahir'] ?? null,
+                'jenis_kelamin' => $jenisKelamin ?: null,
+                'agama' => $validated['agama'] ?? null,
+                'status_pernikahan' => $validated['status_pernikahan'] ?? null,
+                'universitas' => $validated['universitas'] ?? null,
+                'jurusan' => $validated['jurusan'] ?? null,
+                'tahun_lulus' => $validated['tahun_lulus'] ?? null,
+                'nama_kontak_darurat' => $validated['nama_kontak_darurat'] ?? null,
                 'telepon_kontak_darurat' => $validated['telepon_kontak_darurat'] ?? null,
             ]);
 
-            return redirect()->route('admin.karyawan')->with('success', 'Employee added successfully. NIP generated: ' . $newNip);
+            return redirect()
+                ->route('admin.karyawan')
+                ->with('success', 'Employee added successfully. NIP generated: ' . $newNip);
         } catch (\Throwable $th) {
-            return redirect()->back()->withInput()->with('error', 'Error: ' . $th->getMessage());
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', 'Error: ' . $th->getMessage());
         }
     }
 
@@ -261,45 +247,45 @@ class DashboardController extends Controller
 
         try {
             $validated = $request->validate([
-                'email'                  => 'required|email|unique:karyawans,email,' . $id,
-                'nama_depan'             => 'required|string|max:100',
-                'nama_belakang'          => 'required|string|max:100',
-                'role'                   => 'required|in:admin,hr,karyawan',
-                'jabatan'                => 'nullable|in:Chief Executive Officer,Chief Operating Officer,Creative Writer,Finance,Business Development,Videographer,Video Editor,Social Media Manager,lainnya',
-                'jabatan_lainnya'        => 'nullable|required_if:jabatan,lainnya|string|max:100',
-                'status'                 => 'required|in:Full-time,Contract,Internship,Resigned,Contract Ended,Internship Completed,Terminated',
-                'pendidikan_terakhir'    => 'nullable|in:SMP,SMA/MA,SMK,D1,D2,D3,S1,S2',
-                'nama_bank'              => 'nullable|string|max:50',
-                'nomor_rekening'         => 'nullable|string|max:30',
-                'kata_sandi'             => 'nullable|min:6',
-                'nik'                    => 'nullable|string|max:50',
-                'nomor_telepon'          => 'nullable|string|max:30',
-                'alamat'                 => 'nullable|string',
-                'npwp'                   => 'nullable|string|max:50',
-                'tempat_lahir'           => 'nullable|string|max:100',
-                'tanggal_lahir'          => 'nullable|date',
-                'jenis_kelamin'          => 'nullable|in:L,P',
-                'agama'                  => 'nullable|string|max:50',
-                'status_pernikahan'      => 'nullable|string|max:50',
-                'universitas'            => 'nullable|string|max:150',
-                'jurusan'                => 'nullable|string|max:150',
-                'tahun_lulus'            => 'nullable|digits:4',
-                'nama_kontak_darurat'    => 'nullable|string|max:100',
+                'email' => 'required|email|unique:karyawans,email,' . $id,
+                'nama_depan' => 'required|string|max:100',
+                'nama_belakang' => 'required|string|max:100',
+                'role' => 'required|in:admin,hr,karyawan',
+                'jabatan' => 'nullable|in:Chief Executive Officer,Chief Operating Officer,Creative Writer,Finance,Business Development,Videographer,Video Editor,Social Media Manager,lainnya',
+                'jabatan_lainnya' => 'nullable|required_if:jabatan,lainnya|string|max:100',
+                'status' => 'required|in:Full-time,Contract,Internship,Resigned,Contract Ended,Internship Completed,Terminated',
+                'pendidikan_terakhir' => 'nullable|in:SMP,SMA/MA,SMK,D1,D2,D3,S1,S2',
+                'nama_bank' => 'nullable|string|max:50',
+                'nomor_rekening' => 'nullable|string|max:30',
+                'kata_sandi' => 'nullable|min:6',
+                'nik' => 'nullable|string|max:50',
+                'nomor_telepon' => 'nullable|string|max:30',
+                'alamat' => 'nullable|string',
+                'npwp' => 'nullable|string|max:50',
+                'tempat_lahir' => 'nullable|string|max:100',
+                'tanggal_lahir' => 'nullable|date',
+                'jenis_kelamin' => 'nullable|in:L,P',
+                'agama' => 'nullable|string|max:50',
+                'status_pernikahan' => 'nullable|string|max:50',
+                'universitas' => 'nullable|string|max:150',
+                'jurusan' => 'nullable|string|max:150',
+                'tahun_lulus' => 'nullable|digits:4',
+                'nama_kontak_darurat' => 'nullable|string|max:100',
                 'telepon_kontak_darurat' => 'nullable|string|max:30',
-                'tanggal_bergabung'      => 'nullable|date',
-                'end_date'               => 'nullable|date',
-                'reason_resigned'        => 'nullable|string|max:255',
-                'foto_profil'            => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+                'tanggal_bergabung' => 'nullable|date',
+                'end_date' => 'nullable|date',
+                'reason_resigned' => 'nullable|string|max:255',
+                'foto_profil' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             ]);
 
-            $tanggalBergabung  = Carbon::parse($validated['tanggal_bergabung'] ?? $karyawan->tanggal_bergabung);
-            $jenisKelamin      = $validated['jenis_kelamin'] ?? $karyawan->jenis_kelamin ?? '';
+            $tanggalBergabung = Carbon::parse($validated['tanggal_bergabung'] ?? $karyawan->tanggal_bergabung);
+            $jenisKelamin = $validated['jenis_kelamin'] ?? ($karyawan->jenis_kelamin ?? '');
 
-            $oldJoinDate  = $karyawan->tanggal_bergabung ? $karyawan->tanggal_bergabung->format('Y-m-d') : null;
-            $newJoinDate  = $tanggalBergabung->format('Y-m-d');
-            $oldGender    = $karyawan->jenis_kelamin ?? '';
+            $oldJoinDate = $karyawan->tanggal_bergabung ? $karyawan->tanggal_bergabung->format('Y-m-d') : null;
+            $newJoinDate = $tanggalBergabung->format('Y-m-d');
+            $oldGender = $karyawan->jenis_kelamin ?? '';
 
-            $nipChanged = ($oldJoinDate !== $newJoinDate) || ($oldGender !== $jenisKelamin);
+            $nipChanged = $oldJoinDate !== $newJoinDate || $oldGender !== $jenisKelamin;
 
             $newNip = $karyawan->nip; // default tetap NIP lama
             if ($nipChanged) {
@@ -307,17 +293,19 @@ class DashboardController extends Controller
                 // Format lama NIP baru: X + YY + G + NNN (7 karakter)
                 $oldNnn = substr($karyawan->nip, -3); // 3 digit terakhir = nomor urut
 
-                $tahunOps  = $this->getOperationalYear($tanggalBergabung);
-                $X   = (string) $tahunOps;
-                $YY  = str_pad($tanggalBergabung->month, 2, '0', STR_PAD_LEFT);
-                $G   = match (strtoupper($jenisKelamin)) {
-                    'L' => '1', 'P' => '2', default => '0',
+                $tahunOps = $this->getOperationalYear($tanggalBergabung);
+                $X = (string) $tahunOps;
+                $YY = str_pad($tanggalBergabung->month, 2, '0', STR_PAD_LEFT);
+                $G = match (strtoupper($jenisKelamin)) {
+                    'L' => '1',
+                    'P' => '2',
+                    default => '0',
                 };
                 $generatedNip = $X . $YY . $G . $oldNnn;
 
                 // Pastikan unik (kecuali milik karyawan ini sendiri)
                 $baseNip = $generatedNip;
-                $suffix  = 1;
+                $suffix = 1;
                 while (Karyawan::where('nip', $generatedNip)->where('id', '!=', $id)->exists()) {
                     $generatedNip = $baseNip . 'A' . $suffix;
                     $suffix++;
@@ -326,35 +314,35 @@ class DashboardController extends Controller
             }
 
             $updateData = [
-                'nip'                    => $newNip,
-                'email'                  => $validated['email'],
-                'nama_depan'             => $validated['nama_depan'],
-                'nama_belakang'          => $validated['nama_belakang'],
-                'nama_lengkap'           => $validated['nama_depan'] . ' ' . $validated['nama_belakang'],
-                'role'                   => $validated['role'],
-                'jabatan'                => $validated['jabatan'] ?? null,
-                'jabatan_lainnya'        => ($validated['jabatan'] ?? '') === 'lainnya' ? ($validated['jabatan_lainnya'] ?? null) : null,
-                'status'                 => $validated['status'],
-                'tanggal_bergabung'      => $tanggalBergabung,
-                'end_date'               => $validated['end_date'] ?? null,
-                'reason_resigned'        => $validated['reason_resigned'] ?? null,
-                'pendidikan_terakhir'    => $validated['pendidikan_terakhir'] ?? null,
+                'nip' => $newNip,
+                'email' => $validated['email'],
+                'nama_depan' => $validated['nama_depan'],
+                'nama_belakang' => $validated['nama_belakang'],
+                'nama_lengkap' => $validated['nama_depan'] . ' ' . $validated['nama_belakang'],
+                'role' => $validated['role'],
+                'jabatan' => $validated['jabatan'] ?? null,
+                'jabatan_lainnya' => ($validated['jabatan'] ?? '') === 'lainnya' ? $validated['jabatan_lainnya'] ?? null : null,
+                'status' => $validated['status'],
+                'tanggal_bergabung' => $tanggalBergabung,
+                'end_date' => $validated['end_date'] ?? null,
+                'reason_resigned' => $validated['reason_resigned'] ?? null,
+                'pendidikan_terakhir' => $validated['pendidikan_terakhir'] ?? null,
                 'pendidikan_terakhir_new' => $validated['pendidikan_terakhir'] ?? null,
-                'nama_bank'              => $validated['nama_bank'] ?? $karyawan->nama_bank,
-                'nomor_rekening'         => $validated['nomor_rekening'] ?? $karyawan->nomor_rekening,
-                'nomor_telepon'          => $validated['nomor_telepon'] ?? $karyawan->nomor_telepon,
-                'alamat'                 => $validated['alamat'] ?? $karyawan->alamat,
-                'nik'                    => $validated['nik'] ?? $karyawan->nik,
-                'npwp'                   => $validated['npwp'] ?? $karyawan->npwp,
-                'tempat_lahir'           => $validated['tempat_lahir'] ?? $karyawan->tempat_lahir,
-                'tanggal_lahir'          => $validated['tanggal_lahir'] ?? $karyawan->tanggal_lahir,
-                'jenis_kelamin'          => $jenisKelamin ?: $karyawan->jenis_kelamin,
-                'agama'                  => $validated['agama'] ?? $karyawan->agama,
-                'status_pernikahan'      => $validated['status_pernikahan'] ?? $karyawan->status_pernikahan,
-                'universitas'            => $validated['universitas'] ?? $karyawan->universitas,
-                'jurusan'                => $validated['jurusan'] ?? $karyawan->jurusan,
-                'tahun_lulus'            => $validated['tahun_lulus'] ?? $karyawan->tahun_lulus,
-                'nama_kontak_darurat'    => $validated['nama_kontak_darurat'] ?? $karyawan->nama_kontak_darurat,
+                'nama_bank' => $validated['nama_bank'] ?? $karyawan->nama_bank,
+                'nomor_rekening' => $validated['nomor_rekening'] ?? $karyawan->nomor_rekening,
+                'nomor_telepon' => $validated['nomor_telepon'] ?? $karyawan->nomor_telepon,
+                'alamat' => $validated['alamat'] ?? $karyawan->alamat,
+                'nik' => $validated['nik'] ?? $karyawan->nik,
+                'npwp' => $validated['npwp'] ?? $karyawan->npwp,
+                'tempat_lahir' => $validated['tempat_lahir'] ?? $karyawan->tempat_lahir,
+                'tanggal_lahir' => $validated['tanggal_lahir'] ?? $karyawan->tanggal_lahir,
+                'jenis_kelamin' => $jenisKelamin ?: $karyawan->jenis_kelamin,
+                'agama' => $validated['agama'] ?? $karyawan->agama,
+                'status_pernikahan' => $validated['status_pernikahan'] ?? $karyawan->status_pernikahan,
+                'universitas' => $validated['universitas'] ?? $karyawan->universitas,
+                'jurusan' => $validated['jurusan'] ?? $karyawan->jurusan,
+                'tahun_lulus' => $validated['tahun_lulus'] ?? $karyawan->tahun_lulus,
+                'nama_kontak_darurat' => $validated['nama_kontak_darurat'] ?? $karyawan->nama_kontak_darurat,
                 'telepon_kontak_darurat' => $validated['telepon_kontak_darurat'] ?? $karyawan->telepon_kontak_darurat,
             ];
 
@@ -372,9 +360,14 @@ class DashboardController extends Controller
             $karyawan->update($updateData);
 
             $nipMsg = $nipChanged ? ' NIP updated to: ' . $newNip : '';
-            return redirect()->route('admin.karyawan')->with('success', 'Employee updated successfully.' . $nipMsg);
+            return redirect()
+                ->route('admin.karyawan')
+                ->with('success', 'Employee updated successfully.' . $nipMsg);
         } catch (\Throwable $th) {
-            return redirect()->back()->withInput()->with('error', 'Error: ' . $th->getMessage());
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', 'Error: ' . $th->getMessage());
         }
     }
 
@@ -385,9 +378,9 @@ class DashboardController extends Controller
 
     public function getEmployeeDetail($id)
     {
-        $karyawan     = Karyawan::findOrFail($id);
+        $karyawan = Karyawan::findOrFail($id);
         $currentMonth = Carbon::now()->month;
-        $currentYear  = Carbon::now()->year;
+        $currentYear = Carbon::now()->year;
 
         // Attendance rate (all-time)
         $allAttendances = AbsensiKaryawan::where('karyawan_id', $id)
@@ -397,30 +390,16 @@ class DashboardController extends Controller
 
         $totalWorkingDays = 0;
         if ($karyawan->tanggal_bergabung) {
-            $totalWorkingDays = $this->countWeekdays(
-                Carbon::parse($karyawan->tanggal_bergabung)->startOfDay(),
-                Carbon::now()->startOfDay()
-            );
+            $totalWorkingDays = $this->countWeekdays(Carbon::parse($karyawan->tanggal_bergabung)->startOfDay(), Carbon::now()->startOfDay());
         }
-        $attendanceRate = $totalWorkingDays > 0
-            ? round(($allAttendances / $totalWorkingDays) * 100, 1)
-            : 0;
+        $attendanceRate = $totalWorkingDays > 0 ? round(($allAttendances / $totalWorkingDays) * 100, 1) : 0;
 
         // Present this month
-        $presentCount = AbsensiKaryawan::where('karyawan_id', $id)
-            ->whereMonth('tanggal', $currentMonth)
-            ->whereYear('tanggal', $currentYear)
-            ->where('status_kehadiran', 'present')
-            ->count();
+        $presentCount = AbsensiKaryawan::where('karyawan_id', $id)->whereMonth('tanggal', $currentMonth)->whereYear('tanggal', $currentYear)->where('status_kehadiran', 'present')->count();
 
         // Late this month
-        $lateCount    = 0;
-        $monthRecords = AbsensiKaryawan::where('karyawan_id', $id)
-            ->whereMonth('tanggal', $currentMonth)
-            ->whereYear('tanggal', $currentYear)
-            ->where('status_kehadiran', 'present')
-            ->whereNotNull('jam_masuk')
-            ->get();
+        $lateCount = 0;
+        $monthRecords = AbsensiKaryawan::where('karyawan_id', $id)->whereMonth('tanggal', $currentMonth)->whereYear('tanggal', $currentYear)->where('status_kehadiran', 'present')->whereNotNull('jam_masuk')->get();
         foreach ($monthRecords as $r) {
             if (Carbon::parse($r->jam_masuk)->format('H:i:s') > '08:00:00') {
                 $lateCount++;
@@ -428,55 +407,57 @@ class DashboardController extends Controller
         }
 
         // Absent this month
-        $absentCount = AbsensiKaryawan::where('karyawan_id', $id)
-            ->whereMonth('tanggal', $currentMonth)
-            ->whereYear('tanggal', $currentYear)
-            ->where('is_change_day', false)
-            ->where('status_kehadiran', AbsensiKaryawan::STATUS_ABSENT)
-            ->count();
+        $absentCount = AbsensiKaryawan::where('karyawan_id', $id)->whereMonth('tanggal', $currentMonth)->whereYear('tanggal', $currentYear)->where('is_change_day', false)->where('status_kehadiran', AbsensiKaryawan::STATUS_ABSENT)->count();
 
         // Recent attendances (last 5)
-        $recentAttendances = AbsensiKaryawan::where('karyawan_id', $id)
-            ->where('is_change_day', false)
-            ->orderBy('tanggal', 'desc')
-            ->limit(5)
-            ->get()
-            ->map(fn($a) => [
-                'tanggal'    => $a->tanggal->format('d M Y'),
-                'jam_masuk'  => $a->jam_masuk  ? Carbon::parse($a->jam_masuk)->format('H:i')  : '-',
+        $recentAttendances = AbsensiKaryawan::where('karyawan_id', $id)->where('is_change_day', false)->orderBy('tanggal', 'desc')->limit(5)->get()->map(
+            fn($a) => [
+                'tanggal' => $a->tanggal->format('d M Y'),
+                'jam_masuk' => $a->jam_masuk ? Carbon::parse($a->jam_masuk)->format('H:i') : '-',
                 'jam_pulang' => $a->jam_pulang ? Carbon::parse($a->jam_pulang)->format('H:i') : '-',
-                'status'     => $a->status_kehadiran,
-            ]);
+                'status' => $a->status_kehadiran,
+            ],
+        );
 
         // Leave usage
-        $annualUsed    = PengajuanCuti::where('karyawan_id', $id)->where('jenis_cuti', 'tahunan')->whereIn('status', ['disetujui', 'approved'])->sum('total_hari');
-        $sickUsed      = PengajuanCuti::where('karyawan_id', $id)->where('jenis_cuti', 'sakit')->whereIn('status', ['disetujui', 'approved'])->sum('total_hari');
-        $emergencyUsed = PengajuanCuti::where('karyawan_id', $id)->where('jenis_cuti', 'penting')->whereIn('status', ['disetujui', 'approved'])->sum('total_hari');
-        $otherUsed     = PengajuanCuti::where('karyawan_id', $id)->where('jenis_cuti', 'lainnya')->whereIn('status', ['disetujui', 'approved'])->sum('total_hari');
+        $annualUsed = PengajuanCuti::where('karyawan_id', $id)
+            ->where('jenis_cuti', 'tahunan')
+            ->whereIn('status', ['disetujui', 'approved'])
+            ->sum('total_hari');
+        $sickUsed = PengajuanCuti::where('karyawan_id', $id)
+            ->where('jenis_cuti', 'sakit')
+            ->whereIn('status', ['disetujui', 'approved'])
+            ->sum('total_hari');
+        $emergencyUsed = PengajuanCuti::where('karyawan_id', $id)
+            ->where('jenis_cuti', 'penting')
+            ->whereIn('status', ['disetujui', 'approved'])
+            ->sum('total_hari');
+        $otherUsed = PengajuanCuti::where('karyawan_id', $id)
+            ->where('jenis_cuti', 'lainnya')
+            ->whereIn('status', ['disetujui', 'approved'])
+            ->sum('total_hari');
 
-        $leaveRequests = PengajuanCuti::where('karyawan_id', $id)
-            ->orderBy('created_at', 'desc')
-            ->limit(5)
-            ->get()
-            ->map(fn($l) => [
-                'tanggal_mulai'  => $l->tanggal_mulai->format('d/m/Y'),
+        $leaveRequests = PengajuanCuti::where('karyawan_id', $id)->orderBy('created_at', 'desc')->limit(5)->get()->map(
+            fn($l) => [
+                'tanggal_mulai' => $l->tanggal_mulai->format('d/m/Y'),
                 'tanggal_selesai' => $l->tanggal_selesai->format('d/m/Y'),
-                'jenis_cuti'     => $l->jenis_cuti_label,
-                'total_hari'     => $l->total_hari,
-                'status'         => $l->status,
-            ]);
+                'jenis_cuti' => $l->jenis_cuti_label,
+                'total_hari' => $l->total_hari,
+                'status' => $l->status,
+            ],
+        );
 
         // Performance
-        $latestPerf = Performa::where('karyawan_id', $id)
-            ->orderBy('tahun', 'desc')
-            ->orderBy('bulan', 'desc')
-            ->first();
+        $latestPerf = Performa::where('karyawan_id', $id)->orderBy('tahun', 'desc')->orderBy('bulan', 'desc')->first();
 
         $prevPerf = null;
         if ($latestPerf) {
             $prevMonth = $latestPerf->bulan - 1;
-            $prevYear  = $latestPerf->tahun;
-            if ($prevMonth === 0) { $prevMonth = 12; $prevYear--; }
+            $prevYear = $latestPerf->tahun;
+            if ($prevMonth === 0) {
+                $prevMonth = 12;
+                $prevYear--;
+            }
             $prevPerf = Performa::where('karyawan_id', $id)->where('tahun', $prevYear)->where('bulan', $prevMonth)->first();
         }
 
@@ -498,34 +479,34 @@ class DashboardController extends Controller
 
         return response()->json([
             'attendance' => [
-                'rate'    => $attendanceRate,
+                'rate' => $attendanceRate,
                 'present' => $presentCount,
-                'late'    => $lateCount,
-                'absent'  => $absentCount,
-                'recent'  => $recentAttendances,
+                'late' => $lateCount,
+                'absent' => $absentCount,
+                'recent' => $recentAttendances,
             ],
             'leave' => [
-                'annual_used'    => (int) $annualUsed,
-                'annual_quota'   => 12,
-                'sick_used'      => (int) $sickUsed,
-                'sick_quota'     => 12,
+                'annual_used' => (int) $annualUsed,
+                'annual_quota' => 12,
+                'sick_used' => (int) $sickUsed,
+                'sick_quota' => 12,
                 'emergency_used' => (int) $emergencyUsed,
                 'emergency_quota' => 12,
-                'other_used'     => (int) $otherUsed,
-                'other_quota'    => 12,
-                'requests'       => $leaveRequests,
+                'other_used' => (int) $otherUsed,
+                'other_quota' => 12,
+                'requests' => $leaveRequests,
             ],
             'performance' => [
                 'latest_score' => $latestPerf?->performance_score ?? 0,
                 'rating_label' => $latestPerf?->rating['label'] ?? 'No Data',
                 'rating_color' => $latestPerf?->rating['color'] ?? 'gray',
-                'change'       => $perfChange,
-                'quality'      => $latestPerf?->quality ?? 0,
+                'change' => $perfChange,
+                'quality' => $latestPerf?->quality ?? 0,
                 'productivity' => $latestPerf?->productivity ?? 0,
-                'teamwork'     => $latestPerf?->teamwork ?? 0,
-                'discipline'   => $latestPerf?->discipline ?? 0,
-                'kpi_score'    => $latestPerf?->kpi_score ?? 0,
-                'history'      => ['months' => $histMonths, 'scores' => $histScores],
+                'teamwork' => $latestPerf?->teamwork ?? 0,
+                'discipline' => $latestPerf?->discipline ?? 0,
+                'kpi_score' => $latestPerf?->kpi_score ?? 0,
+                'history' => ['months' => $histMonths, 'scores' => $histScores],
             ],
         ]);
     }
@@ -536,7 +517,7 @@ class DashboardController extends Controller
 
         return response()->json([
             'hashed_password' => $karyawan->kata_sandi,
-            'message'         => 'This is the hashed password. In production, password reset functionality should be used instead.',
+            'message' => 'This is the hashed password. In production, password reset functionality should be used instead.',
         ]);
     }
 
@@ -548,9 +529,9 @@ class DashboardController extends Controller
 
         $totalDays = $start->diffInDays($end) + 1;
         $fullWeeks = intdiv($totalDays, 7);
-        $weekdays  = $fullWeeks * 5;
-        $extra     = $totalDays % 7;
-        $dow       = $start->dayOfWeek;
+        $weekdays = $fullWeeks * 5;
+        $extra = $totalDays % 7;
+        $dow = $start->dayOfWeek;
 
         for ($i = 0; $i < $extra; $i++) {
             $d = ($dow + $i) % 7;

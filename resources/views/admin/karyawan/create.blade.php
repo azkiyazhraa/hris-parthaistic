@@ -226,6 +226,7 @@
                             <option value="D1">D1</option>
                             <option value="D2">D2</option>
                             <option value="D3">D3</option>
+                            <option value="D4">D4</option>
                             <option value="S1">S1</option>
                             <option value="S2">S2</option>
                         </select>

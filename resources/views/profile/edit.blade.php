@@ -77,9 +77,11 @@
                                         <!-- LEFT COLUMN -->
                                         <div class="space-y-4">
                                             <div>
-                                                <label class="text-gray-400 block mb-1">First Name <span class="text-red-500">*</span></label>
+                                                <label class="text-gray-400 block mb-1">First Name <span
+                                                        class="text-red-500">*</span></label>
                                                 <input type="text" name="nama_depan"
-                                                    value="{{ old('nama_depan', $karyawan->nama_depan ?? explode(' ', $karyawan->nama_lengkap)[0] ?? '') }}" required
+                                                    value="{{ old('nama_depan', $karyawan->nama_depan ?? (explode(' ', $karyawan->nama_lengkap)[0] ?? '')) }}"
+                                                    required
                                                     class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500">
                                                 @error('nama_depan')
                                                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -110,9 +112,11 @@
                                                 <select name="jenis_kelamin"
                                                     class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500">
                                                     <option value="">Select</option>
-                                                    <option value="L" {{ old('jenis_kelamin', $karyawan->jenis_kelamin) == 'L' ? 'selected' : '' }}>
+                                                    <option value="L"
+                                                        {{ old('jenis_kelamin', $karyawan->jenis_kelamin) == 'L' ? 'selected' : '' }}>
                                                         Male</option>
-                                                    <option value="P" {{ old('jenis_kelamin', $karyawan->jenis_kelamin) == 'P' ? 'selected' : '' }}>
+                                                    <option value="P"
+                                                        {{ old('jenis_kelamin', $karyawan->jenis_kelamin) == 'P' ? 'selected' : '' }}>
                                                         Female</option>
                                                 </select>
                                             </div>
@@ -122,11 +126,14 @@
                                                 <select name="status_pernikahan"
                                                     class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500">
                                                     <option value="">Select</option>
-                                                    <option value="Single" {{ old('status_pernikahan', $karyawan->status_pernikahan) == 'Single' ? 'selected' : '' }}>
+                                                    <option value="Single"
+                                                        {{ old('status_pernikahan', $karyawan->status_pernikahan) == 'Single' ? 'selected' : '' }}>
                                                         Single</option>
-                                                    <option value="Married" {{ old('status_pernikahan', $karyawan->status_pernikahan) == 'Married' ? 'selected' : '' }}>
+                                                    <option value="Married"
+                                                        {{ old('status_pernikahan', $karyawan->status_pernikahan) == 'Married' ? 'selected' : '' }}>
                                                         Married</option>
-                                                    <option value="Divorced" {{ old('status_pernikahan', $karyawan->status_pernikahan) == 'Divorced' ? 'selected' : '' }}>
+                                                    <option value="Divorced"
+                                                        {{ old('status_pernikahan', $karyawan->status_pernikahan) == 'Divorced' ? 'selected' : '' }}>
                                                         Divorced</option>
                                                 </select>
                                             </div>
@@ -135,13 +142,18 @@
                                         <!-- RIGHT COLUMN -->
                                         <div class="space-y-4">
                                             <div>
-                                                <label class="text-gray-400 block mb-1">Last Name <span class="text-red-500">*</span></label>
+                                                <label class="text-gray-400 block mb-1">Last Name <span
+                                                        class="text-red-500">*</span></label>
                                                 @php
                                                     $namaParts = explode(' ', $karyawan->nama_lengkap);
-                                                    $namaBelakang = count($namaParts) > 1 ? implode(' ', array_slice($namaParts, 1)) : '';
+                                                    $namaBelakang =
+                                                        count($namaParts) > 1
+                                                            ? implode(' ', array_slice($namaParts, 1))
+                                                            : '';
                                                 @endphp
                                                 <input type="text" name="nama_belakang"
-                                                    value="{{ old('nama_belakang', $karyawan->nama_belakang ?? $namaBelakang) }}" required
+                                                    value="{{ old('nama_belakang', $karyawan->nama_belakang ?? $namaBelakang) }}"
+                                                    required
                                                     class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500">
                                                 @error('nama_belakang')
                                                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -149,7 +161,8 @@
                                             </div>
 
                                             <div>
-                                                <label class="text-gray-400 block mb-1">Email <span class="text-red-500">*</span></label>
+                                                <label class="text-gray-400 block mb-1">Email <span
+                                                        class="text-red-500">*</span></label>
                                                 <input type="email" name="email"
                                                     value="{{ old('email', $karyawan->email) }}" required
                                                     class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500">
@@ -194,12 +207,24 @@
                                                 <select name="agama"
                                                     class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500">
                                                     <option value="">Select</option>
-                                                    <option value="Islam" {{ old('agama', $karyawan->agama) == 'Islam' ? 'selected' : '' }}>Islam</option>
-                                                    <option value="Kristen" {{ old('agama', $karyawan->agama) == 'Kristen' ? 'selected' : '' }}>Kristen</option>
-                                                    <option value="Katolik" {{ old('agama', $karyawan->agama) == 'Katolik' ? 'selected' : '' }}>Katolik</option>
-                                                    <option value="Hindu" {{ old('agama', $karyawan->agama) == 'Hindu' ? 'selected' : '' }}>Hindu</option>
-                                                    <option value="Buddha" {{ old('agama', $karyawan->agama) == 'Buddha' ? 'selected' : '' }}>Buddha</option>
-                                                    <option value="Konghucu" {{ old('agama', $karyawan->agama) == 'Konghucu' ? 'selected' : '' }}>Konghucu</option>
+                                                    <option value="Islam"
+                                                        {{ old('agama', $karyawan->agama) == 'Islam' ? 'selected' : '' }}>
+                                                        Islam</option>
+                                                    <option value="Kristen"
+                                                        {{ old('agama', $karyawan->agama) == 'Kristen' ? 'selected' : '' }}>
+                                                        Kristen</option>
+                                                    <option value="Katolik"
+                                                        {{ old('agama', $karyawan->agama) == 'Katolik' ? 'selected' : '' }}>
+                                                        Katolik</option>
+                                                    <option value="Hindu"
+                                                        {{ old('agama', $karyawan->agama) == 'Hindu' ? 'selected' : '' }}>
+                                                        Hindu</option>
+                                                    <option value="Buddha"
+                                                        {{ old('agama', $karyawan->agama) == 'Buddha' ? 'selected' : '' }}>
+                                                        Buddha</option>
+                                                    <option value="Konghucu"
+                                                        {{ old('agama', $karyawan->agama) == 'Konghucu' ? 'selected' : '' }}>
+                                                        Konghucu</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -215,8 +240,9 @@
                                     <div class="grid md:grid-cols-2 gap-4 text-sm">
                                         <div>
                                             <label class="text-gray-400 block mb-1">Position</label>
-                                            <input type="text" value="{{ $karyawan->jabatan_display ?? ucfirst($karyawan->role) }}" readonly
-                                                class="w-full border rounded-lg px-3 py-2 bg-gray-100">
+                                            <input type="text"
+                                                value="{{ $karyawan->jabatan_display ?? ucfirst($karyawan->role) }}"
+                                                readonly class="w-full border rounded-lg px-3 py-2 bg-gray-100">
                                         </div>
 
                                         <div>
@@ -259,11 +285,25 @@
                                                 class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500">
                                                 <option value="">Select</option>
                                                 @php
-                                                    $eduOptions = ['SMP', 'SMA/MA', 'SMK', 'D1', 'D2', 'D3', 'S1', 'S2'];
-                                                    $currentEdu = $karyawan->pendidikan_terakhir_new ?? $karyawan->pendidikan_terakhir;
+                                                    $eduOptions = [
+                                                        'SMP',
+                                                        'SMA/MA',
+                                                        'SMK',
+                                                        'D1',
+                                                        'D2',
+                                                        'D3',
+                                                        'D4',
+                                                        'S1',
+                                                        'S2',
+                                                    ];
+                                                    $currentEdu =
+                                                        $karyawan->pendidikan_terakhir_new ??
+                                                        $karyawan->pendidikan_terakhir;
                                                 @endphp
-                                                @foreach($eduOptions as $opt)
-                                                    <option value="{{ $opt }}" {{ old('pendidikan_terakhir', $currentEdu) == $opt ? 'selected' : '' }}>{{ $opt }}</option>
+                                                @foreach ($eduOptions as $opt)
+                                                    <option value="{{ $opt }}"
+                                                        {{ old('pendidikan_terakhir', $currentEdu) == $opt ? 'selected' : '' }}>
+                                                        {{ $opt }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -286,7 +326,8 @@
                                             <label class="text-gray-400 block mb-1">Graduation Year</label>
                                             <input type="number" name="tahun_lulus"
                                                 value="{{ old('tahun_lulus', $karyawan->tahun_lulus) }}"
-                                                class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500" min="1900" max="2099">
+                                                class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500"
+                                                min="1900" max="2099">
                                         </div>
                                     </div>
                                 </div>
@@ -325,24 +366,32 @@
                         <div class="flex flex-col justify-start items-center gap-4">
                             @php
                                 $fotoProfil = $karyawan->foto_profil;
-                                $fotoUrl = $fotoProfil && Storage::disk('public')->exists($fotoProfil)
-                                    ? Storage::url($fotoProfil)
-                                    : 'https://ui-avatars.com/api/?background=0D8F81&color=fff&size=200&name=' . urlencode($karyawan->nama_lengkap);
+                                $fotoUrl =
+                                    $fotoProfil && Storage::disk('public')->exists($fotoProfil)
+                                        ? Storage::url($fotoProfil)
+                                        : 'https://ui-avatars.com/api/?background=0D8F81&color=fff&size=200&name=' .
+                                            urlencode($karyawan->nama_lengkap);
                             @endphp
 
-                            <div class="w-40 h-40 md:w-52 md:h-52 rounded-full border-[6px] border-blue-900 flex items-center justify-center overflow-hidden bg-gray-100">
+                            <div
+                                class="w-40 h-40 md:w-52 md:h-52 rounded-full border-[6px] border-blue-900 flex items-center justify-center overflow-hidden bg-gray-100">
                                 <img src="{{ $fotoUrl }}" class="w-full h-full object-cover" alt="Profile Photo">
                             </div>
 
-                            <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data" id="photoForm">
+                            <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data"
+                                id="photoForm">
                                 @csrf
                                 @method('PATCH')
-                                <input type="hidden" name="nama_depan" value="{{ $karyawan->nama_depan ?? explode(' ', $karyawan->nama_lengkap)[0] ?? '' }}">
-                                <input type="hidden" name="nama_belakang" value="{{ $karyawan->nama_belakang ?? $namaBelakang ?? '' }}">
+                                <input type="hidden" name="nama_depan"
+                                    value="{{ $karyawan->nama_depan ?? (explode(' ', $karyawan->nama_lengkap)[0] ?? '') }}">
+                                <input type="hidden" name="nama_belakang"
+                                    value="{{ $karyawan->nama_belakang ?? ($namaBelakang ?? '') }}">
                                 <input type="hidden" name="email" value="{{ $karyawan->email }}">
-                                <label class="cursor-pointer bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded-lg transition inline-block">
+                                <label
+                                    class="cursor-pointer bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded-lg transition inline-block">
                                     <i class="mr-1">📷</i> Upload Photo
-                                    <input type="file" name="foto_profil" accept="image/*" class="hidden" onchange="uploadPhoto()">
+                                    <input type="file" name="foto_profil" accept="image/*" class="hidden"
+                                        onchange="uploadPhoto()">
                                 </label>
                                 <p class="text-xs text-gray-500 mt-2">Max 2MB, JPG/PNG</p>
                             </form>

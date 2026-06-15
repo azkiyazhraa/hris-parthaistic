@@ -1,6 +1,7 @@
 <div id="employee-modal-edit-{{ $item->id }}" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
     <!-- MODAL BOX -->
-    <div class="bg-white w-full max-w-2xl rounded-xl shadow-xl max-h-[90vh] overflow-y-auto p-5 md:p-8 transition-all duration-300">
+    <div
+        class="bg-white w-full max-w-2xl rounded-xl shadow-xl max-h-[90vh] overflow-y-auto p-5 md:p-8 transition-all duration-300">
 
         <!-- HEADER -->
         <div class="flex justify-between items-center mb-4 md:mb-6">
@@ -82,7 +83,8 @@
                         <label class="block text-sm font-medium text-gray-700 mb-1">Role</label>
                         <select name="role"
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                            <option value="karyawan" {{ $item->role === 'karyawan' ? 'selected' : '' }}>Employee</option>
+                            <option value="karyawan" {{ $item->role === 'karyawan' ? 'selected' : '' }}>Employee
+                            </option>
                             <option value="hr" {{ $item->role === 'hr' ? 'selected' : '' }}>HR</option>
                             <option value="admin" {{ $item->role === 'admin' ? 'selected' : '' }}>Admin</option>
                         </select>
@@ -164,14 +166,16 @@
                     @endphp
 
                     {{-- WARNING SUSPEND --}}
-                    <div id="warningInactive{{ $item->id }}" class="md:col-span-2 bg-red-50 border border-red-200 rounded-lg p-4"
+                    <div id="warningInactive{{ $item->id }}"
+                        class="md:col-span-2 bg-red-50 border border-red-200 rounded-lg p-4"
                         style="display:{{ $isInactive ? 'block' : 'none' }};">
                         <div class="flex items-start gap-3">
                             <div class="text-red-500 text-xl">⚠️</div>
                             <div>
                                 <p class="text-sm font-semibold text-red-800">Warning: Suspending Employee</p>
                                 <p class="text-xs text-red-600 mt-1">
-                                    Changing status to "<span id="statusTextEdit{{ $item->id }}">{{ $item->status }}</span>" will:
+                                    Changing status to "<span
+                                        id="statusTextEdit{{ $item->id }}">{{ $item->status }}</span>" will:
                                 </p>
                                 <ul class="text-xs text-red-600 mt-1 list-disc list-inside">
                                     <li>Suspend this employee's account immediately</li>
@@ -212,10 +216,13 @@
                             <label class="block text-sm font-medium text-blue-700 mb-1">📊 Total Working Days</label>
                             <p class="text-lg font-semibold text-blue-800">
                                 {{ number_format($item->total_hari_kerja) }} days
-                                <span class="text-sm font-normal text-blue-500">({{ $item->total_hari_kerja_formatted }})</span>
+                                <span
+                                    class="text-sm font-normal text-blue-500">({{ $item->total_hari_kerja_formatted }})</span>
                             </p>
                             <p class="text-xs text-blue-400 mt-1">
-                                Calculated automatically: {{ $item->tanggal_bergabung ? $item->tanggal_bergabung->format('d M Y') : '-' }} → {{ $item->end_date ? $item->end_date->format('d M Y') : '-' }}
+                                Calculated automatically:
+                                {{ $item->tanggal_bergabung ? $item->tanggal_bergabung->format('d M Y') : '-' }} →
+                                {{ $item->end_date ? $item->end_date->format('d M Y') : '-' }}
                             </p>
                         </div>
                     @endif
@@ -282,7 +289,8 @@
                         <select name="jenis_kelamin" class="w-full border rounded-lg px-3 py-2">
                             <option value="">Select</option>
                             <option value="L" {{ $item->jenis_kelamin === 'L' ? 'selected' : '' }}>Male</option>
-                            <option value="P" {{ $item->jenis_kelamin === 'P' ? 'selected' : '' }}>Female</option>
+                            <option value="P" {{ $item->jenis_kelamin === 'P' ? 'selected' : '' }}>Female
+                            </option>
                         </select>
                     </div>
                     <div>
@@ -308,7 +316,7 @@
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                             <option value="">Select Education</option>
                             @php
-                                $eduOptions = ['SMP', 'SMA/MA', 'SMK', 'D1', 'D2', 'D3', 'S1', 'S2'];
+                                $eduOptions = ['SMP', 'SMA/MA', 'SMK', 'D1', 'D2', 'D3', 'D4', 'S1', 'S2'];
                                 $currentEdu = $item->pendidikan_terakhir_new ?? $item->pendidikan_terakhir;
                             @endphp
                             @foreach ($eduOptions as $opt)
@@ -355,9 +363,8 @@
             <div class="flex justify-end gap-2 pt-2">
                 <button type="button" data-modal-hide="employee-modal-edit-{{ $item->id }}"
                     class="px-4 py-2 rounded-lg border text-gray-700 hover:bg-gray-50">Cancel</button>
-                <button type="submit"
-                    class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">
-                        Save Changes
+                <button type="submit" class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">
+                    Save Changes
                 </button>
             </div>
         </form>
@@ -387,7 +394,8 @@
             endDateField.style.display = 'block';
             reasonField.style.display = 'block';
             warningBox.style.display = 'block';
-            if (statusText) statusText.textContent = statusSelect.options[statusSelect.selectedIndex].text.replace('🔒 ', '');
+            if (statusText) statusText.textContent = statusSelect.options[statusSelect.selectedIndex].text.replace(
+                '🔒 ', '');
         } else {
             endDateField.style.display = 'none';
             reasonField.style.display = 'none';
