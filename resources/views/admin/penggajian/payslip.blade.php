@@ -1,89 +1,141 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
+@php
+    $logoPath = public_path('assets/image/logo.png');
+    $logoData = base64_encode(file_get_contents($logoPath));
+    $logoType = pathinfo($logoPath, PATHINFO_EXTENSION);
+    $footerPath = public_path('assets/image/kop-fix.png');
+
+    if (file_exists($footerPath)) {
+        $footerData = base64_encode(file_get_contents($footerPath));
+        $footerType = pathinfo($footerPath, PATHINFO_EXTENSION);
+    }
+@endphp
 
 <head>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
+    <title>Payslip</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 
     <style>
         @page {
-            margin: 32px;
+            margin: 10px 25px;
         }
 
         body {
-            font-family: DejaVu Sans, Arial, sans-serif;
-            font-size: 10px;
+            position: relative;
             margin: 0;
-            color: #111827;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            font-size: 11px;
+            line-height: 1.2;
+            color: #000;
+            min-height: 100vh;
+            margin: 0 !important;
+            padding: 0 !important;
         }
 
-        .container {
+        .payslip-container {
+            position: relative;
+            z-index: 0;
+            background-color: #ffffff;
+            padding: 0 5px;
             width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 12px;
-        }
-
-        .header h1 {
+        .full-width-footer {
+            position: fixed;
+            top: -10px;
+            left: -25px;
+            width: calc(100% + 50px);
+            height: calc(100% + 20px);
+            z-index: 10;
+            pointer-events: none;
+            object-fit: cover;
             margin: 0;
-            font-size: 22px;
-            color: #1e3a8a;
-            letter-spacing: .5px;
+            padding: 0;
         }
 
-        .header p {
-            margin: 2px 0 0;
-            font-size: 10px;
-            color: #6b7280;
+        .divider {
+            border-bottom: 1.5px solid #1a1a60;
+            margin: 10px 0;
+        }
+
+        .invoice-meta {
+            text-align: right;
+            font-size: 11px;
+            color: #374151;
+            margin-bottom: 4px;
         }
 
         .employee-info {
-            background: #f3f4f6;
-            padding: 8px 10px;
-            margin-bottom: 10px;
+            line-height: 1.3;
+            margin-bottom: 12px;
+            font-size: 12px;
         }
 
-        .employee-info table,
-        .employee-info td {
-            border: none !important;
+        .employee-info strong {
+            font-weight: 600;
         }
 
-        .employee-info td {
-            padding: 2px 0;
-            font-size: 10px;
-        }
+        @media print {
+            @page {
+                margin: 10px 25px;
+            }
 
-        .section {
-            margin-bottom: 8px;
-            page-break-inside: avoid;
+            body {
+                padding: 0 !important;
+                background-color: white;
+                margin: 0 !important;
+            }
+
+            .payslip-container {
+                box-shadow: none;
+                padding: 15px;
+            }
+
+            .full-width-footer {
+                opacity: 0.08;
+                top: -10px;
+                left: -25px;
+                width: calc(100% + 50px);
+                height: calc(100% + 20px);
+            }
         }
 
         .section h3 {
             background: #1e3a8a;
-            color: #fff;
-            font-size: 10px;
-            margin: 0 0 4px 0;
-            padding: 5px 8px;
+            color: white;
+            padding: 8px 10px;
+            font-size: 11px;
+            margin: 0;
+            border-radius: 4px 4px 0 0;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            table-layout: fixed;
+        }
+
+        th {
+            background: #1e40af;
+            color: white;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 6px;
+        }
+
+        td {
+            padding: 6px;
+            font-size: 10px;
         }
 
         th,
         td {
             border: 1px solid #d1d5db;
-            padding: 4px 6px;
-            font-size: 9px;
-            vertical-align: middle;
-        }
-
-        th {
-            background: #f9fafb;
-            font-weight: bold;
         }
 
         .text-right {
@@ -91,170 +143,207 @@
         }
 
         .total {
-            background: #f3f4f6;
+            background: #eef2ff;
             font-weight: bold;
-        }
-
-        .net-salary td {
-            font-size: 11px;
-            font-weight: bold;
-            padding: 6px;
-        }
-
-        .footer {
-            margin-top: 8px;
-            text-align: center;
-            font-size: 8px;
-            color: #6b7280;
         }
     </style>
 </head>
 
 <body>
 
-    <div class="container">
+    @if (isset($footerData) && isset($footerType))
+        <img src="data:image/{{ $footerType }};base64,{{ $footerData }}" alt="Footer" class="full-width-footer">
+    @endif
 
-        <div class="header">
-            <h1>SLIP GAJI</h1>
-            <p>Periode: {{ $penggajian->bulan_text }} {{ $penggajian->tahun }}</p>
+    <div class="payslip-container">
+        <!-- Header -->
+        <table width="100%" style="border-collapse: collapse; border:none; margin-bottom: 10px; margin-top: 24px;">
+            <tr>
+                <td style="width: 12%; vertical-align: middle; border:none; padding-right: 5px;">
+                    <img src="data:image/{{ $logoType }};base64,{{ $logoData }}" alt="Logo"
+                        style="width:80px;height:80px;object-fit:cover;">
+                </td>
+
+                <td style="width: 88%; vertical-align: middle; border:none; padding-left: 5px;">
+                    <div style="font-size: 24px; font-weight: bold; color: #000; margin: 0; line-height: 1.2;">
+                        Parthaistic Digital Agency
+                    </div>
+
+                    <div style="font-size: 16px; color: #555; margin-top: 2px;">
+                        Your Digital Creator
+                    </div>
+                </td>
+            </tr>
+
+            <tr>
+                <td colspan="2" style="text-align: center; border:none; padding-top: 15px;">
+                    <div style="font-size: 20px; font-weight: bold; color: #1e40af;">
+                        Payslip
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+        <div class="divider"></div>
+        <div class="divider"></div>
+
+        <!-- Meta -->
+        <div class="invoice-meta">
+            Period: {{ $penggajian->bulan_text }} {{ $penggajian->tahun }}
         </div>
 
+        <!-- Client Info -->
         <div class="employee-info">
-            <table>
-                <tr>
-                    <td width="28%"><strong>Employee Name</strong></td>
-                    <td>: {{ $penggajian->nama_karyawan }}</td>
-                </tr>
-                <tr>
-                    <td><strong>NIP</strong></td>
-                    <td>: {{ $karyawan->nip ?? '-' }}</td>
-                </tr>
-                <tr>
-                    <td><strong>Role</strong></td>
-                    <td>: {{ ucfirst($karyawan->role ?? '-') }}</td>
-                </tr>
-                <tr>
-                    <td><strong>Status</strong></td>
-                    <td>: {{ strtoupper($penggajian->status) }}</td>
-                </tr>
-            </table>
+            <strong>Name:</strong> {{ $penggajian->nama_karyawan ?? '-' }}<br>
+            <strong>NIP:</strong> {{ $karyawan->nip ?? '-' }}<br>
+            <strong>Department:</strong> {{ $karyawan->jabatan }}<br>
+            <strong>Position:</strong> {{ $karyawan->role == 'karyawan' ? 'Employee' : '-' }}<br>
         </div>
 
-        <div class="section">
-            <h3>Earnings</h3>
+        <table width="100%" style="border:none; margin-top:10px;">
+            <tr>
+                <!-- EARNINGS -->
+                <td width="50%" style="vertical-align:top; border:none; padding-right:8px;">
+                    <h3>Earnings</h3>
 
-            <table>
-                <colgroup>
-                    <col style="width:62%">
-                    <col style="width:38%">
-                </colgroup>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Component</th>
+                                <th class="text-right">Amount</th>
+                            </tr>
+                        </thead>
 
-                <tr>
-                    <th>Component</th>
-                    <th class="text-right">Jumlah</th>
-                </tr>
+                        <tbody>
+                            <tr>
+                                <td>Basic Salary</td>
+                                <td class="text-right">Rp {{ number_format($penggajian->gaji_pokok, 0, ',', '.') }}
+                                </td>
+                            </tr>
 
-                <tr>
-                    <td>Basic Salary</td>
-                    <td class="text-right">Rp {{ number_format($penggajian->gaji_pokok, 0, ',', '.') }}</td>
-                </tr>
-                <tr>
-                    <td>Transport Allowance</td>
-                    <td class="text-right">Rp {{ number_format($penggajian->transport_allowance, 0, ',', '.') }}</td>
-                </tr>
-                <tr>
-                    <td>Meal Allowance</td>
-                    <td class="text-right">Rp {{ number_format($penggajian->meal_allowance, 0, ',', '.') }}</td>
-                </tr>
-                <tr>
-                    <td>Internet Allowance</td>
-                    <td class="text-right">Rp {{ number_format($penggajian->internet_allowance, 0, ',', '.') }}</td>
-                </tr>
-                <tr>
-                    <td>Position Allowance</td>
-                    <td class="text-right">Rp {{ number_format($penggajian->position_allowance, 0, ',', '.') }}</td>
-                </tr>
-                <tr>
-                    <td>Incentive</td>
-                    <td class="text-right">Rp {{ number_format($penggajian->incentive, 0, ',', '.') }}</td>
-                </tr>
+                            <tr>
+                                <td>Transport Allowance</td>
+                                <td class="text-right">Rp
+                                    {{ number_format($penggajian->transport_allowance, 0, ',', '.') }}</td>
+                            </tr>
 
-                <tr class="total">
-                    <td>Total Earnings</td>
-                    <td class="text-right">Rp {{ number_format($penggajian->total_earnings, 0, ',', '.') }}</td>
-                </tr>
-            </table>
-        </div>
+                            <tr>
+                                <td>Meal Allowance</td>
+                                <td class="text-right">Rp {{ number_format($penggajian->meal_allowance, 0, ',', '.') }}
+                                </td>
+                            </tr>
 
-        <div class="section">
-            <h3>Deductions</h3>
+                            <tr>
+                                <td>Internet Allowance</td>
+                                <td class="text-right">Rp
+                                    {{ number_format($penggajian->internet_allowance, 0, ',', '.') }}</td>
+                            </tr>
 
-            <table>
-                <colgroup>
-                    <col style="width:62%">
-                    <col style="width:38%">
-                </colgroup>
+                            <tr>
+                                <td>Position Allowance</td>
+                                <td class="text-right">Rp
+                                    {{ number_format($penggajian->position_allowance, 0, ',', '.') }}</td>
+                            </tr>
 
+                            <tr>
+                                <td>Incentive</td>
+                                <td class="text-right">Rp {{ number_format($penggajian->incentive, 0, ',', '.') }}</td>
+                            </tr>
+
+                            <tr class="total">
+                                <td><strong>Total Earnings</strong></td>
+                                <td class="text-right">
+                                    <strong>Rp {{ number_format($penggajian->total_earnings, 0, ',', '.') }}</strong>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+
+                <!-- DEDUCTIONS -->
+                <td width="50%" style="vertical-align:top; border:none; padding-left:8px;">
+                    <h3>Deductions</h3>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Component</th>
+                                <th class="text-right">Amount</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr>
+                                <td>Tax (PPh 21)</td>
+                                <td class="text-right">Rp {{ number_format($penggajian->tax, 0, ',', '.') }}</td>
+                            </tr>
+
+                            <tr>
+                                <td>BPJS Employment</td>
+                                <td class="text-right">Rp
+                                    {{ number_format($penggajian->bpjs_ketenagakerjaan, 0, ',', '.') }}</td>
+                            </tr>
+
+                            <tr>
+                                <td>Late / Absent Deduction</td>
+                                <td class="text-right">Rp
+                                    {{ number_format($penggajian->late_absent_deduction, 0, ',', '.') }}</td>
+                            </tr>
+
+                            <tr>
+                                <td>Loan Deduction</td>
+                                <td class="text-right">Rp {{ number_format($penggajian->loan_deduction, 0, ',', '.') }}
+                                </td>
+                            </tr>
+
+                            <tr class="total">
+                                <td><strong>Total Deductions</strong></td>
+                                <td class="text-right">
+                                    <strong>Rp {{ number_format($penggajian->total_deductions, 0, ',', '.') }}</strong>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+        </table>
+
+        <div
+            style="
+                margin-top:15px;
+                background-color:#1e40af;
+                color:white;
+                padding:12px 16px;
+                border-radius:6px;
+                margin-bottom:15px;
+            ">
+            <table style="border:none; width:100%;">
                 <tr>
-                    <th>Component</th>
-                    <th class="text-right">Jumlah</th>
-                </tr>
+                    <td style="border:none; font-size:14px; font-weight:bold;">
+                        NET SALARY
+                    </td>
 
-                <tr>
-                    <td>Tax (PPh 21)</td>
-                    <td class="text-right">Rp {{ number_format($penggajian->tax, 0, ',', '.') }}</td>
-                </tr>
-                <tr>
-                    <td>BPJS Health</td>
-                    <td class="text-right">Rp {{ number_format($penggajian->bpjs_kesehatan, 0, ',', '.') }}</td>
-                </tr>
-                <tr>
-                    <td>BPJS Employment</td>
-                    <td class="text-right">Rp {{ number_format($penggajian->bpjs_ketenagakerjaan, 0, ',', '.') }}</td>
-                </tr>
-                <tr>
-                    <td>Late/Absent Deduction</td>
-                    <td class="text-right">Rp {{ number_format($penggajian->late_absent_deduction, 0, ',', '.') }}</td>
-                </tr>
-                <tr>
-                    <td>Loan Deduction</td>
-                    <td class="text-right">Rp {{ number_format($penggajian->loan_deduction, 0, ',', '.') }}</td>
-                </tr>
-
-                <tr class="total">
-                    <td>Total Deductions</td>
-                    <td class="text-right">Rp {{ number_format($penggajian->total_deductions, 0, ',', '.') }}</td>
-                </tr>
-            </table>
-        </div>
-
-        <div class="section">
-            <table>
-                <colgroup>
-                    <col style="width:62%">
-                    <col style="width:38%">
-                </colgroup>
-
-                <tr class="total net-salary">
-                    <td>NET SALARY</td>
-                    <td class="text-right">Rp {{ number_format($penggajian->net_salary, 0, ',', '.') }}</td>
+                    <td
+                        style="
+                            border:none;
+                            text-align:right;
+                            font-size:18px;
+                            font-weight:bold;
+                        ">
+                        Rp {{ number_format($penggajian->net_salary, 0, ',', '.') }}
+                    </td>
                 </tr>
             </table>
         </div>
 
         @if ($penggajian->catatan)
-            <div class="section">
-                <h3>Catatan</h3>
+            <div style="border: 1px solid #1e40af; border-radius: 6px; padding: 12px 16px;">
+                <h3>Notes</h3>
                 <p>{{ $penggajian->catatan }}</p>
             </div>
         @endif
 
-        <div class="footer">
-            Dicetak pada: {{ now()->format('d/m/Y H:i:s') }}
-        </div>
-
     </div>
-
 </body>
 
 </html>

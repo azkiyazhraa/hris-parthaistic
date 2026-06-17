@@ -48,7 +48,7 @@ class CutiController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'jenis_cuti' => 'required|in:tahunan,sakit,melahirkan,penting,ibadah,lainnya',
+            'jenis_cuti' => 'required|in:tahunan,melahirkan',
             'tanggal_mulai' => 'required|date|after_or_equal:today',
             'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
             'alasan' => 'required|string|min:10',
@@ -69,13 +69,8 @@ class CutiController extends Controller
             $sisaKuota = 12 - $kuotaTerpakai;
 
             if ($totalHari > $sisaKuota) {
-                return redirect()->back()->with('error', 'Insufficient annual leave quota. Remaining quota: '.$sisaKuota.' days')->withInput();
+                return redirect()->back()->with('error', 'Insufficient annual leave quota. Remaining quota: ' . $sisaKuota . ' days')->withInput();
             }
-        }
-
-        $lampiranPath = null;
-        if ($request->hasFile('lampiran')) {
-            $lampiranPath = $request->file('lampiran')->store('lampiran-cuti', 'public');
         }
 
         PengajuanCuti::create([
@@ -87,7 +82,7 @@ class CutiController extends Controller
             'total_hari' => $totalHari,
             'alasan' => $request->alasan,
             'status' => 'pending',
-            'lampiran' => $lampiranPath,
+            'lampiran' => $request->hasFile('lampiran') ? $request->file('lampiran')->store('cuti', 'public') : null,
             'tahun_cuti' => date('Y'),
             'kuota_total' => 12,
             'kuota_terpakai' => 0,
@@ -150,7 +145,7 @@ class CutiController extends Controller
             $sisaKuota = 12 - $kuotaTerpakai;
 
             if ($totalHari > $sisaKuota) {
-                return redirect()->back()->with('error', 'Insufficient annual leave quota. Remaining quota: '.$sisaKuota.' days')->withInput();
+                return redirect()->back()->with('error', 'Insufficient annual leave quota. Remaining quota: ' . $sisaKuota . ' days')->withInput();
             }
         }
 
@@ -161,13 +156,6 @@ class CutiController extends Controller
             'total_hari' => $totalHari,
             'alasan' => $request->alasan,
         ];
-
-        if ($request->hasFile('lampiran')) {
-            if ($cuti->lampiran) {
-                Storage::disk('public')->delete($cuti->lampiran);
-            }
-            $updateData['lampiran'] = $request->file('lampiran')->store('lampiran-cuti', 'public');
-        }
 
         $cuti->update($updateData);
 
@@ -260,10 +248,10 @@ class CutiController extends Controller
 
         // Send notification to employee
         $statusText = $request->status == 'disetujui' ? 'approved' : 'rejected';
-        $message = 'Your leave request for '.Carbon::parse($cuti->tanggal_mulai)->format('d/m/Y').' - '.Carbon::parse($cuti->tanggal_selesai)->format('d/m/Y')." has been $statusText";
+        $message = 'Your leave request for ' . Carbon::parse($cuti->tanggal_mulai)->format('d/m/Y') . ' - ' . Carbon::parse($cuti->tanggal_selesai)->format('d/m/Y') . " has been $statusText";
 
         if ($request->filled('catatan')) {
-            $message .= ' with note: '.$request->catatan;
+            $message .= ' with note: ' . $request->catatan;
         }
 
         Notifikasi::create([

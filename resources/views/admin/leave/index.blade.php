@@ -1,14 +1,14 @@
 @extends('layouts.app')
 @section('content')
-    <div class="container mx-auto py-4 space-y-4 px-2 sm:px-4">
+    <div class="container px-2 py-4 mx-auto space-y-4 sm:px-4">
 
         {{-- CARD HEADER --}}
-        <div class="bg-gradient-to-r from-blue-200 to-cyan-400 rounded-2xl p-6 shadow-lg flex items-center justify-between">
+        <div class="flex items-center justify-between p-6 shadow-lg bg-gradient-to-r from-blue-200 to-cyan-400 rounded-2xl">
             <div>
-                <h1 class="text-2xl font-bold text-blue-900 mb-1">
+                <h1 class="mb-1 text-2xl font-bold text-blue-900">
                     Leave Management
                 </h1>
-                <p class="text-gray-700/80 text-sm">
+                <p class="text-sm text-gray-700/80">
                     Manage employee leave requests.
                 </p>
             </div>
@@ -18,29 +18,29 @@
         </div>
 
         {{-- CARD SUMMARY --}}
-        <div class="bg-white rounded-2xl shadow p-4 md:p-6">
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div class="p-4 bg-white shadow rounded-2xl md:p-6">
+            <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
                 <div class="flex flex-col gap-1 px-2 py-2 text-center sm:text-left">
-                    <p class="text-gray-400 text-xs sm:text-sm">Total Request (This Month)</p>
-                    <h2 class="text-xl md:text-2xl font-semibold text-blue-900">
+                    <p class="text-xs text-gray-400 sm:text-sm">Total Request (This Month)</p>
+                    <h2 class="text-xl font-semibold text-blue-900 md:text-2xl">
                         {{ $totalRequest }}
                     </h2>
                 </div>
                 <div class="flex flex-col gap-1 px-2 py-2 text-center sm:text-left">
-                    <p class="text-gray-400 text-xs sm:text-sm">Approved</p>
-                    <h2 class="text-xl md:text-2xl font-semibold text-green-600">
+                    <p class="text-xs text-gray-400 sm:text-sm">Approved</p>
+                    <h2 class="text-xl font-semibold text-green-600 md:text-2xl">
                         {{ $approved }}
                     </h2>
                 </div>
                 <div class="flex flex-col gap-1 px-2 py-2 text-center sm:text-left">
-                    <p class="text-gray-400 text-xs sm:text-sm">Requested</p>
-                    <h2 class="text-xl md:text-2xl font-semibold text-yellow-600">
+                    <p class="text-xs text-gray-400 sm:text-sm">Requested</p>
+                    <h2 class="text-xl font-semibold text-yellow-600 md:text-2xl">
                         {{ $requested }}
                     </h2>
                 </div>
                 <div class="flex flex-col gap-1 px-2 py-2 text-center sm:text-left">
-                    <p class="text-gray-400 text-xs sm:text-sm">Rejected</p>
-                    <h2 class="text-xl md:text-2xl font-semibold text-red-600">
+                    <p class="text-xs text-gray-400 sm:text-sm">Rejected</p>
+                    <h2 class="text-xl font-semibold text-red-600 md:text-2xl">
                         {{ $rejected }}
                     </h2>
                 </div>
@@ -48,8 +48,8 @@
         </div>
 
         {{-- TABLE --}}
-        <div class="bg-white rounded-2xl shadow-lg w-full p-4 sm:p-6" style="border: 2px solid #e0eaff;">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+        <div class="w-full p-4 bg-white shadow-lg rounded-2xl sm:p-6" style="border: 2px solid #e0eaff;">
+            <div class="flex flex-col gap-4 mb-6 md:flex-row md:items-center md:justify-between">
 
                 <!-- TITLE -->
                 <div>
@@ -59,7 +59,7 @@
                 </div>
 
                 <!-- FILTER -->
-                <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                <div class="flex flex-col w-full gap-3 sm:flex-row md:w-auto">
 
                     <!-- STATUS -->
                     <div class="w-full sm:w-48">
@@ -105,34 +105,34 @@
             <div class="overflow-x-auto">
                 <table class="w-full min-w-[800px] md:min-w-full text-sm text-left">
                     <thead>
-                        <tr class="text-gray-400 font-medium text-xs uppercase tracking-wide border-b">
-                            <th class="text-left pb-3 whitespace-nowrap">Employee</th>
-                            <th class="text-left pb-3 whitespace-nowrap">Leave Type</th>
-                            <th class="text-left pb-3 whitespace-nowrap">Start Date</th>
-                            <th class="text-left pb-3 whitespace-nowrap">End Date</th>
-                            <th class="text-left pb-3 whitespace-nowrap">Days</th>
-                            <th class="text-left pb-3 whitespace-nowrap">Status</th>
-                            <th class="text-left pb-3 whitespace-nowrap">Action</th>
+                        <tr class="text-xs font-medium tracking-wide text-gray-400 uppercase border-b">
+                            <th class="pb-3 text-left whitespace-nowrap">Employee</th>
+                            <th class="pb-3 text-left whitespace-nowrap">Leave Type</th>
+                            <th class="pb-3 text-left whitespace-nowrap">Start Date</th>
+                            <th class="pb-3 text-left whitespace-nowrap">End Date</th>
+                            <th class="pb-3 text-left whitespace-nowrap">Days</th>
+                            <th class="pb-3 text-left whitespace-nowrap">Status</th>
+                            <th class="pb-3 text-left whitespace-nowrap">Action</th>
                         </tr>
                     </thead>
                     <tbody id="leaveTableBody">
                         @foreach ($dataLeave as $item)
-                            <tr class="leave-row border-t border-gray-100 hover:bg-blue-50/40 transition"
+                            <tr class="transition border-t border-gray-100 leave-row hover:bg-blue-50/40"
                                 data-status="{{ strtolower($item->status) }}"
                                 data-month="{{ \Carbon\Carbon::parse($item->tanggal_mulai)->format('n') }}">
                                 <td class="py-3">
                                     <div class="flex items-center gap-3">
                                         @php
-    $fotoUrl = $item->karyawan->foto_profil
-        ? Storage::url($item->karyawan->foto_profil)
-        : 'https://ui-avatars.com/api/?background=2563EB&color=fff&size=100&name=' .
-        urlencode($item->karyawan->nama_lengkap);
+                                            $fotoUrl = $item->karyawan->foto_profil
+                                                ? Storage::url($item->karyawan->foto_profil)
+                                                : 'https://ui-avatars.com/api/?background=2563EB&color=fff&size=100&name=' .
+                                                    urlencode($item->karyawan->nama_lengkap);
                                         @endphp
 
                                         <div
-                                            class="w-9 h-9 rounded-full bg-blue-100 border border-blue-200 overflow-hidden shrink-0">
+                                            class="overflow-hidden bg-blue-100 border border-blue-200 rounded-full w-9 h-9 shrink-0">
                                             <img src="{{ $fotoUrl }}" alt="{{ $item->karyawan->nama_lengkap }}"
-                                                class="w-full h-full object-cover" loading="lazy"
+                                                class="object-cover w-full h-full" loading="lazy"
                                                 onerror="this.src='https://ui-avatars.com/api/?background=2563EB&color=fff&size=100&name={{ urlencode($item->karyawan->nama_lengkap) }}'">
                                         </div>
                                         <div>
@@ -142,29 +142,36 @@
                                     </div>
                                 </td>
 
-                                <td class="py-3 px-2 text-gray-700 whitespace-nowrap">
-                                    <span class="capitalize">{{ $item->jenis_cuti_label ?? $item->jenis_cuti }}</span>
+                                <td class="px-2 py-3 text-gray-700 whitespace-nowrap">
+                                    {{ match ($item->jenis_cuti) {
+                                        'tahunan' => 'Annual Leave',
+                                        'melahirkan' => 'Maternity Leave',
+                                        'sakit' => 'Sick Leave',
+                                        'menikah' => 'Marriage Leave',
+                                        'duka' => 'Bereavement Leave',
+                                        default => 'Other Leave',
+                                    } }}
                                 </td>
 
-                                <td class="py-3 px-2 text-gray-700 whitespace-nowrap">
+                                <td class="px-2 py-3 text-gray-700 whitespace-nowrap">
                                     {{ \Carbon\Carbon::parse($item->tanggal_mulai)->format('d M Y') }}
                                 </td>
 
-                                <td class="py-3 px-2 text-gray-700 whitespace-nowrap">
+                                <td class="px-2 py-3 text-gray-700 whitespace-nowrap">
                                     {{ \Carbon\Carbon::parse($item->tanggal_selesai)->format('d M Y') }}
                                 </td>
 
-                                <td class="py-3 px-2 text-gray-700 font-semibold text-center whitespace-nowrap">
+                                <td class="px-2 py-3 font-semibold text-center text-gray-700 whitespace-nowrap">
                                     {{ $item->total_hari }}
                                 </td>
 
-                                <td class="py-3 px-2 whitespace-nowrap">
+                                <td class="px-2 py-3 whitespace-nowrap">
                                     {!! $item->status_badge !!}
                                 </td>
 
-                                <td class="py-3 pr-4 sm:pr-2 pl-2 whitespace-nowrap">
+                                <td class="py-3 pl-2 pr-4 sm:pr-2 whitespace-nowrap">
                                     <div class="flex items-center gap-2">
-                                        <a class="text-blue-500 hover:text-blue-700 p-1 rounded-full hover:bg-blue-50 transition"
+                                        <a class="p-1 text-blue-500 transition rounded-full hover:text-blue-700 hover:bg-blue-50"
                                             title="Detail" onclick="showDetail({{ $item->id }})">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -174,7 +181,7 @@
                                         @if ($item->status == 'pending')
                                             <button
                                                 onclick="openStatusModal({{ $item->id }}, '{{ $item->nama_karyawan }}')"
-                                                class="text-green-500 hover:text-green-700 p-1 rounded-full hover:bg-green-50 transition"
+                                                class="p-1 text-green-500 transition rounded-full hover:text-green-700 hover:bg-green-50"
                                                 title="Approve/Reject">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor"
                                                     viewBox="0 0 24 24">
@@ -188,53 +195,53 @@
                             </tr>
                         @endforeach
                         <tr id="filterEmptyRow" style="display: none;">
-                            <td colspan="7" class="text-center py-8 text-gray-400">
+                            <td colspan="7" class="py-8 text-center text-gray-400">
                                 Data Not Found
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-            <div id="paginationContainer" class="mt-6 flex items-center justify-end gap-2 flex-wrap">
+            <div id="paginationContainer" class="flex flex-wrap items-center justify-end gap-2 mt-6">
             </div>
         </div>
     </div>
 
     {{-- MODAL APPROVE/REJECT --}}
-    <div id="statusModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full mx-4 p-6">
-            <div class="flex justify-between items-center mb-4">
+    <div id="statusModal" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black/50">
+        <div class="w-full max-w-md p-6 mx-4 bg-white shadow-xl rounded-2xl">
+            <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-semibold text-blue-900">Update Leave Status</h3>
                 <button onclick="closeStatusModal()"
-                    class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+                    class="text-2xl leading-none text-gray-400 hover:text-gray-600">&times;</button>
             </div>
             <form id="statusForm" method="POST">
                 @csrf
                 @method('PUT')
                 <input type="hidden" name="id" id="modalCutiId">
                 <div class="mb-4">
-                    <p class="text-sm text-gray-600 mb-2">Employee: <span id="modalNamaKaryawan"
+                    <p class="mb-2 text-sm text-gray-600">Employee: <span id="modalNamaKaryawan"
                             class="font-semibold"></span></p>
                 </div>
                 <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Status</label>
+                    <label class="block mb-2 text-sm font-bold text-gray-700">Status</label>
                     <select name="status"
-                        class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="disetujui">✅ Approve</option>
                         <option value="ditolak">❌ Reject</option>
                     </select>
                 </div>
                 <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Notes (Optional)</label>
+                    <label class="block mb-2 text-sm font-bold text-gray-700">Notes (Optional)</label>
                     <textarea name="catatan" rows="3"
-                        class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="Tambahkan catatan untuk karyawan..."></textarea>
                 </div>
                 <div class="flex justify-end gap-2">
                     <button type="button" onclick="closeStatusModal()"
-                        class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition">Cancel</button>
+                        class="px-4 py-2 text-white transition bg-gray-500 rounded-lg hover:bg-gray-600">Cancel</button>
                     <button type="submit"
-                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition">Save</button>
+                        class="px-4 py-2 text-white transition bg-blue-600 rounded-lg hover:bg-blue-700">Save</button>
                 </div>
             </form>
         </div>
@@ -242,13 +249,13 @@
 
     {{-- MODAL DETAIL --}}
     <div id="detailModal" tabindex="-1" aria-hidden="true"
-        class="hidden fixed inset-0 z-50 flex justify-center items-center bg-black/40">
+        class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black/40">
         <div class="relative w-full max-w-xl p-4">
-            <div class="bg-white rounded-3xl shadow-lg p-6">
-                <div class="flex justify-between items-center border-b pb-4">
+            <div class="p-6 bg-white shadow-lg rounded-3xl">
+                <div class="flex items-center justify-between pb-4 border-b">
                     <h3 class="text-lg font-semibold text-blue-900">Leave Detail</h3>
                     <button onclick="closeDetailModal()"
-                        class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100">✕</button>
+                        class="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100">✕</button>
                 </div>
                 <div id="detailContent" class="max-h-[80vh] overflow-y-auto p-4"></div>
             </div>
@@ -313,7 +320,7 @@
                         `https://ui-avatars.com/api/?background=1E3A8A&color=fff&size=100&name=${encodeURIComponent(nama)}`;
 
                     const attachment = data.lampiran ?
-                        `<a href="/storage/${data.lampiran}" target="_blank" class="text-blue-600 hover:underline text-xs">Lihat file</a>` :
+                        `<a href="/storage/${data.lampiran}" target="_blank" class="text-xs text-blue-600 hover:underline">Lihat file</a>` :
                         '-';
 
                     const note = data.alasan || '-';
@@ -333,17 +340,28 @@
                     const status = data.status === 'disetujui' ? 'Approved' :
                         data.status === 'ditolak' ? 'Rejected' : 'Requested';
 
-                    const leaveType = data.jenis_cuti || '-';
+                    const textLeave = {
+                        'tahunan': {
+                            text: 'Annual',
+                        },
+                        'melahirkan': {
+                            text: 'Maternity',
+                        },
+                    };
+                    const leaveType = textLeave[(data.jenis_cuti || '').toLowerCase()] || {
+                        text: data.jenis_cuti || '-',
+                    };
+                    const leave = leaveType.text;
 
                     const content = `
                     <div class="space-y-5">
 
-                        <div class="border-b pb-4">
+                        <div class="pb-4 border-b">
                             <div class="flex items-start gap-4">
-                                <div class="w-16 h-16 rounded-full overflow-hidden border-2 border-blue-700 shrink-0">
+                                <div class="w-16 h-16 overflow-hidden border-2 border-blue-700 rounded-full shrink-0">
                                     <img
                                         src="${foto}"
-                                        class="w-full h-full object-cover"
+                                        class="object-cover w-full h-full"
                                         onerror="this.src='https://ui-avatars.com/api/?background=1E3A8A&color=fff&size=100&name=${encodeURIComponent(nama)}'">
                                 </div>
 
@@ -356,37 +374,32 @@
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-4 gap-3 text-xs">
+                        <div class="grid grid-cols-3 gap-3 text-xs">
                             <div>
-                                <p class="text-gray-400 mb-1">Start Date</p>
-                                <p class="text-gray-700 font-medium">${startDate}</p>
+                                <p class="mb-1 text-gray-400">Start Date</p>
+                                <p class="font-medium text-gray-700">${startDate}</p>
                             </div>
 
                             <div>
-                                <p class="text-gray-400 mb-1">End Date</p>
-                                <p class="text-gray-700 font-medium">${endDate}</p>
+                                <p class="mb-1 text-gray-400">End Date</p>
+                                <p class="font-medium text-gray-700">${endDate}</p>
                             </div>
 
                             <div>
-                                <p class="text-gray-400 mb-1">Leave Type</p>
-                                <p class="text-gray-700 font-medium">${leaveType}</p>
-                            </div>
-
-                            <div>
-                                <p class="text-gray-400 mb-1">Attachment</p>
-                                ${attachment}
+                                <p class="mb-1 text-gray-400">Leave Type</p>
+                                <p class="font-medium text-gray-700">${leave}</p>
                             </div>
                         </div>
 
                         <div>
-                            <p class="text-xs text-gray-500 mb-1">Notes</p>
-                            <div class="border border-blue-500 rounded-md px-3 py-2 text-xs text-gray-600">
+                            <p class="mb-1 text-xs text-gray-500">Notes</p>
+                            <div class="px-3 py-2 text-xs text-gray-600 border border-blue-500 rounded-md">
                                 ${note}
                             </div>
                         </div>
 
                         <div>
-                            <p class="text-xs text-gray-500 mb-1">Status</p>
+                            <p class="mb-1 text-xs text-gray-500">Status</p>
                             <span class="inline-flex px-3 py-1 rounded-md text-xs font-medium ${data.status === 'disetujui' ? 'bg-green-100 text-green-800' : data.status === 'ditolak' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}">
                                 ${status}
                             </span>

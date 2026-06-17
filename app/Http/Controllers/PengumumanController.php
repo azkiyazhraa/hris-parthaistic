@@ -47,7 +47,7 @@ class PengumumanController extends Controller
 
         if ($request->hasFile('lampiran')) {
             $file = $request->file('lampiran');
-            $filename = time().'_'.$file->getClientOriginalName();
+            $filename = time() . '_' . $file->getClientOriginalName();
             $path = $file->storeAs('pengumuman', $filename, 'public');
             $data['lampiran'] = $path;
         }
@@ -101,7 +101,7 @@ class PengumumanController extends Controller
                 Storage::disk('public')->delete($pengumuman->lampiran);
             }
             $file = $request->file('lampiran');
-            $filename = time().'_'.$file->getClientOriginalName();
+            $filename = time() . '_' . $file->getClientOriginalName();
             $path = $file->storeAs('pengumuman', $filename, 'public');
             $data['lampiran'] = $path;
         }
@@ -144,7 +144,7 @@ class PengumumanController extends Controller
             Notifikasi::create([
                 'user_id' => $user->id,
                 'judul' => $pengumuman->judul,
-                'pesan' => substr($pengumuman->konten, 0, 200).(strlen($pengumuman->konten) > 200 ? '...' : ''),
+                'pesan' => substr($pengumuman->konten, 0, 200) . (strlen($pengumuman->konten) > 200 ? '...' : ''),
                 'tipe_notifikasi' => 'pengumuman',
                 'status' => false,
             ]);
@@ -166,7 +166,7 @@ class PengumumanController extends Controller
                 $query->whereNull('tanggal_berlaku_hingga')
                     ->orWhere('tanggal_berlaku_hingga', '>=', Carbon::today());
             })
-            ->orderBy('tanggal_terbit', 'desc')
+            ->orderBy('created_at', 'desc')
             ->get();
 
         return view('pengumuman.index', compact('pengumuman'));
@@ -175,7 +175,6 @@ class PengumumanController extends Controller
     public function employeeShow($id)
     {
         $pengumuman = Pengumuman::with('pembuat')->findOrFail($id);
-
         return response()->json($pengumuman);
     }
 }

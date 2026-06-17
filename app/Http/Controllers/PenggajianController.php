@@ -9,6 +9,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 
 class PenggajianController extends Controller
 {
@@ -90,13 +91,13 @@ class PenggajianController extends Controller
 
     public function adminCreate()
     {
-        $karyawans = Karyawan::whereIn('status', ['Permanent', 'Contract', 'Outsource'])
-            ->orderBy('nama_lengkap')
+        $karyawans = Karyawan::where('role', 'karyawan')
+            ->orderBy('nip', 'asc')
             ->get();
-        $bulan = range(1, 12);
-        $tahun = range(date('Y') - 2, date('Y') + 1);
 
-        return view('admin.penggajian.create', compact('karyawans', 'bulan', 'tahun'));
+        $bulan = range(1, 12);
+
+        return view('admin.penggajian.create', compact('karyawans', 'bulan'));
     }
 
     public function adminStore(Request $request)
@@ -118,7 +119,7 @@ class PenggajianController extends Controller
         $penggajian->karyawan_id = $request->karyawan_id;
         $penggajian->nama_karyawan = $karyawan->nama_lengkap;
         $penggajian->bulan = $request->bulan;
-        $penggajian->tahun = $request->tahun;
+        $penggajian->tahun = Carbon::now()->year;
         $penggajian->gaji_pokok = (float) str_replace('.', '', $request->gaji_pokok);
         $penggajian->transport_allowance = (float) str_replace('.', '', $request->transport_allowance);
         $penggajian->meal_allowance = (float) str_replace('.', '', $request->meal_allowance);
@@ -144,6 +145,7 @@ class PenggajianController extends Controller
         $penggajian->dibuat_oleh = Auth::user()->nama_lengkap;
         $penggajian->detail_gaji = json_encode([
             'created_by' => Auth::user()->nama_lengkap,
+            'role' => Auth::user()->role,
             'created_at' => now(),
         ]);
 
@@ -153,7 +155,7 @@ class PenggajianController extends Controller
             Notifikasi::create([
                 'user_id' => $karyawan->id,
                 'judul' => 'Slip Gaji Tersedia',
-                'pesan' => 'Slip gaji untuk periode '.$this->getBulanText($request->bulan)." {$request->tahun} telah tersedia.",
+                'pesan' => 'Slip gaji untuk periode ' . $this->getBulanText($request->bulan) . Carbon::now()->year . " telah tersedia.",
                 'tipe_notifikasi' => 'penggajian',
             ]);
         }
@@ -229,10 +231,22 @@ class PenggajianController extends Controller
             Notifikasi::create([
                 'user_id' => $karyawan->id,
                 'judul' => 'Payroll Status Updated',
-                'pesan' => 'Your payroll status for '.$this->getBulanText($request->bulan)." {$request->tahun} has been changed to ".strtoupper($request->status),
+                'pesan' => 'Your payroll status for ' . $this->getBulanText($request->bulan) . " {$request->tahun} has been changed to " . strtoupper($request->status),
                 'tipe_notifikasi' => 'penggajian',
             ]);
         }
+
+
+        // update status paid dan hit ke api parthafin
+        if ($penggajian->status == Penggajian::STATUS_PAID) {
+            Http::post(env('PARTHAFIN_API_URL') . '/expense-salary', [
+                "category_id" => 6,
+                "date" => $penggajian->tanggal_pembayaran,
+                "amount" => $penggajian->net_salary,
+                "description" => "gaji a.n " . $penggajian->karyawan->nama_lengkap,
+            ]);
+        }
+
 
         return redirect()->route('admin.penggajian.index')
             ->with('success', 'Payroll data updated successfully');
@@ -290,7 +304,7 @@ class PenggajianController extends Controller
         Notifikasi::create([
             'user_id' => $penggajian->karyawan_id,
             'judul' => 'Payroll Status Updated',
-            'pesan' => 'Your payroll status for '.$this->getBulanText($penggajian->bulan)." {$penggajian->tahun} has been changed to ".strtoupper($request->status),
+            'pesan' => 'Your payroll status for ' . $this->getBulanText($penggajian->bulan) . " {$penggajian->tahun} has been changed to " . strtoupper($request->status),
             'tipe_notifikasi' => 'penggajian',
         ]);
 
@@ -313,19 +327,19 @@ class PenggajianController extends Controller
         $statusBadge = '';
         switch ($penggajian->status) {
             case 'draft':
-                $statusBadge = '<span class="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800">Draft</span>';
+                $statusBadge = '<span class="px-2 py-1 text-xs text-gray-800 bg-gray-100 rounded-full">Draft</span>';
                 break;
             case 'pending':
-                $statusBadge = '<span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pending</span>';
+                $statusBadge = '<span class="px-2 py-1 text-xs text-yellow-800 bg-yellow-100 rounded-full">Pending</span>';
                 break;
             case 'approved':
-                $statusBadge = '<span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">Approved</span>';
+                $statusBadge = '<span class="px-2 py-1 text-xs text-blue-800 bg-blue-100 rounded-full">Approved</span>';
                 break;
             case 'paid':
-                $statusBadge = '<span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Paid</span>';
+                $statusBadge = '<span class="px-2 py-1 text-xs text-green-800 bg-green-100 rounded-full">Paid</span>';
                 break;
             default:
-                $statusBadge = '<span class="px-2 py-1 text-xs rounded-full bg-gray-100">'.ucfirst($penggajian->status).'</span>';
+                $statusBadge = '<span class="px-2 py-1 text-xs bg-gray-100 rounded-full">' . ucfirst($penggajian->status) . '</span>';
         }
 
         return response()->json([
@@ -372,7 +386,7 @@ class PenggajianController extends Controller
             Notifikasi::create([
                 'user_id' => $karyawan->id,
                 'judul' => 'Slip Gaji Tersedia',
-                'pesan' => 'Slip gaji untuk periode '.$this->getBulanText($penggajian->bulan)." {$penggajian->tahun} telah tersedia. Silakan login ke sistem untuk melihat detail.",
+                'pesan' => 'Slip gaji untuk periode ' . $this->getBulanText($penggajian->bulan) . " {$penggajian->tahun} telah tersedia. Silakan login ke sistem untuk melihat detail.",
                 'tipe_notifikasi' => 'penggajian',
             ]);
 
@@ -382,7 +396,7 @@ class PenggajianController extends Controller
 
             return redirect()->back()->with('success', 'Payslip notification sent successfully');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Failed to send: '.$e->getMessage());
+            return redirect()->back()->with('error', 'Failed to send: ' . $e->getMessage());
         }
     }
 
@@ -399,10 +413,10 @@ class PenggajianController extends Controller
             'karyawan' => $penggajian->karyawan,
         ])->setPaper('a4', 'portrait');
 
-        $filename = 'slip_gaji_'.
-            str_replace(' ', '_', $penggajian->karyawan->nama_lengkap).'_'.
-            $this->getBulanText($penggajian->bulan).'_'.
-            $penggajian->tahun.'.pdf';
+        $filename = 'Payslip_' .
+            str_replace(' ', '_', $penggajian->karyawan->nama_lengkap) . '_' .
+            $this->getBulanText($penggajian->bulan) . '_' .
+            $penggajian->tahun . '.pdf';
 
         return $pdf->download($filename);
     }
@@ -421,10 +435,10 @@ class PenggajianController extends Controller
 
         $penggajian = $query->get();
 
-        $fileName = 'laporan_gaji_'.date('Y-m-d').'.csv';
+        $fileName = 'laporan_gaji_' . date('Y-m-d') . '.csv';
         $headers = [
             'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="'.$fileName.'"',
+            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
         ];
 
         $callback = function () use ($penggajian) {
@@ -467,18 +481,18 @@ class PenggajianController extends Controller
     private function getBulanText($bulan)
     {
         $bulanNama = [
-            1 => 'Januari',
-            2 => 'Februari',
-            3 => 'Maret',
+            1 => 'January',
+            2 => 'February',
+            3 => 'March',
             4 => 'April',
-            5 => 'Mei',
-            6 => 'Juni',
-            7 => 'Juli',
-            8 => 'Agustus',
+            5 => 'May',
+            6 => 'June',
+            7 => 'July',
+            8 => 'August',
             9 => 'September',
-            10 => 'Oktober',
+            10 => 'October',
             11 => 'November',
-            12 => 'Desember',
+            12 => 'December',
         ];
 
         return $bulanNama[$bulan] ?? '-';

@@ -1,53 +1,53 @@
 @extends('layouts.app')
 @section('content')
-    <div class="container mx-auto py-4 space-y-4">
+    <div class="container py-4 mx-auto space-y-4">
 
-        <div class="bg-gradient-to-r from-blue-200 to-cyan-400 rounded-2xl p-6 shadow-lg flex items-center justify-between">
+        <div class="flex items-center justify-between p-6 shadow-lg bg-gradient-to-r from-blue-200 to-cyan-400 rounded-2xl">
             <div>
-                <h1 class="text-2xl font-bold text-blue-900 mb-1">Payroll</h1>
-                <p class="text-gray-700/80 text-sm">Manage employee salaries, deductions, and payments.</p>
+                <h1 class="mb-1 text-2xl font-bold text-blue-900">Payroll</h1>
+                <p class="text-sm text-gray-700/80">Manage employee salaries, deductions, and payments.</p>
             </div>
             <div class="hidden md:block">
                 <img src="https://illustrations.popsy.co/blue/work-from-home.svg" alt="illustration" class="w-20">
             </div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow p-4 md:p-6">
-            <div class="grid grid-cols-1 sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x">
+        <div class="p-4 bg-white shadow rounded-2xl md:p-6">
+            <div class="grid grid-cols-1 divide-y sm:grid-cols-4 sm:divide-y-0 sm:divide-x">
                 <div class="flex flex-col gap-1 px-4 py-2">
-                    <p class="text-gray-400 text-sm">Total Payroll</p>
-                    <h2 class="text-xl md:text-2xl font-semibold text-blue-900">Rp
+                    <p class="text-sm text-gray-400">Total Payroll</p>
+                    <h2 class="text-xl font-semibold text-blue-900 md:text-2xl">Rp
                         {{ number_format($statistics['total_payroll'] ?? 0, 0, ',', '.') }}</h2>
                 </div>
                 <div class="flex flex-col gap-1 px-4 py-2">
-                    <p class="text-gray-400 text-sm">Pending</p>
-                    <h2 class="text-xl md:text-2xl font-semibold text-yellow-600">{{ $statistics['total_pending'] ?? 0 }}
+                    <p class="text-sm text-gray-400">Pending</p>
+                    <h2 class="text-xl font-semibold text-yellow-600 md:text-2xl">{{ $statistics['total_pending'] ?? 0 }}
                     </h2>
                 </div>
                 <div class="flex flex-col gap-1 px-4 py-2">
-                    <p class="text-gray-400 text-sm">Approved</p>
-                    <h2 class="text-xl md:text-2xl font-semibold text-blue-600">{{ $statistics['total_approved'] ?? 0 }}
+                    <p class="text-sm text-gray-400">Approved</p>
+                    <h2 class="text-xl font-semibold text-blue-600 md:text-2xl">{{ $statistics['total_approved'] ?? 0 }}
                     </h2>
                 </div>
                 <div class="flex flex-col gap-1 px-4 py-2">
-                    <p class="text-gray-400 text-sm">Paid</p>
-                    <h2 class="text-xl md:text-2xl font-semibold text-green-600">{{ $statistics['total_paid'] ?? 0 }}</h2>
+                    <p class="text-sm text-gray-400">Paid</p>
+                    <h2 class="text-xl font-semibold text-green-600 md:text-2xl">{{ $statistics['total_paid'] ?? 0 }}</h2>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-lg p-6" style="border: 2px solid #e0eaff;">
-            <div class="flex items-center justify-between mb-6 flex-wrap gap-2">
+        <div class="p-6 bg-white shadow-lg rounded-2xl" style="border: 2px solid #e0eaff;">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
                 <div class="flex gap-2">
                     <a href="{{ route('admin.penggajian.create') }}"
-                        class="bg-blue-800 hover:bg-blue-900 text-white px-4 py-2 rounded-lg text-sm transition">+ Generate
+                        class="px-4 py-2 text-sm text-white transition bg-blue-800 rounded-lg hover:bg-blue-900">+ Generate
                         Payroll</a>
                     <a href="{{ route('admin.penggajian.export') }}"
-                        class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm transition">Export
+                        class="px-4 py-2 text-sm text-white transition bg-green-600 rounded-lg hover:bg-green-700">Export
                         Report</a>
                 </div>
-                <div class="flex gap-2 flex-wrap">
-                    <select id="filter_bulan" class="border rounded-lg px-3 py-1 text-sm">
+                <div class="flex flex-wrap gap-2">
+                    <select id="filter_bulan" class="px-3 py-1 text-sm border rounded-lg">
                         <option value="">All Month</option>
                         @foreach (range(1, 12) as $b)
                             <option value="{{ $b }}" {{ request('bulan') == $b ? 'selected' : '' }}>
@@ -55,42 +55,41 @@
                             </option>
                         @endforeach
                     </select>
-                    <select id="filter_tahun" class="border rounded-lg px-3 py-1 text-sm">
+                    <select id="filter_tahun" class="px-3 py-1 text-sm border rounded-lg">
                         <option value="">All Year</option>
                         @foreach (range(date('Y') - 2, date('Y')) as $t)
                             <option value="{{ $t }}" {{ request('tahun') == $t ? 'selected' : '' }}>
                                 {{ $t }}</option>
                         @endforeach
                     </select>
-                    <select id="filter_status" class="border rounded-lg px-3 py-1 text-sm">
+                    <select id="filter_status" class="px-3 py-1 text-sm border rounded-lg">
                         <option value="">All Status</option>
-                        <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>Draft</option>
                         <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
                         <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved</option>
                         <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>Paid</option>
                     </select>
                     <button onclick="applyFilters()"
-                        class="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded-lg text-sm transition">Filter</button>
+                        class="px-3 py-1 text-sm text-white transition bg-gray-500 rounded-lg hover:bg-gray-600">Filter</button>
                 </div>
             </div>
 
             <div class="overflow-x-auto">
                 <table class="w-full min-w-[800px] md:min-w-full text-sm text-left">
                     <thead>
-                        <tr class="text-gray-400 font-medium text-xs uppercase tracking-wide border-b">
-                            <th class="text-left pb-3 whitespace-nowrap">Employee</th>
-                            <th class="text-left pb-3 whitespace-nowrap">Period</th>
-                            <th class="text-left pb-3 whitespace-nowrap">Base Salary</th>
-                            <th class="text-left pb-3 whitespace-nowrap">Total Earnings</th>
-                            <th class="text-left pb-3 whitespace-nowrap">Total Deductions</th>
-                            <th class="text-left pb-3 whitespace-nowrap">Net Salary</th>
-                            <th class="text-left pb-3 whitespace-nowrap">Status</th>
-                            <th class="text-left pb-3 whitespace-nowrap">Action</th>
+                        <tr class="text-xs font-medium tracking-wide text-gray-400 uppercase border-b">
+                            <th class="pb-3 text-left whitespace-nowrap">Employee</th>
+                            <th class="pb-3 text-left whitespace-nowrap">Period</th>
+                            <th class="pb-3 text-left whitespace-nowrap">Base Salary</th>
+                            <th class="pb-3 text-left whitespace-nowrap">Total Earnings</th>
+                            <th class="pb-3 text-left whitespace-nowrap">Total Deductions</th>
+                            <th class="pb-3 text-left whitespace-nowrap">Net Salary</th>
+                            <th class="pb-3 text-left whitespace-nowrap">Status</th>
+                            <th class="pb-3 text-left whitespace-nowrap">Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($penggajian as $item)
-                            <tr class="border-b border-gray-100 hover:bg-blue-50/40 transition">
+                            <tr class="transition border-b border-gray-100 hover:bg-blue-50/40">
                                 <td class="py-3">
                                     <div class="flex items-center gap-3">
                                         @php
@@ -101,9 +100,9 @@
                                         @endphp
 
                                         <div
-                                            class="w-9 h-9 rounded-full bg-blue-100 border border-blue-200 overflow-hidden shrink-0">
+                                            class="overflow-hidden bg-blue-100 border border-blue-200 rounded-full w-9 h-9 shrink-0">
                                             <img src="{{ $fotoUrl }}" alt="{{ $item->karyawan->nama_lengkap }}"
-                                                class="w-full h-full object-cover" loading="lazy"
+                                                class="object-cover w-full h-full" loading="lazy"
                                                 onerror="this.src='https://ui-avatars.com/api/?background=2563EB&color=fff&size=100&name={{ urlencode($item->karyawan->nama_lengkap) }}'">
                                         </div>
                                         <div>
@@ -140,14 +139,14 @@
                                 <td class="py-3">
                                     <div class="flex items-center gap-2">
                                         <a onclick="showDetail({{ $item->id }})"
-                                            class="text-blue-500 hover:text-blue-700 cursor-pointer">
+                                            class="text-blue-500 cursor-pointer hover:text-blue-700">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                             </svg>
                                         </a>
                                         <a href="{{ route('admin.penggajian.edit', $item->id) }}"
-                                            class="text-yellow-500 hover:text-yellow-700 cursor-pointer" title="Edit">
+                                            class="text-yellow-500 cursor-pointer hover:text-yellow-700" title="Edit">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -158,7 +157,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="text-center py-4 text-gray-500">No payroll data available</td>
+                                <td colspan="8" class="py-4 text-center text-gray-500">No payroll data available</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -171,13 +170,13 @@
 
     <!-- Detail Modal -->
     <div id="detailModal" tabindex="-1" aria-hidden="true"
-        class="hidden fixed inset-0 z-50 flex justify-center items-center bg-black/40">
-        <div class="relative w-full max-w-xl p-4">
-            <div class="bg-white rounded-3xl shadow-lg p-6">
-                <div class="flex justify-between items-center border-b pb-4">
+        class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black/40">
+        <div class="relative w-full max-w-2xl p-4">
+            <div class="p-6 bg-white shadow-lg rounded-3xl">
+                <div class="flex items-center justify-between pb-4 border-b">
                     <h3 class="text-lg font-semibold text-blue-900">Payroll Detail</h3>
                     <button onclick="closeDetailModal()"
-                        class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100">✕</button>
+                        class="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100">✕</button>
                 </div>
                 <div id="detailContent" class="max-h-[80vh] overflow-y-auto p-4"></div>
             </div>
@@ -250,7 +249,7 @@
                     const bulanText = bulanNama[Number(data.bulan)] || '-';
 
                     const content = `
-                        <div class="flex items-center justify-between mb-6 border-b pb-4">
+                        <div class="flex items-center justify-between pb-4 mb-6 border-b">
                             <div>
                                 <p class="text-xs text-gray-400">Period</p>
                                 <p class="text-sm font-semibold text-gray-800">
@@ -263,37 +262,37 @@
                             </span>
                         </div>
 
-                        <div class="flex justify-between items-start gap-6 mb-6">
+                        <div class="flex items-start justify-between gap-6 mb-6">
                             <div class="flex-1">
-                                <h3 class="text-base font-bold text-gray-900 mb-4">Employee Info</h3>
+                                <h3 class="mb-4 text-base font-bold text-gray-900">Employee Info</h3>
 
-                                <div class="grid grid-cols-2 gap-x-8 gap-y-3 text-sm">
+                                <div class="grid grid-cols-2 text-sm gap-x-8 gap-y-3">
                                 <div>
-                                    <p class="text-gray-400 text-xs">Name</p>
+                                    <p class="text-xs text-gray-400">Name</p>
                                     <p class="font-semibold text-gray-800">${nama}</p>
                                 </div>
 
                                 <div>
-                                    <p class="text-gray-400 text-xs">Employee ID</p>
+                                    <p class="text-xs text-gray-400">Employee ID</p>
                                     <p class="font-semibold text-gray-800">${nip}</p>
                                 </div>
 
                                 <div>
-                                    <p class="text-gray-400 text-xs">Department</p>
+                                    <p class="text-xs text-gray-400">Department</p>
                                     <p class="font-semibold text-gray-800 capitalize">${role}</p>
                                 </div>
 
                                 <div>
-                                    <p class="text-gray-400 text-xs">Email</p>
+                                    <p class="text-xs text-gray-400">Email</p>
                                     <p class="font-semibold text-gray-800">${email}</p>
                                 </div>
                                 </div>
                             </div>
 
-                            <div class="w-20 h-20 rounded-full border-4 border-blue-900 overflow-hidden bg-gray-100 shrink-0">
+                            <div class="w-20 h-20 overflow-hidden bg-gray-100 border-4 border-blue-900 rounded-full shrink-0">
                                 <img
                                 src="${foto}"
-                                class="w-full h-full object-cover"
+                                class="object-cover w-full h-full"
                                 onerror="
                                     this.src =
                                     'https://ui-avatars.com/api/?background=1E3A8A&color=fff&size=100&name=${encodeURIComponent(nama)}'
@@ -302,11 +301,11 @@
                             </div>
                         </div>
 
-                        <div class="border-t border-gray-100 my-5"></div>
+                        <div class="my-5 border-t border-gray-100"></div>
 
                         <div class="grid grid-cols-2 gap-8 mb-6">
                             <div>
-                                <h3 class="text-base font-bold text-gray-900 mb-3">Earnings</h3>
+                                <h3 class="mb-3 text-base font-bold text-gray-900">Earnings</h3>
 
                                 <div class="space-y-2 text-sm">
                                 <div class="flex justify-between">
@@ -345,7 +344,7 @@
                                     <span class="text-gray-800">${formatRupiah(data.incentive)}</span>
                                 </div>
 
-                                <div class="flex justify-between pt-2 border-t font-semibold">
+                                <div class="flex justify-between pt-2 font-semibold border-t">
                                     <span>Total Earnings</span>
                                     <span>${formatRupiah(data.total_earnings)}</span>
                                 </div>
@@ -353,7 +352,7 @@
                             </div>
 
                             <div>
-                                <h3 class="text-base font-bold text-gray-900 mb-3">Deduction</h3>
+                                <h3 class="mb-3 text-base font-bold text-gray-900">Deduction</h3>
 
                                 <div class="space-y-2 text-sm">
                                 <div class="flex justify-between">
@@ -362,12 +361,7 @@
                                 </div>
 
                                 <div class="flex justify-between">
-                                    <span class="text-gray-600">BPJS Kesehatan</span>
-                                    <span class="text-gray-800">${formatRupiah(data.bpjs_kesehatan)}</span>
-                                </div>
-
-                                <div class="flex justify-between">
-                                    <span class="text-gray-600">BPJS Ketenagakerjaan</span>
+                                    <span class="text-gray-600">BPJS Employment</span>
                                     <span class="text-gray-800"
                                     >${formatRupiah(data.bpjs_ketenagakerjaan)}</span
                                     >
@@ -385,7 +379,7 @@
                                     <span class="text-gray-800">${formatRupiah(data.loan_deduction)}</span>
                                 </div>
 
-                                <div class="flex justify-between pt-2 border-t font-semibold">
+                                <div class="flex justify-between pt-2 font-semibold border-t">
                                     <span>Total Deduction</span>
                                     <span>${formatRupiah(data.total_deductions)}</span>
                                 </div>
@@ -393,7 +387,7 @@
                             </div>
                         </div>
 
-                        <div class="border-t border-gray-100 my-5"></div>
+                        <div class="my-5 border-t border-gray-100"></div>
 
                         <div class="flex items-center justify-between">
                             <span class="text-base font-bold text-gray-900">Net Salary</span>
@@ -403,17 +397,17 @@
                         </div>
 
                         ${ data.catatan ? `
-                                                                 <div class="mt-5 p-3 bg-yellow-50 border-l-4 border-yellow-500 rounded">
-                                                                    <p class="text-sm font-semibold text-yellow-800">Catatan</p>
-                                                                    <p class="text-sm text-yellow-700">${data.catatan}</p>
-                                                                </div>
-                                                                ` : '' }
+                                                                                                     <div class="p-3 mt-5 border-l-4 border-yellow-500 rounded bg-yellow-50">
+                                                                                                        <p class="text-sm font-semibold text-yellow-800">Catatan</p>
+                                                                                                        <p class="text-sm text-yellow-700">${data.catatan}</p>
+                                                                                                    </div>
+                                                                                                    ` : '' }
 
-                        <div class="mt-6 flex items-center gap-3">
+                        <div class="flex items-center gap-3 mt-6">
                             <a
                                 href="${sendPaySlip}"
                                 onclick="return confirmSendPayslip(event)"
-                                class="bg-blue-800 hover:bg-blue-900 text-white px-3 py-1 rounded-lg text-sm transition flex items-center gap-1">
+                                class="flex items-center gap-1 px-3 py-1 text-sm text-white transition bg-blue-800 rounded-lg hover:bg-blue-900">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path
                                     stroke-linecap="round"
@@ -426,7 +420,7 @@
                             </a>
                             <a
                                 href="${downloadUrl}"
-                                class="bg-blue-400 hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-sm transition flex items-center gap-1">
+                                class="flex items-center gap-1 px-3 py-1 text-sm text-white transition bg-blue-400 rounded-lg hover:bg-blue-600">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path
                                     stroke-linecap="round"
@@ -455,12 +449,12 @@
             const url = event.currentTarget.getAttribute('href');
 
             Swal.fire({
-                title: 'Kirim payslip?',
-                text: 'Slip gaji akan dikirim ke email karyawan.',
+                title: 'Send payslip?',
+                text: 'Slip salary will be sent to employee email.',
                 icon: 'question',
                 showCancelButton: true,
-                confirmButtonText: 'Ya, kirim',
-                cancelButtonText: 'Batal',
+                confirmButtonText: 'Yes, send',
+                cancelButtonText: 'No, cancel',
                 buttonsStyling: false,
                 customClass: {
                     popup: 'rounded-2xl',

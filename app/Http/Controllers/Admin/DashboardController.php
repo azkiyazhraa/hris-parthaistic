@@ -542,4 +542,11 @@ class DashboardController extends Controller
 
         return $weekdays;
     }
+
+    public function karyawanDetail(int $id)
+    {
+        $karyawan = Karyawan::findOrFail($id);
+
+        return response()->json($karyawan);
+    }
 }

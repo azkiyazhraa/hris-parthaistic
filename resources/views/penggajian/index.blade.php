@@ -1,28 +1,28 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container mx-auto py-4 space-y-4">
-        <div class="bg-gradient-to-r from-blue-200 to-cyan-400 rounded-2xl p-6 shadow-lg flex items-center justify-between">
+    <div class="container py-4 mx-auto space-y-4">
+        <div class="flex items-center justify-between p-6 shadow-lg bg-gradient-to-r from-blue-200 to-cyan-400 rounded-2xl">
             <div>
-                <h1 class="text-2xl font-bold text-blue-900 mb-1">Payroll</h1>
-                <p class="text-gray-700/80 text-sm">View your salary details, allowances, and payment history.</p>
+                <h1 class="mb-1 text-2xl font-bold text-blue-900">Payroll</h1>
+                <p class="text-sm text-gray-700/80">View your salary details, allowances, and payment history.</p>
             </div>
             <div class="hidden md:block">
                 <img src="https://illustrations.popsy.co/blue/work-from-home.svg" alt="illustration" class="w-20">
             </div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow p-4 md:p-6 my-4">
-            <div class="grid grid-cols-1 sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x">
+        <div class="p-4 my-4 bg-white shadow rounded-2xl md:p-6">
+            <div class="grid grid-cols-1 divide-y sm:grid-cols-4 sm:divide-y-0 sm:divide-x">
                 <!-- ITEM 1 -->
                 <div class="flex flex-col gap-1 px-4 py-2">
-                    <span class="text-blue-900 text-xl">Year</span>
+                    <span class="text-xl text-blue-900">Year</span>
                     <div class="flex items-center justify-between gap-2">
-                        <h2 class="text-xl md:text-2xl font-semibold text-blue-900" id="periode">
+                        <h2 class="text-xl font-semibold text-blue-900 md:text-2xl" id="periode">
                             {{ date('Y') }}
                         </h2>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                            stroke="currentColor" class="size-5 text-blue-900">
+                            stroke="currentColor" class="text-blue-900 size-5">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M6.75 2.994v2.25m10.5-2.25v2.25m-14.252 13.5V7.491a2.25 2.25 0 0 1 2.25-2.25h13.5a2.25 2.25 0 0 1 2.25 2.25v11.251m-18 0a2.25 2.25 0 0 0 2.25 2.25h13.5a2.25 2.25 0 0 0 2.25-2.25m-18 0v-7.5a2.25 2.25 0 0 1 2.25-2.25h13.5a2.25 2.25 0 0 1 2.25 2.25v7.5m-6.75-6h2.25m-9 2.25h4.5m.002-2.25h.005v.006H12v-.006Zm-.001 4.5h.006v.006h-.006v-.005Zm-2.25.001h.005v.006H9.75v-.006Zm-2.25 0h.005v.005h-.006v-.005Zm6.75-2.247h.005v.005h-.005v-.005Zm0 2.247h.006v.006h-.006v-.006Zm2.25-2.248h.006V15H16.5v-.005Z" />
                         </svg>
@@ -31,32 +31,32 @@
 
                 <!-- ITEM 2 -->
                 <div class="flex flex-col gap-1 px-4 py-2">
-                    <span class="text-blue-900 text-xl">Total Salary</span>
-                    <h2 class="text-xl md:text-2xl font-semibold text-blue-900" id="total_salary">
+                    <span class="text-xl text-blue-900">Total Salary</span>
+                    <h2 class="text-xl font-semibold text-blue-900 md:text-2xl" id="total_salary">
                         Rp {{ number_format($totalSalary, 0, ',', '.') }}
                     </h2>
                 </div>
 
                 <!-- ITEM 3 -->
                 <div class="flex flex-col gap-1 px-4 py-2">
-                    <span class="text-blue-900 text-xl">Deducation</span>
-                    <h2 class="text-xl md:text-2xl font-semibold text-blue-900" id="deduction">
+                    <span class="text-xl text-blue-900">Deducation</span>
+                    <h2 class="text-xl font-semibold text-blue-900 md:text-2xl" id="deduction">
                         Rp {{ number_format($totalDeducations, 0, ',', '.') }}
                     </h2>
                 </div>
 
                 <!-- ITEM 4 -->
                 <div class="flex flex-col gap-1 px-4 py-2">
-                    <span class="text-blue-900 text-xl">Allowance</span>
-                    <h2 class="text-xl md:text-2xl font-semibold text-blue-900" id="allowance">
+                    <span class="text-xl text-blue-900">Allowance</span>
+                    <h2 class="text-xl font-semibold text-blue-900 md:text-2xl" id="allowance">
                         Rp {{ number_format($totalAllowances, 0, ',', '.') }}
                     </h2>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-lg p-6" style="border: 2px solid #e0eaff;">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
+        <div class="p-6 bg-white shadow-lg rounded-2xl" style="border: 2px solid #e0eaff;">
+            <div class="flex flex-col gap-4 mb-5 sm:flex-row sm:items-center sm:justify-between">
 
                 <!-- TITLE -->
                 <div>
@@ -86,19 +86,19 @@
             <div class="overflow-x-auto">
                 <table class="w-full min-w-[800px] md:min-w-full text-sm text-left">
                     <thead>
-                        <tr class="text-gray-400 font-medium text-xs uppercase tracking-wide border-b">
-                            <th class="text-left pb-3 whitespace-nowrap">Year</th>
-                            <th class="text-left pb-3 whitespace-nowrap">Base Salary</th>
-                            <th class="text-left pb-3 whitespace-nowrap">Total Earnings</th>
-                            <th class="text-left pb-3 whitespace-nowrap">Total Deductions</th>
-                            <th class="text-left pb-3 whitespace-nowrap">Net Salary</th>
-                            <th class="text-left pb-3 whitespace-nowrap">Status</th>
-                            <th class="text-left pb-3 whitespace-nowrap">Action</th>
+                        <tr class="text-xs font-medium tracking-wide text-gray-400 uppercase border-b">
+                            <th class="pb-3 text-left whitespace-nowrap">Year</th>
+                            <th class="pb-3 text-left whitespace-nowrap">Base Salary</th>
+                            <th class="pb-3 text-left whitespace-nowrap">Total Earnings</th>
+                            <th class="pb-3 text-left whitespace-nowrap">Total Deductions</th>
+                            <th class="pb-3 text-left whitespace-nowrap">Net Salary</th>
+                            <th class="pb-3 text-left whitespace-nowrap">Status</th>
+                            <th class="pb-3 text-left whitespace-nowrap">Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($penggajian as $item)
-                            <tr class="payroll-row border-b border-gray-100 hover:bg-blue-50/40 transition"
+                            <tr class="transition border-b border-gray-100 payroll-row hover:bg-blue-50/40"
                                 data-year="{{ $item->tahun }}">
                                 <td class="py-3 text-gray-700">{{ $item->bulan_text }} {{ $item->tahun }}</td>
                                 <td class="py-3 text-gray-700">Rp {{ number_format($item->gaji_pokok, 0, ',', '.') }}</td>
@@ -130,7 +130,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center py-8 text-gray-500">
+                                <td colspan="7" class="py-8 text-center text-gray-500">
                                     <div class="flex flex-col items-center gap-2">
                                         <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
@@ -145,7 +145,7 @@
                         @endforelse
                     </tbody>
                 </table>
-                <div id="paginationContainer" class="mt-5 flex items-center justify-end gap-2"></div>
+                <div id="paginationContainer" class="flex items-center justify-end gap-2 mt-5"></div>
             </div>
         </div>
     </div>
@@ -153,13 +153,13 @@
 
     <!-- Detail Modal -->
     <div id="detailModal" tabindex="-1" aria-hidden="true"
-        class="hidden fixed inset-0 z-50 flex justify-center items-center bg-black/40">
-        <div class="relative w-full max-w-xl p-4">
-            <div class="bg-white rounded-3xl shadow-lg p-6">
-                <div class="flex justify-between items-center border-b pb-4">
+        class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black/40">
+        <div class="relative w-full max-w-2xl p-4">
+            <div class="p-6 bg-white shadow-lg rounded-3xl">
+                <div class="flex items-center justify-between pb-4 border-b">
                     <h3 class="text-lg font-semibold text-blue-900">Detail Payroll</h3>
                     <button onclick="closeDetailModal()"
-                        class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100">✕</button>
+                        class="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100">✕</button>
                 </div>
                 <div id="detailContent" class="max-h-[80vh] overflow-y-auto p-4"></div>
             </div>
@@ -218,7 +218,7 @@
                     const bulanText = bulanNama[Number(data.bulan)] || '-';
 
                     const content = `
-                        <div class="flex items-center justify-between mb-6 border-b pb-4">
+                        <div class="flex items-center justify-between pb-4 mb-6 border-b">
                             <div>
                                 <p class="text-xs text-gray-400">Period</p>
                                 <p class="text-sm font-semibold text-gray-800">
@@ -231,37 +231,37 @@
                             </span>
                         </div>
 
-                        <div class="flex justify-between items-start gap-6 mb-6">
+                        <div class="flex items-start justify-between gap-6 mb-6">
                             <div class="flex-1">
-                                <h3 class="text-base font-bold text-gray-900 mb-4">Employee Info</h3>
+                                <h3 class="mb-4 text-base font-bold text-gray-900">Employee Info</h3>
 
-                                <div class="grid grid-cols-2 gap-x-8 gap-y-3 text-sm">
+                                <div class="grid grid-cols-2 text-sm gap-x-8 gap-y-3">
                                 <div>
-                                    <p class="text-gray-400 text-xs">Name</p>
+                                    <p class="text-xs text-gray-400">Name</p>
                                     <p class="font-semibold text-gray-800">${name}</p>
                                 </div>
 
                                 <div>
-                                    <p class="text-gray-400 text-xs">Employee ID</p>
+                                    <p class="text-xs text-gray-400">Employee ID</p>
                                     <p class="font-semibold text-gray-800">${nip}</p>
                                 </div>
 
                                 <div>
-                                    <p class="text-gray-400 text-xs">Department</p>
+                                    <p class="text-xs text-gray-400">Department</p>
                                     <p class="font-semibold text-gray-800 capitalize">${role}</p>
                                 </div>
 
                                 <div>
-                                    <p class="text-gray-400 text-xs">Email</p>
+                                    <p class="text-xs text-gray-400">Email</p>
                                     <p class="font-semibold text-gray-800">${email}</p>
                                 </div>
                                 </div>
                             </div>
 
-                            <div class="w-20 h-20 rounded-full border-4 border-blue-900 overflow-hidden bg-gray-100 shrink-0">
+                            <div class="w-20 h-20 overflow-hidden bg-gray-100 border-4 border-blue-900 rounded-full shrink-0">
                                 <img
                                 src="${foto}"
-                                class="w-full h-full object-cover"
+                                class="object-cover w-full h-full"
                                 onerror="
                                     this.src =
                                     'https://ui-avatars.com/api/?background=1E3A8A&color=fff&size=100&name=${encodeURIComponent(nama)}'
@@ -270,11 +270,11 @@
                             </div>
                         </div>
 
-                        <div class="border-t border-gray-100 my-5"></div>
+                        <div class="my-5 border-t border-gray-100"></div>
 
                         <div class="grid grid-cols-2 gap-8 mb-6">
                             <div>
-                                <h3 class="text-base font-bold text-gray-900 mb-3">Earnings</h3>
+                                <h3 class="mb-3 text-base font-bold text-gray-900">Earnings</h3>
 
                                 <div class="space-y-2 text-sm">
                                 <div class="flex justify-between">
@@ -313,7 +313,7 @@
                                     <span class="text-gray-800">${formatRupiah(data.incentive)}</span>
                                 </div>
 
-                                <div class="flex justify-between pt-2 border-t font-semibold">
+                                <div class="flex justify-between pt-2 font-semibold border-t">
                                     <span>Total Earnings</span>
                                     <span>${formatRupiah(data.total_earnings)}</span>
                                 </div>
@@ -321,7 +321,7 @@
                             </div>
 
                             <div>
-                                <h3 class="text-base font-bold text-gray-900 mb-3">Deduction</h3>
+                                <h3 class="mb-3 text-base font-bold text-gray-900">Deduction</h3>
 
                                 <div class="space-y-2 text-sm">
                                 <div class="flex justify-between">
@@ -330,12 +330,7 @@
                                 </div>
 
                                 <div class="flex justify-between">
-                                    <span class="text-gray-600">BPJS Kesehatan</span>
-                                    <span class="text-gray-800">${formatRupiah(data.bpjs_kesehatan)}</span>
-                                </div>
-
-                                <div class="flex justify-between">
-                                    <span class="text-gray-600">BPJS Ketenagakerjaan</span>
+                                    <span class="text-gray-600">BPJS Employment</span>
                                     <span class="text-gray-800"
                                     >${formatRupiah(data.bpjs_ketenagakerjaan)}</span
                                     >
@@ -353,7 +348,7 @@
                                     <span class="text-gray-800">${formatRupiah(data.loan_deduction)}</span>
                                 </div>
 
-                                <div class="flex justify-between pt-2 border-t font-semibold">
+                                <div class="flex justify-between pt-2 font-semibold border-t">
                                     <span>Total Deduction</span>
                                     <span>${formatRupiah(data.total_deductions)}</span>
                                 </div>
@@ -361,7 +356,7 @@
                             </div>
                         </div>
 
-                        <div class="border-t border-gray-100 my-5"></div>
+                        <div class="my-5 border-t border-gray-100"></div>
 
                         <div class="flex items-center justify-between">
                             <span class="text-base font-bold text-gray-900">Net Salary</span>
@@ -371,11 +366,11 @@
                         </div>
 
                         ${ data.catatan ? `
-                                                                                                                                             <div class="mt-5 p-3 bg-yellow-50 border-l-4 border-yellow-500 rounded">
-                                                                                                                                                <p class="text-sm font-semibold text-yellow-800">Catatan</p>
-                                                                                                                                                <p class="text-sm text-yellow-700">${data.catatan}</p>
-                                                                                                                                            </div>
-                                                                                                                                            ` : '' }
+                        <div class="p-3 mt-5 border-l-4 border-yellow-500 rounded bg-yellow-50">
+                        <p class="text-sm font-semibold text-yellow-800">Notes</p>
+                        <p class="text-sm text-yellow-700">${data.catatan}</p>
+                    </div>
+                    ` : '' }
                     `;
 
                     document.getElementById('detailContent').innerHTML = content;

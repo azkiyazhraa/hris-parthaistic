@@ -70,23 +70,33 @@ class Penggajian extends Model
 
     public function getStatusBadgeAttribute()
     {
-        return match($this->status) {
-            self::STATUS_DRAFT => '<span class="bg-gray-200 text-gray-800 py-1 px-3 rounded-full text-xs">Draft</span>',
-            self::STATUS_PENDING => '<span class="bg-yellow-200 text-yellow-800 py-1 px-3 rounded-full text-xs">Pending</span>',
-            self::STATUS_APPROVED => '<span class="bg-blue-200 text-blue-800 py-1 px-3 rounded-full text-xs">Approved</span>',
-            self::STATUS_PAID => '<span class="bg-green-200 text-green-800 py-1 px-3 rounded-full text-xs">Paid</span>',
-            self::STATUS_CANCELLED => '<span class="bg-red-200 text-red-800 py-1 px-3 rounded-full text-xs">Cancelled</span>',
-            default => '<span class="bg-gray-200 text-gray-800 py-1 px-3 rounded-full text-xs">' . ucfirst($this->status) . '</span>',
+        return match ($this->status) {
+            self::STATUS_DRAFT => '<span class="px-3 py-1 text-xs text-gray-800 bg-gray-200 rounded-full">Draft</span>',
+            self::STATUS_PENDING => '<span class="px-3 py-1 text-xs text-yellow-800 bg-yellow-200 rounded-full">Pending</span>',
+            self::STATUS_APPROVED => '<span class="px-3 py-1 text-xs text-blue-800 bg-blue-200 rounded-full">Approved</span>',
+            self::STATUS_PAID => '<span class="px-3 py-1 text-xs text-green-800 bg-green-200 rounded-full">Paid</span>',
+            self::STATUS_CANCELLED => '<span class="px-3 py-1 text-xs text-red-800 bg-red-200 rounded-full">Cancelled</span>',
+            default => '<span class="px-3 py-1 text-xs text-gray-800 bg-gray-200 rounded-full">' . ucfirst($this->status) . '</span>',
         };
     }
 
     public function getBulanTextAttribute()
     {
         $bulan = [
-            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
-            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
-            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+            1 => 'January',
+            2 => 'February',
+            3 => 'March',
+            4 => 'April',
+            5 => 'May',
+            6 => 'June',
+            7 => 'July',
+            8 => 'August',
+            9 => 'September',
+            10 => 'October',
+            11 => 'November',
+            12 => 'December',
         ];
+
         return $bulan[$this->bulan] ?? '-';
     }
 
@@ -104,31 +114,31 @@ class Penggajian extends Model
     {
         return $this->belongsTo(Karyawan::class, 'payslip_sent_by', 'nama_lengkap');
     }
-    
+
     public function calculateTotalEarnings()
     {
-        return $this->gaji_pokok + $this->transport_allowance + $this->meal_allowance + 
-               $this->internet_allowance + $this->position_allowance + $this->incentive;
+        return $this->gaji_pokok + $this->transport_allowance + $this->meal_allowance +
+            $this->internet_allowance + $this->position_allowance + $this->incentive;
     }
-    
+
     public function calculateTotalDeductions()
     {
-        return $this->tax + $this->bpjs_kesehatan + $this->bpjs_ketenagakerjaan + 
-               $this->late_absent_deduction + $this->loan_deduction;
+        return $this->tax + $this->bpjs_kesehatan + $this->bpjs_ketenagakerjaan +
+            $this->late_absent_deduction + $this->loan_deduction;
     }
-    
+
     public function calculateNetSalary()
     {
         return $this->calculateTotalEarnings() - $this->calculateTotalDeductions();
     }
-    
+
     public function updateCalculations()
     {
         $this->total_earnings = $this->calculateTotalEarnings();
         $this->total_deductions = $this->calculateTotalDeductions();
         $this->net_salary = $this->calculateNetSalary();
     }
-    
+
     public function isPayslipSent()
     {
         return !is_null($this->payslip_sent_at);

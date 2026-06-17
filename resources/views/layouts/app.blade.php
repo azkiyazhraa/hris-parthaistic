@@ -31,7 +31,7 @@
 
     @include('components.sidebar')
 
-    <div class="p-4 sm:ml-64 bg-gray-100 md:rounded-tl-2xl md:rounded-bl-2xl h-screen flex flex-col">
+    <div class="flex flex-col h-screen p-4 bg-gray-100 sm:ml-64 md:rounded-tl-2xl md:rounded-bl-2xl">
 
         <div class="flex items-center justify-between hidden md:flex">
             <!-- LEFT (HAMBURGER) -->
@@ -51,86 +51,85 @@
                 @auth
                     @if (Auth::user()->role == 'karyawan')
                         <div class="flex items-center gap-2">
-                        <!-- Check in - Check out -->
-                        @if ($absensiToday && !$absensiToday->jam_pulang)
-                            <button data-modal-target="absence-modal-checkout-{{ $type }}-{{ optional($absensiToday)->id }}"
-                                data-modal-toggle="absence-modal-checkout-{{ $type }}-{{ optional($absensiToday)->id }}"
-                                class="text-xs font-bold bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded-lg">
-                                Check-Out
-                            </button>
-
-                            @include('absensi.checkout')
-
-                        @elseif (!$absensiToday)
-                            <button data-modal-target="absence-modal-{{ $type }}"
-                                data-modal-toggle="absence-modal-{{ $type }}"
-                                class="text-xs font-bold bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded-lg">
-                                Check-In
-                            </button>
-                        @endif
-                        <!-- Break -->
-                        @php
-                        $isCheckedIn = $absensiToday && $absensiToday->jam_masuk && !$absensiToday->jam_pulang;
-
-                        $activeBreak = null;
-
-                        if ($absensiToday) {
-                            $activeBreak = \App\Models\BreakTime::where('absensi_id', $absensiToday->id)
-                                ->whereNull('break_end')
-                                ->latest()
-                                ->first();
-                        }
-                    @endphp
-
-                    {{-- BREAK BUTTON --}}
-                    @if ($absensiToday)
-
-                        @if ($activeBreak)
-                            {{-- END BREAK --}}
-                            <form action="{{ route('break.end', $absensiToday->id) }}" method="POST">
-                                @csrf
-                                <button type="submit"
-                                    class="text-xs font-bold bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded-lg
-                                    {{ !$isCheckedIn ? 'opacity-50 cursor-not-allowed' : '' }}"
-                                    {{ !$isCheckedIn ? 'disabled' : '' }}>
-                                    End Break
+                            <!-- Check in - Check out -->
+                            @if ($absensiToday && !$absensiToday->jam_pulang)
+                                <button
+                                    data-modal-target="absence-modal-checkout-{{ $type }}-{{ optional($absensiToday)->id }}"
+                                    data-modal-toggle="absence-modal-checkout-{{ $type }}-{{ optional($absensiToday)->id }}"
+                                    class="px-2 py-1 text-xs font-bold text-white bg-red-500 rounded-lg hover:bg-red-600">
+                                    Check-Out
                                 </button>
-                            </form>
-                        @else
-                            {{-- START BREAK --}}
-                            <form action="{{ route('break.start', $absensiToday->id) }}" method="POST">
-                                @csrf
-                                <button type="submit"
-                                    class="text-xs font-bold bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded-lg
+
+                                @include('absensi.checkout')
+                            @elseif (!$absensiToday)
+                                <button data-modal-target="absence-modal-{{ $type }}"
+                                    data-modal-toggle="absence-modal-{{ $type }}"
+                                    class="px-2 py-1 text-xs font-bold text-white bg-green-500 rounded-lg hover:bg-green-600">
+                                    Check-In
+                                </button>
+                            @endif
+                            <!-- Break -->
+                            @php
+                                $isCheckedIn = $absensiToday && $absensiToday->jam_masuk && !$absensiToday->jam_pulang;
+
+                                $activeBreak = null;
+
+                                if ($absensiToday) {
+                                    $activeBreak = \App\Models\BreakTime::where('absensi_id', $absensiToday->id)
+                                        ->whereNull('break_end')
+                                        ->latest()
+                                        ->first();
+                                }
+                            @endphp
+
+                            {{-- BREAK BUTTON --}}
+                            @if ($absensiToday)
+
+                                @if ($activeBreak)
+                                    {{-- END BREAK --}}
+                                    <form action="{{ route('break.end', $absensiToday->id) }}" method="POST">
+                                        @csrf
+                                        <button type="submit"
+                                            class="text-xs font-bold bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded-lg
                                     {{ !$isCheckedIn ? 'opacity-50 cursor-not-allowed' : '' }}"
-                                    {{ !$isCheckedIn ? 'disabled' : '' }}>
+                                            {{ !$isCheckedIn ? 'disabled' : '' }}>
+                                            End Break
+                                        </button>
+                                    </form>
+                                @else
+                                    {{-- START BREAK --}}
+                                    <form action="{{ route('break.start', $absensiToday->id) }}" method="POST">
+                                        @csrf
+                                        <button type="submit"
+                                            class="text-xs font-bold bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded-lg
+                                    {{ !$isCheckedIn ? 'opacity-50 cursor-not-allowed' : '' }}"
+                                            {{ !$isCheckedIn ? 'disabled' : '' }}>
+                                            Break
+                                        </button>
+                                    </form>
+                                @endif
+                            @else
+                                {{-- BELUM CHECK-IN --}}
+                                <button
+                                    class="px-2 py-1 text-xs font-bold bg-yellow-500 rounded-lg opacity-50 cursor-not-allowed"
+                                    disabled>
                                     Break
                                 </button>
-                            </form>
-                        @endif
+                            @endif
 
-                    @else
-                        {{-- BELUM CHECK-IN --}}
-                        <button
-                            class="text-xs font-bold bg-yellow-500 px-2 py-1 rounded-lg opacity-50 cursor-not-allowed"
-                            disabled>
-                            Break
-                        </button>
-                    @endif
+                        </div>
 
-                    </div>
-
-                    @include('absensi.create')
+                        @include('absensi.create')
                     @endif
                 @endauth
 
-                <div id="clock" class="font-semibold text-sm bg-green-500 text-white px-2 py-1 rounded-lg"></div>
+                <div id="clock" class="px-2 py-1 text-sm font-semibold text-white bg-green-500 rounded-lg"></div>
 
                 <!-- NOTIFICATION -->
                 <div class="relative">
                     <!-- TRIGGER -->
                     <button id="notificationButton" data-dropdown-toggle="notificationDropdown"
-                        class="relative p-2 rounded-xl hover:bg-gray-100 transition">
+                        class="relative p-2 transition rounded-xl hover:bg-gray-100">
 
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                             stroke="currentColor" class="w-6 h-6 text-gray-600">
@@ -140,7 +139,7 @@
 
                         <!-- DOT -->
                         <span id="notif-dot"
-                            class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full animate-pulse hidden">
+                            class="absolute hidden w-2 h-2 bg-red-500 rounded-full top-2 right-2 animate-pulse">
                         </span>
                     </button>
 
@@ -167,8 +166,8 @@
                         <div id="notif-container" class="max-h-[350px] overflow-y-auto"></div>
 
                         <!-- FOOTER -->
-                        <div class="border-t px-4 py-3 text-center">
-                            <a href="#" class="text-sm text-blue-600 hover:text-blue-700 font-medium">
+                        <div class="px-4 py-3 text-center border-t">
+                            <a href="#" class="text-sm font-medium text-blue-600 hover:text-blue-700">
                                 View all notifications
                             </a>
                         </div>
@@ -190,12 +189,13 @@
                                         urlencode(auth()->user()->nama_lengkap);
                         @endphp
 
-                        <img src="{{ $fotoUrl }}" class="w-9 h-9 rounded-full border object-cover">
+                        <img src="{{ $fotoUrl }}" class="object-cover border rounded-full w-9 h-9">
 
-                        <div class="hidden md:block text-left">
+                        <div class="hidden text-left md:block">
                             <p class="text-sm font-semibold text-gray-800">{{ auth()->user()->nama_lengkap }}</p>
                             <p class="text-xs text-gray-500">
-                                {{ auth()->user()->role == 'karyawan' ? 'Employee' : ucfirst(auth()->user()->role) }}</p>
+                                {{ auth()->user()->role == 'karyawan' ? 'Employee' : ucfirst(auth()->user()->role) }}
+                            </p>
                         </div>
 
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -206,7 +206,7 @@
 
                     <!-- DROPDOWN -->
                     <div id="userDropdown"
-                        class="z-50 hidden bg-white divide-y divide-gray-100 rounded-xl shadow w-48 absolute right-0 mt-2">
+                        class="absolute right-0 z-50 hidden w-48 mt-2 bg-white divide-y divide-gray-100 shadow rounded-xl">
 
                         <div class="px-4 py-3">
                             <p class="text-sm text-gray-900">{{ auth()->user()->nama_lengkap }}</p>
@@ -224,7 +224,8 @@
                         <div class="py-2">
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
-                                <button type="submit" class="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50">
+                                <button type="submit"
+                                    class="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50">
                                     Logout
                                 </button>
                             </form>
@@ -234,13 +235,13 @@
             </div>
         </div>
 
-        <div class="flex-1 md:overflow-y-auto mt-4">
+        <div class="flex-1 mt-4 md:overflow-y-auto">
             @yield('content')
         </div>
 
         {{-- FOOTER --}}
         <footer
-            class="mt-2 pb-3 text-center text-xs text-gray-500 md:mt-4 md:flex md:items-center md:justify-between md:pb-0 md:text-left">
+            class="pb-3 mt-2 text-xs text-center text-gray-500 md:mt-4 md:flex md:items-center md:justify-between md:pb-0 md:text-left">
 
             <p>&copy; 2026 HRIS - PARTHAISTIC. All rights reserved.</p>
 
@@ -451,7 +452,7 @@
 
                     notifContainer.innerHTML += `
                     <a href="#"
-                        class="flex gap-3 px-4 py-3 hover:bg-gray-50 transition border-b border-gray-100">
+                        class="flex gap-3 px-4 py-3 transition border-b border-gray-100 hover:bg-gray-50">
 
                         <div class="w-10 h-10 rounded-full
                             bg-${color}-100 text-${color}-700
@@ -472,7 +473,7 @@
                                 ${item.judul}
                             </p>
 
-                            <p class="text-xs text-gray-400 mt-1">
+                            <p class="mt-1 text-xs text-gray-400">
                                 ${createdAt.toLocaleString()}
                             </p>
                         </div>

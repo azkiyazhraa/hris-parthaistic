@@ -1,13 +1,13 @@
 @extends('layouts.app')
 @section('content')
-    <div class="container mx-auto py-4">
-        <div class="bg-gradient-to-r from-blue-200 to-cyan-400 rounded-2xl p-6 shadow-lg flex items-center justify-between">
+    <div class="container py-4 mx-auto">
+        <div class="flex items-center justify-between p-6 shadow-lg bg-gradient-to-r from-blue-200 to-cyan-400 rounded-2xl">
             <!-- TEXT -->
             <div>
-                <h1 class="text-2xl font-bold text-blue-900 mb-1">
+                <h1 class="mb-1 text-2xl font-bold text-blue-900">
                     Dashboard
                 </h1>
-                <p class="text-gray-700/80 text-sm">
+                <p class="text-sm text-gray-700/80">
                     A Quick overview of your daily activity and important updates
                 </p>
             </div>
@@ -18,27 +18,26 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow p-4 md:p-6 my-4">
-            <div class="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x text-center">
+        <div class="p-4 my-4 bg-white shadow rounded-2xl md:p-6">
+            <div class="grid grid-cols-1 text-center divide-y sm:grid-cols-3 sm:divide-y-0 sm:divide-x">
                 <!-- ITEM 1 -->
                 <div class="flex flex-col gap-1 px-4 py-2">
-                    <span class="text-blue-900 font-semibold text-xl">Current Status</span>
+                    <span class="text-xl font-semibold text-blue-900">Current Status</span>
 
                     @php
                         $isOnBreak = $isOnBreak ?? false;
                     @endphp
 
                     <h2 class="text-xl md:text-2xl font-semibold
-                        @if (!$absensi)
-                            text-gray-400
+                        @if (!$absensi) text-gray-400
                         @elseif ($isOnBreak)
                             text-blue-500
                         @elseif ($absensi->jam_pulang)
                             text-green-600
                         @else
-                            text-yellow-600
-                        @endif
-                    " id="statusText">
+                            text-yellow-600 @endif
+                    "
+                        id="statusText">
 
                         @if (!$absensi)
                             Not Checked In
@@ -54,7 +53,7 @@
 
                 <!-- ITEM 2 -->
                 <div class="flex flex-col gap-1 px-4 py-2">
-                    <span class="text-blue-900 font-semibold text-xl">Check-In Time</span>
+                    <span class="text-xl font-semibold text-blue-900">Check-In Time</span>
                     <h2 class="text-xl md:text-2xl font-semibold {{ $absensi && $absensi->jam_masuk ? 'text-green-600' : 'text-gray-400' }}"
                         id="time">
                         {{ $absensi ? \Carbon\Carbon::parse($absensi->jam_masuk)->format('H:i:s') : 'Not Checked In' }}
@@ -63,7 +62,7 @@
 
                 <!-- ITEM 3 -->
                 <div class="flex flex-col gap-1 px-4 py-2">
-                    <span class="text-blue-900 font-semibold text-xl">Working Hours</span>
+                    <span class="text-xl font-semibold text-blue-900">Working Hours</span>
                     <h2 class="text-xl md:text-2xl font-semibold font-mono tracking-wider {{ $absensi && $absensi->jam_masuk ? 'text-gray-400' : 'text-gray-400' }}"
                         id="working">
                         @if ($absensi && $absensi->jam_pulang)
@@ -83,13 +82,13 @@
         </div>
 
         <div class="rounded-base">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+            <div class="grid grid-cols-1 gap-6 mb-6 sm:grid-cols-2 lg:grid-cols-3">
                 <!-- CARD 1 -->
-                <div class="bg-white p-5 rounded-2xl shadow">
-                    <p class="text-gray-500 text-sm mb-2">Leave Record</p>
+                <div class="p-5 bg-white shadow rounded-2xl">
+                    <p class="mb-2 text-sm text-gray-500">Leave Record</p>
 
                     <h2 class="text-4xl font-bold text-blue-900">{{ $cutiTerpakai }} / {{ $totalCuti }}</h2>
-                    <p class="text-sm text-gray-500 mb-4">Days Used</p>
+                    <p class="mb-4 text-sm text-gray-500">Days Used</p>
 
                     <!-- PROGRESS -->
                     <div class="space-y-2 text-xs">
@@ -98,8 +97,8 @@
                                 <span>Annual Leave</span>
                                 <span>{{ $totalCuti > 0 ? round(($terpakaiTahunan / $kuotaCutiTahunan) * 100) : 0 }}%</span>
                             </div>
-                            <div class="w-full bg-gray-200 h-2 rounded-full">
-                                <div class="bg-blue-500 h-2 rounded-full"
+                            <div class="w-full h-2 bg-gray-200 rounded-full">
+                                <div class="h-2 bg-blue-500 rounded-full"
                                     style="width: {{ $totalCuti > 0 ? round(($terpakaiTahunan / $kuotaCutiTahunan) * 100) : 0 }}%">
                                 </div>
                             </div>
@@ -111,8 +110,8 @@
                                 <span>Sick Leave</span>
                                 <span>{{ $totalCuti > 0 ? round(($terpakaiSakit / $kuotaCutiSakit) * 100) : 0 }}%</span>
                             </div>
-                            <div class="w-full bg-gray-200 h-2 rounded-full">
-                                <div class="bg-blue-400 h-2 rounded-full"
+                            <div class="w-full h-2 bg-gray-200 rounded-full">
+                                <div class="h-2 bg-blue-400 rounded-full"
                                     style="width: {{ $totalCuti > 0 ? round(($terpakaiSakit / $kuotaCutiSakit) * 100) : 0 }}%">
                                 </div>
                             </div>
@@ -124,8 +123,8 @@
                                 <span>Emergency Leave</span>
                                 <span>{{ $totalCuti > 0 ? round(($terpakaiKepentingan / $kuotaCutiKepentingan) * 100) : 0 }}%</span>
                             </div>
-                            <div class="w-full bg-gray-200 h-2 rounded-full">
-                                <div class="bg-blue-400 h-2 rounded-full"
+                            <div class="w-full h-2 bg-gray-200 rounded-full">
+                                <div class="h-2 bg-blue-400 rounded-full"
                                     style="width: {{ $totalCuti > 0 ? round(($terpakaiKepentingan / $kuotaCutiKepentingan) * 100) : 0 }}%">
                                 </div>
                             </div>
@@ -137,8 +136,8 @@
                                 <span>Other Leave (Melahirkan)</span>
                                 <span>{{ $totalCuti > 0 ? round(($terpakaiMelahirkan / $kuotaCutiMelahirkan) * 100) : 0 }}%</span>
                             </div>
-                            <div class="w-full bg-gray-200 h-2 rounded-full">
-                                <div class="bg-blue-400 h-2 rounded-full"
+                            <div class="w-full h-2 bg-gray-200 rounded-full">
+                                <div class="h-2 bg-blue-400 rounded-full"
                                     style="width: {{ $totalCuti > 0 ? round(($terpakaiMelahirkan / $kuotaCutiMelahirkan) * 100) : 0 }}%">
                                 </div>
                             </div>
@@ -149,16 +148,16 @@
 
 
                 <!-- CARD 2 (DONUT) -->
-                <div class="bg-white p-5 rounded-2xl shadow flex flex-col items-center justify-center">
-                    <p class="text-gray-500 text-sm mb-4">Employee's Task Record</p>
+                <div class="flex flex-col items-center justify-center p-5 bg-white shadow rounded-2xl">
+                    <p class="mb-4 text-sm text-gray-500">Employee's Task Record</p>
                     <div id="donutChart"></div>
                 </div>
 
 
                 <!-- CARD 3 -->
-                <div class="bg-white p-5 rounded-2xl shadow">
-                    <div class="flex justify-between items-center mb-3">
-                        <p class="text-gray-500 text-sm">Announcements</p>
+                <div class="p-5 bg-white shadow rounded-2xl">
+                    <div class="flex items-center justify-between mb-3">
+                        <p class="text-sm text-gray-500">Announcements</p>
                     </div>
 
                     <div class="space-y-3 text-sm text-gray-600">
@@ -170,7 +169,7 @@
                                         <span
                                             class="font-medium">{{ \Illuminate\Support\Str::limit($item->judul, 20, '...') }}</span>
                                         <span
-                                            class="text-yellow-500 text-xs">{{ $item->tanggal_terbit->format('d M Y') }}</span>
+                                            class="text-xs text-yellow-500">{{ $item->tanggal_terbit->format('d M Y') }}</span>
                                     </div>
                                     <p class="text-xs text-gray-400">
                                         {{ \Illuminate\Support\Str::words($item->konten, 10, '...') }}
@@ -180,30 +179,31 @@
                         @endforeach
                     </div>
 
-                    <div class="text-right mt-3">
-                        <a href="{{ route('pengumuman.index') }}" class="text-cyan-500 text-xs hover:underline">View All</a>
+                    <div class="mt-3 text-right">
+                        <a href="{{ route('pengumuman.index') }}" class="text-xs text-cyan-500 hover:underline">View
+                            All</a>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="rounded-base">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
 
                 <!-- LEFT: TABLE -->
-                <div class="md:col-span-2 bg-white p-6 rounded-2xl shadow">
+                <div class="p-6 bg-white shadow md:col-span-2 rounded-2xl">
 
                     <!-- HEADER -->
-                    <h2 class="text-lg font-semibold text-gray-800 mb-4">My Attendance</h2>
+                    <h2 class="mb-4 text-lg font-semibold text-gray-800">My Attendance</h2>
 
                     <!-- STATS AND FILTER YEAR -->
-                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-4">
+                    <div class="flex flex-col gap-4 mb-4 lg:flex-row lg:items-center lg:justify-between">
 
                         <!-- STATISTICS -->
                         <div class="grid grid-cols-4 gap-4 text-center">
 
                             <div class="flex items-end justify-center">
-                                <p id="presentCount" class="text-2xl font-bold text-blue-900 leading-none">
+                                <p id="presentCount" class="text-2xl font-bold leading-none text-blue-900">
                                     0
                                 </p>
 
@@ -213,7 +213,7 @@
                             </div>
 
                             <div class="flex items-end justify-center">
-                                <p id="permissionCount" class="text-2xl font-bold text-blue-900 leading-none">
+                                <p id="permissionCount" class="text-2xl font-bold leading-none text-blue-900">
                                     0
                                 </p>
 
@@ -223,7 +223,7 @@
                             </div>
 
                             <div class="flex items-end justify-center">
-                                <p id="sickCount" class="text-2xl font-bold text-blue-900 leading-none">
+                                <p id="sickCount" class="text-2xl font-bold leading-none text-blue-900">
                                     0
                                 </p>
 
@@ -233,7 +233,7 @@
                             </div>
 
                             <div class="flex items-end justify-center">
-                                <p id="pendingCount" class="text-2xl font-bold text-blue-900 leading-none">
+                                <p id="pendingCount" class="text-2xl font-bold leading-none text-blue-900">
                                     0
                                 </p>
 
@@ -266,10 +266,10 @@
                     <div class="relative mt-6">
                         <!-- LOADER -->
                         <div id="attendanceLoader"
-                            class="hidden absolute inset-0 bg-white/70 backdrop-blur-sm z-10 flex flex-col items-center justify-center rounded-2xl">
+                            class="absolute inset-0 z-10 flex flex-col items-center justify-center hidden bg-white/70 backdrop-blur-sm rounded-2xl">
 
-                            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                            <p class="text-sm text-gray-500 mt-3">
+                            <div class="w-8 h-8 border-b-2 border-blue-500 rounded-full animate-spin"></div>
+                            <p class="mt-3 text-sm text-gray-500">
                                 Loading attendance...
                             </p>
                         </div>
@@ -279,25 +279,29 @@
                             <div class="overflow-x-auto">
                                 <table class="w-full text-sm">
                                     <!-- HEAD -->
-                                    <thead class="bg-gray-50 border-b border-gray-100">
+                                    <thead class="border-b border-gray-100 bg-gray-50">
                                         <tr class="text-left">
-                                            <th class="px-6 py-4 text-xs font-semibold tracking-wide text-gray-500 uppercase">
+                                            <th
+                                                class="px-6 py-4 text-xs font-semibold tracking-wide text-gray-500 uppercase">
                                                 Date
                                             </th>
-                                            <th class="px-6 py-4 text-xs font-semibold tracking-wide text-gray-500 uppercase">
+                                            <th
+                                                class="px-6 py-4 text-xs font-semibold tracking-wide text-gray-500 uppercase">
                                                 Check-In
                                             </th>
-                                            <th class="px-6 py-4 text-xs font-semibold tracking-wide text-gray-500 uppercase">
+                                            <th
+                                                class="px-6 py-4 text-xs font-semibold tracking-wide text-gray-500 uppercase">
                                                 Check-Out
                                             </th>
-                                            <th class="px-6 py-4 text-xs font-semibold tracking-wide text-gray-500 uppercase">
+                                            <th
+                                                class="px-6 py-4 text-xs font-semibold tracking-wide text-gray-500 uppercase">
                                                 Status
                                             </th>
                                         </tr>
                                     </thead>
 
                                     <!-- BODY -->
-                                    <tbody id="attendanceTable" class="divide-y divide-gray-100 bg-white">
+                                    <tbody id="attendanceTable" class="bg-white divide-y divide-gray-100">
                                         <!-- DYNAMIC CONTENT -->
                                     </tbody>
                                 </table>
@@ -310,7 +314,7 @@
                 </div>
 
                 <!-- RIGHT: CALENDAR -->
-                <div class="bg-white rounded-3xl shadow p-6">
+                <div class="p-6 bg-white shadow rounded-3xl">
                     <div id="calendarContainer"></div>
                 </div>
 
@@ -320,19 +324,20 @@
 
     {{-- MODAL DETAIL PENGUMUMAN --}}
     <div id="detailModal" tabindex="-1" aria-hidden="true"
-        class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+        class="fixed inset-0 z-50 flex items-center justify-center hidden p-4 bg-black/50">
 
         <div class="relative w-full max-w-2xl">
-            <div class="bg-white rounded-3xl shadow-2xl overflow-hidden animate-fadeIn">
+            <div class="overflow-hidden bg-white shadow-2xl rounded-3xl animate-fadeIn">
                 <div class="flex items-center justify-between px-6 py-5 border-b border-gray-100">
                     <div>
                         <h3 class="text-xl font-bold text-blue-900">Announcements Detail</h3>
-                        <p class="text-sm text-gray-500 mt-1">Complete Announcements Information</p>
+                        <p class="mt-1 text-sm text-gray-500">Complete Announcements Information</p>
                     </div>
                     <button onclick="closeDetailModal()"
-                        class="w-10 h-10 rounded-xl hover:bg-gray-100 flex items-center justify-center transition">
+                        class="flex items-center justify-center w-10 h-10 transition rounded-xl hover:bg-gray-100">
                         <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
@@ -433,33 +438,33 @@
                 const lastDate = new Date(year, month + 1, 0).getDate();
 
                 let html = `
-                    <div class="calendar-header flex items-center justify-between mb-4">
+                    <div class="flex items-center justify-between mb-4 calendar-header">
                         <h2 class="text-xl font-semibold text-gray-800">
                             ${this.currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
                         </h2>
                         <div class="flex gap-2">
-                            <button class="calendar-prev w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 transition flex items-center justify-center">
+                            <button class="flex items-center justify-center w-8 h-8 transition bg-gray-100 rounded-lg calendar-prev hover:bg-gray-200">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                                 </svg>
                             </button>
-                            <button class="calendar-next w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 transition flex items-center justify-center">
+                            <button class="flex items-center justify-center w-8 h-8 transition bg-gray-100 rounded-lg calendar-next hover:bg-gray-200">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                                 </svg>
                             </button>
                         </div>
                     </div>
-                    <div class="calendar-weekdays grid grid-cols-7 gap-1 mb-2">
-                        <div class="text-center text-xs font-medium text-gray-400 py-2">Sun</div>
-                        <div class="text-center text-xs font-medium text-gray-400 py-2">Mon</div>
-                        <div class="text-center text-xs font-medium text-gray-400 py-2">Tue</div>
-                        <div class="text-center text-xs font-medium text-gray-400 py-2">Wed</div>
-                        <div class="text-center text-xs font-medium text-gray-400 py-2">Thu</div>
-                        <div class="text-center text-xs font-medium text-gray-400 py-2">Fri</div>
-                        <div class="text-center text-xs font-medium text-gray-400 py-2">Sat</div>
+                    <div class="grid grid-cols-7 gap-1 mb-2 calendar-weekdays">
+                        <div class="py-2 text-xs font-medium text-center text-gray-400">Sun</div>
+                        <div class="py-2 text-xs font-medium text-center text-gray-400">Mon</div>
+                        <div class="py-2 text-xs font-medium text-center text-gray-400">Tue</div>
+                        <div class="py-2 text-xs font-medium text-center text-gray-400">Wed</div>
+                        <div class="py-2 text-xs font-medium text-center text-gray-400">Thu</div>
+                        <div class="py-2 text-xs font-medium text-center text-gray-400">Fri</div>
+                        <div class="py-2 text-xs font-medium text-center text-gray-400">Sat</div>
                     </div>
-                    <div class="calendar-days grid grid-cols-7 gap-1">
+                    <div class="grid grid-cols-7 gap-1 calendar-days">
                 `;
 
                 // Empty cells for days before month starts
@@ -475,7 +480,7 @@
 
                     html += `
                         <div class="calendar-day aspect-square p-1 ${isToday ? 'ring-2 ring-blue-500 rounded-lg' : ''}" data-date="${dateStr}">
-                            <button class="day-btn w-full h-full rounded-lg hover:bg-gray-50 transition flex flex-col items-center justify-start p-1">
+                            <button class="flex flex-col items-center justify-start w-full h-full p-1 transition rounded-lg day-btn hover:bg-gray-50">
                                 <span class="text-sm font-medium ${isToday ? 'text-blue-600' : 'text-gray-700'}">${day}</span>
                                 <div class="event-indicators mt-1 flex flex-wrap gap-0.5 justify-center">
                                     ${this.getEventIndicators(dayEvents)}
@@ -538,8 +543,8 @@
             isToday(year, month, day) {
                 const today = new Date();
                 return today.getFullYear() === year &&
-                       today.getMonth() === month &&
-                       today.getDate() === day;
+                    today.getMonth() === month &&
+                    today.getDate() === day;
             }
 
             attachEventListeners() {
@@ -589,7 +594,7 @@
                     return;
                 }
 
-                let eventListHtml = '<div class="space-y-2 max-h-96 overflow-y-auto">';
+                let eventListHtml = '<div class="space-y-2 overflow-y-auto max-h-96">';
 
                 events.forEach(event => {
                     const colorBg = {
@@ -601,7 +606,7 @@
                     };
 
                     eventListHtml += `
-                        <div class="p-3 rounded-xl border border-gray-100 hover:bg-gray-50 cursor-pointer transition"
+                        <div class="p-3 transition border border-gray-100 cursor-pointer rounded-xl hover:bg-gray-50"
                              onclick="openEventDetailModal('${event.id}', '${event.type}'); Swal.close();">
                             <div class="flex items-center gap-3">
                                 <div class="w-8 h-8 rounded-full ${colorBg[event.color] || 'bg-gray-100'} flex items-center justify-center">
@@ -694,7 +699,12 @@
                     const now = new Date();
                     const totalSeconds = Math.floor((now - checkInTime) / 1000);
 
-                    if (totalSeconds < 0) return { hours: 0, minutes: 0, seconds: 0, formatted: '00:00:00' };
+                    if (totalSeconds < 0) return {
+                        hours: 0,
+                        minutes: 0,
+                        seconds: 0,
+                        formatted: '00:00:00'
+                    };
 
                     const breakSeconds = calculateTotalBreakSeconds();
                     const workingSeconds = Math.max(0, totalSeconds - breakSeconds);
@@ -747,7 +757,8 @@
                                 isCurrentlyOnBreak = response.isOnBreak || false;
 
                                 if (response.absensi.jam_masuk && !checkInTime) {
-                                    const serverCheckIn = new Date(`${response.absensi.tanggal}T${response.absensi.jam_masuk}`);
+                                    const serverCheckIn = new Date(
+                                        `${response.absensi.tanggal}T${response.absensi.jam_masuk}`);
                                     if (!isNaN(serverCheckIn.getTime())) {
                                         checkInTime = serverCheckIn;
                                     }
@@ -815,10 +826,10 @@
 
             function statusBadge(status) {
                 const badges = {
-                    present: `<span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-medium">Present</span>`,
-                    permissions: `<span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-medium">Permission</span>`,
-                    sick: `<span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-medium">Sick</span>`,
-                    pending: `<span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-medium">Pending</span>`
+                    present: `<span class="px-3 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-full">Present</span>`,
+                    permissions: `<span class="px-3 py-1 text-xs font-medium text-blue-700 bg-blue-100 rounded-full">Permission</span>`,
+                    sick: `<span class="px-3 py-1 text-xs font-medium text-red-700 bg-red-100 rounded-full">Sick</span>`,
+                    pending: `<span class="px-3 py-1 text-xs font-medium text-yellow-700 bg-yellow-100 rounded-full">Pending</span>`
                 };
                 return badges[status] ?? badges['pending'];
             }
@@ -831,7 +842,10 @@
                 $.ajax({
                     url: "{{ route('attendance.filter') }}",
                     type: "GET",
-                    data: { bulan: bulan, page: page },
+                    data: {
+                        bulan: bulan,
+                        page: page
+                    },
                     success: function(response) {
                         $('#presentCount').text(response.summary.present);
                         $('#permissionCount').text(response.summary.permission);
@@ -843,7 +857,7 @@
                         if (response.data.length > 0) {
                             response.data.forEach(item => {
                                 rows += `
-                                <tr class="hover:bg-gray-50 transition">
+                                <tr class="transition hover:bg-gray-50">
                                     <td class="px-6 py-4 font-medium text-gray-700">${formatDate(item.tanggal)}</td>
                                     <td class="px-6 py-4 text-gray-600">${formatTime(item.jam_masuk)}</td>
                                     <td class="px-6 py-4 text-gray-600">${formatTime(item.jam_pulang)}</td>
@@ -851,7 +865,8 @@
                                 </tr>`;
                             });
                         } else {
-                            rows = `<tr><td colspan="4" class="px-6 py-8 text-center text-gray-400">No attendance data found</td></tr>`;
+                            rows =
+                                `<tr><td colspan="4" class="px-6 py-8 text-center text-gray-400">No attendance data found</td></tr>`;
                         }
 
                         $('#attendanceTable').html(rows);
@@ -896,44 +911,65 @@
                     };
 
                     const badgeClass = categoryClass[data.kategori] || 'bg-gray-100 text-gray-700';
-                    const publishDate = data.tanggal_terbit ? new Date(data.tanggal_terbit).toLocaleDateString('id-ID', {
-                        day: '2-digit', month: 'long', year: 'numeric'
-                    }) : '-';
+                    const publishDate = data.tanggal_terbit ? new Date(data.tanggal_terbit).toLocaleDateString(
+                        'id-ID', {
+                            day: '2-digit',
+                            month: 'long',
+                            year: 'numeric'
+                        }) : '-';
 
                     const content = `
                         <div class="space-y-6">
-                            <div class="border-b border-gray-100 pb-4">
-                                <h4 class="text-2xl font-bold text-gray-800 leading-snug">${escapeHtml(data.judul)}</h4>
-                                <div class="flex items-center gap-2 mt-3 flex-wrap">
+                            <div class="pb-4 border-b border-gray-100">
+                                <h4 class="text-2xl font-bold leading-snug text-gray-800">${escapeHtml(data.judul)}</h4>
+                                <div class="flex flex-wrap items-center gap-2 mt-3">
                                     <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${badgeClass}">
-                                        ${data.kategori ? data.kategori.charAt(0).toUpperCase() + data.kategori.slice(1) : 'Uncategorized'}
+                                        ${ ({ 'umum': 'General', 'kebijakan': 'Policy', 'pengumuman': 'Announcement', 'event': 'Event', 'penting': 'Important' })[data.kategori] || 'Uncategorized' }
                                     </span>
                                     <span class="text-xs text-gray-400">Published ${publishDate}</span>
                                 </div>
                             </div>
-                            <div class="bg-gray-50 border border-gray-100 rounded-2xl p-5">
+                            <div class="p-5 border border-gray-100 bg-gray-50 rounded-2xl">
                                 <p class="text-sm leading-7 text-gray-700 whitespace-pre-line">${escapeHtml(data.konten)}</p>
                             </div>
-                            ${data.lampiran ? `
-                                <div class="border border-blue-100 bg-blue-50 rounded-2xl p-4">
-                                    <div class="flex items-center justify-between flex-wrap gap-3">
-                                        <div class="flex items-center gap-3">
-                                            <div class="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
-                                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 16v-8m0 0l-3 3m3-3l3 3M5 20h14"/>
-                                                </svg>
+                            <!-- ATTACHMENT -->
+                            ${data.lampiran ?
+                                    `
+                                                <div class="space-y-3">
+                                                    <h5 class="text-sm font-semibold text-gray-700">
+                                                        Attachment
+                                                    </h5>
+
+                                                    ${
+                                                        /\.(jpg|jpeg|png|gif|webp)$/i.test(data.lampiran)
+                                                        ? `
+                                            <img
+                                                src="/storage/${data.lampiran}"
+                                                alt="Lampiran"
+                                                class="w-full border border-gray-200 rounded-xl"
+                                            >
+                                        `
+                                                        : /\.(pdf)$/i.test(data.lampiran)
+                                                        ? `
+                                            <iframe
+                                                src="/storage/${data.lampiran}"
+                                                class="w-full h-[600px] rounded-xl border border-gray-200"
+                                            ></iframe>
+                                        `
+                                                        : `
+                                            <div class="p-4 border border-blue-100 bg-blue-50 rounded-2xl">
+                                                <a href="/storage/${data.lampiran}"
+                                                    target="_blank"
+                                                    class="inline-flex items-center gap-2 px-4 py-2 text-sm text-white bg-blue-600 rounded-xl hover:bg-blue-700">
+                                                    Download Attachment
+                                                </a>
                                             </div>
-                                            <div>
-                                                <p class="text-sm font-medium text-gray-800">Lampiran</p>
-                                                <p class="text-xs text-gray-500">Klik untuk melihat file</p>
-                                            </div>
-                                        </div>
-                                        <a href="/storage/${data.lampiran}" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm transition">
-                                            Lihat File
-                                        </a>
-                                    </div>
-                                </div>
-                            ` : ''}
+                                        `
+                                                    }
+                                                </div>
+                                            `
+                                    : ''
+                                }
                         </div>
                     `;
 

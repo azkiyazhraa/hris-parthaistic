@@ -1,13 +1,13 @@
 @extends('layouts.app')
 @section('content')
-    <div class="container mx-auto py-4">
-        <div class="bg-gradient-to-r from-blue-200 to-cyan-400 rounded-2xl p-6 shadow-lg flex items-center justify-between">
+    <div class="container py-4 mx-auto">
+        <div class="flex items-center justify-between p-6 shadow-lg bg-gradient-to-r from-blue-200 to-cyan-400 rounded-2xl">
             <!-- TEXT -->
             <div>
-                <h1 class="text-2xl font-bold text-blue-900 mb-1">
+                <h1 class="mb-1 text-2xl font-bold text-blue-900">
                     Dashboard
                 </h1>
-                <p class="text-gray-700/80 text-sm">
+                <p class="text-sm text-gray-700/80">
                     Monitor employee data, attendance, and performance in one place
                 </p>
             </div>
@@ -19,13 +19,13 @@
         </div>
 
         <div class="py-4 rounded-base">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+            <div class="grid grid-cols-1 gap-6 mb-6 sm:grid-cols-2 lg:grid-cols-3">
                 <!-- CARD 1 -->
-                <div class="bg-white p-5 rounded-2xl shadow">
-                    <p class="text-gray-500 text-sm mb-2">Total Employee</p>
+                <div class="p-5 bg-white shadow rounded-2xl">
+                    <p class="mb-2 text-sm text-gray-500">Total Employee</p>
 
                     <h2 class="text-3xl font-bold text-blue-900">{{ $totalKaryawan }}</h2>
-                    <p class="text-sm text-gray-500 mb-4">Employees</p>
+                    <p class="mb-4 text-sm text-gray-500">Employees</p>
 
                     <!-- PROGRESS -->
                     <div class="space-y-2 text-xs">
@@ -34,8 +34,8 @@
                                 <span>Full-time</span>
                                 <span>{{ number_format($fulltimePercent, 1) }}%</span>
                             </div>
-                            <div class="w-full bg-gray-200 h-2 rounded-full">
-                                <div class="bg-blue-500 h-2 rounded-full" style="width: {{ round($fulltimePercent) }}%">
+                            <div class="w-full h-2 bg-gray-200 rounded-full">
+                                <div class="h-2 bg-blue-500 rounded-full" style="width: {{ round($fulltimePercent) }}%">
                                 </div>
                             </div>
                         </div>
@@ -45,8 +45,8 @@
                                 <span>Contract</span>
                                 <span>{{ number_format($contractPercent, 1) }}%</span>
                             </div>
-                            <div class="w-full bg-gray-200 h-2 rounded-full">
-                                <div class="bg-green-500 h-2 rounded-full" style="width: {{ round($contractPercent) }}%">
+                            <div class="w-full h-2 bg-gray-200 rounded-full">
+                                <div class="h-2 bg-green-500 rounded-full" style="width: {{ round($contractPercent) }}%">
                                 </div>
                             </div>
                         </div>
@@ -56,8 +56,8 @@
                                 <span>Internship</span>
                                 <span>{{ number_format($internshipPercent, 1) }}%</span>
                             </div>
-                            <div class="w-full bg-gray-200 h-2 rounded-full">
-                                <div class="bg-purple-500 h-2 rounded-full" style="width: {{ round($internshipPercent) }}%">
+                            <div class="w-full h-2 bg-gray-200 rounded-full">
+                                <div class="h-2 bg-purple-500 rounded-full" style="width: {{ round($internshipPercent) }}%">
                                 </div>
                             </div>
                         </div>
@@ -67,8 +67,8 @@
                                 <span>Resigned/Terminated</span>
                                 <span>{{ $resignedEmployees }}</span>
                             </div>
-                            <div class="w-full bg-gray-200 h-2 rounded-full">
-                                <div class="bg-red-500 h-2 rounded-full"
+                            <div class="w-full h-2 bg-gray-200 rounded-full">
+                                <div class="h-2 bg-red-500 rounded-full"
                                     style="width: {{ $totalKaryawan > 0 ? round(($resignedEmployees / $totalKaryawan) * 100) : 0 }}%">
                                 </div>
                             </div>
@@ -77,15 +77,15 @@
                 </div>
 
                 <!-- CARD 2 (DONUT) -->
-                <div class="bg-white p-5 rounded-2xl shadow flex flex-col items-center justify-center">
-                    <p class="text-gray-500 text-sm mb-4">Employee's Task Record</p>
+                <div class="flex flex-col items-center justify-center p-5 bg-white shadow rounded-2xl">
+                    <p class="mb-4 text-sm text-gray-500">Employee's Task Record</p>
                     <div id="donutChart"></div>
                 </div>
 
                 <!-- CARD 3 -->
-                <div class="bg-white p-5 rounded-2xl shadow">
-                    <div class="flex justify-between items-center mb-3">
-                        <p class="text-gray-500 text-sm">Announcements</p>
+                <div class="p-5 bg-white shadow rounded-2xl">
+                    <div class="flex items-center justify-between mb-3">
+                        <p class="text-sm text-gray-500">Announcements</p>
                         <button data-modal-target="announcement-modal" data-modal-toggle="announcement-modal"
                             class="text-xl font-bold hover:text-blue-600">
                             +
@@ -112,8 +112,8 @@
                         @endforeach
                     </div>
 
-                    <div class="text-right mt-3">
-                        <a href="{{ route('admin.pengumuman.index') }}" class="text-cyan-500 text-xs hover:underline">View
+                    <div class="mt-3 text-right">
+                        <a href="{{ route('admin.pengumuman.index') }}" class="text-xs text-cyan-500 hover:underline">View
                             All</a>
                     </div>
                 </div>
@@ -121,9 +121,9 @@
         </div>
 
         <div class="rounded-base">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
                 <!-- LEFT: TABLE -->
-                <div class="col-span-2 bg-white p-6 rounded-2xl shadow">
+                <div class="col-span-2 p-6 bg-white shadow rounded-2xl">
                     <!-- HEADER -->
                     <div class="flex items-center justify-between mb-8">
                         <h2 class="text-lg font-semibold text-gray-800">Today Attendance</h2>
@@ -134,22 +134,22 @@
 
                     {{-- STATISTICS --}}
                     <div class="flex justify-between mb-4">
-                        <div class="grid grid-cols-4 text-center gap-4">
+                        <div class="grid grid-cols-4 gap-4 text-center">
                             <div class="flex items-end justify-center">
-                                <p class="text-2xl font-bold text-blue-900 leading-none">{{ $statistics['present'] }}</p>
-                                <p class="text-xs text-gray-500 ml-1">Present</p>
+                                <p class="text-2xl font-bold leading-none text-blue-900">{{ $statistics['present'] }}</p>
+                                <p class="ml-1 text-xs text-gray-500">Present</p>
                             </div>
                             <div class="flex items-end justify-center">
-                                <p class="text-2xl font-bold text-blue-900 leading-none">{{ $statistics['permit'] }}</p>
-                                <p class="text-xs text-gray-500 ml-1">Permission</p>
+                                <p class="text-2xl font-bold leading-none text-blue-900">{{ $statistics['permit'] }}</p>
+                                <p class="ml-1 text-xs text-gray-500">Permission</p>
                             </div>
                             <div class="flex items-end justify-center">
-                                <p class="text-2xl font-bold text-blue-900 leading-none">{{ $statistics['sick'] }}</p>
-                                <p class="text-xs text-gray-500 ml-1">Sick</p>
+                                <p class="text-2xl font-bold leading-none text-blue-900">{{ $statistics['sick'] }}</p>
+                                <p class="ml-1 text-xs text-gray-500">Sick</p>
                             </div>
                             <div class="flex items-end justify-center">
-                                <p class="text-2xl font-bold text-blue-900 leading-none">{{ $statistics['pending'] }}</p>
-                                <p class="text-xs text-gray-500 ml-1">Pending</p>
+                                <p class="text-2xl font-bold leading-none text-blue-900">{{ $statistics['pending'] }}</p>
+                                <p class="ml-1 text-xs text-gray-500">Pending</p>
                             </div>
                         </div>
                     </div>
@@ -157,7 +157,7 @@
                     <!-- TABLE -->
                     <div class="overflow-x-auto">
                         <table class="w-full min-w-[800px] md:min-w-full text-sm text-left">
-                            <thead class="bg-gray-100 text-gray-500 text-xs">
+                            <thead class="text-xs text-gray-500 bg-gray-100">
                                 <tr>
                                     <th class="p-4 whitespace-nowrap">Name</th>
                                     <th class="p-4 whitespace-nowrap">Date</th>
@@ -178,10 +178,10 @@
                                                             urlencode($item->karyawan->nama_lengkap);
                                                 @endphp
                                                 <div
-                                                    class="w-9 h-9 rounded-full bg-blue-100 border border-blue-200 overflow-hidden shrink-0">
+                                                    class="overflow-hidden bg-blue-100 border border-blue-200 rounded-full w-9 h-9 shrink-0">
                                                     <img src="{{ $fotoUrl }}"
                                                         alt="{{ $item->karyawan->nama_lengkap }}"
-                                                        class="w-full h-full object-cover" loading="lazy">
+                                                        class="object-cover w-full h-full" loading="lazy">
                                                 </div>
                                                 <span
                                                     class="font-medium text-gray-800">{{ $item->karyawan->nama_lengkap }}</span>
@@ -228,7 +228,7 @@
                 </div>
 
                 <!-- RIGHT: CALENDAR -->
-                <div class="bg-white rounded-3xl shadow p-6">
+                <div class="p-6 bg-white shadow rounded-3xl">
                     <div id="calendarContainer"></div>
                 </div>
             </div>
@@ -237,16 +237,16 @@
 
     {{-- MODAL DETAIL PENGUMUMAN --}}
     <div id="detailModal" tabindex="-1" aria-hidden="true"
-        class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+        class="fixed inset-0 z-50 flex items-center justify-center hidden p-4 bg-black/50">
         <div class="relative w-full max-w-2xl">
-            <div class="bg-white rounded-3xl shadow-2xl overflow-hidden animate-fadeIn">
+            <div class="overflow-hidden bg-white shadow-2xl rounded-3xl animate-fadeIn">
                 <div class="flex items-center justify-between px-6 py-5 border-b border-gray-100">
                     <div>
                         <h3 class="text-xl font-bold text-blue-900">Announcements Detail</h3>
-                        <p class="text-sm text-gray-500 mt-1">Complete Announcements Information</p>
+                        <p class="mt-1 text-sm text-gray-500">Complete Announcements Information</p>
                     </div>
                     <button onclick="closeDetailModal()"
-                        class="w-10 h-10 rounded-xl hover:bg-gray-100 flex items-center justify-center transition">
+                        class="flex items-center justify-center w-10 h-10 transition rounded-xl hover:bg-gray-100">
                         <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M6 18L18 6M6 6l12 12" />
@@ -342,27 +342,27 @@
                 const lastDate = new Date(year, month + 1, 0).getDate();
 
                 let html = `
-                    <div class="calendar-header flex items-center justify-between mb-4">
+                    <div class="flex items-center justify-between mb-4 calendar-header">
                         <h2 class="text-xl font-semibold text-gray-800">${this.currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}</h2>
                         <div class="flex gap-2">
-                            <button class="calendar-prev w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 transition flex items-center justify-center">
+                            <button class="flex items-center justify-center w-8 h-8 transition bg-gray-100 rounded-lg calendar-prev hover:bg-gray-200">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                             </button>
-                            <button class="calendar-next w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 transition flex items-center justify-center">
+                            <button class="flex items-center justify-center w-8 h-8 transition bg-gray-100 rounded-lg calendar-next hover:bg-gray-200">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                             </button>
                         </div>
                     </div>
-                    <div class="calendar-weekdays grid grid-cols-7 gap-1 mb-2">
-                        <div class="text-center text-xs font-medium text-gray-400 py-2">Sun</div>
-                        <div class="text-center text-xs font-medium text-gray-400 py-2">Mon</div>
-                        <div class="text-center text-xs font-medium text-gray-400 py-2">Tue</div>
-                        <div class="text-center text-xs font-medium text-gray-400 py-2">Wed</div>
-                        <div class="text-center text-xs font-medium text-gray-400 py-2">Thu</div>
-                        <div class="text-center text-xs font-medium text-gray-400 py-2">Fri</div>
-                        <div class="text-center text-xs font-medium text-gray-400 py-2">Sat</div>
+                    <div class="grid grid-cols-7 gap-1 mb-2 calendar-weekdays">
+                        <div class="py-2 text-xs font-medium text-center text-gray-400">Sun</div>
+                        <div class="py-2 text-xs font-medium text-center text-gray-400">Mon</div>
+                        <div class="py-2 text-xs font-medium text-center text-gray-400">Tue</div>
+                        <div class="py-2 text-xs font-medium text-center text-gray-400">Wed</div>
+                        <div class="py-2 text-xs font-medium text-center text-gray-400">Thu</div>
+                        <div class="py-2 text-xs font-medium text-center text-gray-400">Fri</div>
+                        <div class="py-2 text-xs font-medium text-center text-gray-400">Sat</div>
                     </div>
-                    <div class="calendar-days grid grid-cols-7 gap-1">
+                    <div class="grid grid-cols-7 gap-1 calendar-days">
                 `;
 
                 for (let i = 0; i < firstDay; i++) html += `<div class="aspect-square"></div>`;
@@ -373,7 +373,7 @@
                     const dayEvents = this.getEventsForDate(dateStr);
                     html += `
                         <div class="calendar-day aspect-square p-1 ${isToday ? 'ring-2 ring-blue-500 rounded-lg' : ''}" data-date="${dateStr}">
-                            <button class="day-btn w-full h-full rounded-lg hover:bg-gray-50 transition flex flex-col items-center justify-start p-1">
+                            <button class="flex flex-col items-center justify-start w-full h-full p-1 transition rounded-lg day-btn hover:bg-gray-50">
                                 <span class="text-sm font-medium ${isToday ? 'text-blue-600' : 'text-gray-700'}">${day}</span>
                                 <div class="event-indicators mt-1 flex flex-wrap gap-0.5 justify-center">${this.getEventIndicators(dayEvents)}</div>
                             </button>
@@ -415,7 +415,7 @@
                 const topEvents = events.slice(0, 3);
                 return topEvents.map(event =>
                     `<div class="w-1.5 h-1.5 rounded-full ${colors[event.color] || 'bg-gray-500'}" title="${event.title}"></div>`
-                    ).join('');
+                ).join('');
             }
 
             isToday(year, month, day) {
@@ -463,7 +463,7 @@
                     return;
                 }
 
-                let eventListHtml = '<div class="space-y-2 max-h-96 overflow-y-auto">';
+                let eventListHtml = '<div class="space-y-2 overflow-y-auto max-h-96">';
                 const colorBg = {
                     'blue': 'bg-blue-100',
                     'green': 'bg-green-100',
@@ -474,7 +474,7 @@
 
                 events.forEach(event => {
                     eventListHtml += `
-                        <div class="p-3 rounded-xl border border-gray-100 hover:bg-gray-50 cursor-pointer transition"
+                        <div class="p-3 transition border border-gray-100 cursor-pointer rounded-xl hover:bg-gray-50"
                              onclick="openEventDetailModal('${event.id}', '${event.type}'); Swal.close();">
                             <div class="flex items-center gap-3">
                                 <div class="w-8 h-8 rounded-full ${colorBg[event.color] || 'bg-gray-100'} flex items-center justify-center">
@@ -533,42 +533,64 @@
                     };
                     const badgeClass = categoryClass[data.kategori] || 'bg-gray-100 text-gray-700';
                     const publishDate = data.tanggal_terbit ? new Date(data.tanggal_terbit).toLocaleDateString(
-                    'id-ID', {
-                        day: '2-digit',
-                        month: 'long',
-                        year: 'numeric'
-                    }) : '-';
+                        'id-ID', {
+                            day: '2-digit',
+                            month: 'long',
+                            year: 'numeric'
+                        }) : '-';
 
                     const content = `
                         <div class="space-y-6">
-                            <div class="border-b border-gray-100 pb-4">
-                                <h4 class="text-2xl font-bold text-gray-800 leading-snug">${escapeHtml(data.judul)}</h4>
-                                <div class="flex items-center gap-2 mt-3 flex-wrap">
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${badgeClass}">${data.kategori ? data.kategori.charAt(0).toUpperCase() + data.kategori.slice(1) : 'Uncategorized'}</span>
+                            <div class="pb-4 border-b border-gray-100">
+                                <h4 class="text-2xl font-bold leading-snug text-gray-800">${escapeHtml(data.judul)}</h4>
+                                <div class="flex flex-wrap items-center gap-2 mt-3">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${badgeClass}">
+                                        ${ ({ 'umum': 'General', 'kebijakan': 'Policy', 'pengumuman': 'Announcement', 'event': 'Event', 'penting': 'Important' })[data.kategori] || 'Uncategorized' }
+                                    </span>
                                     <span class="text-xs text-gray-400">Published ${publishDate}</span>
                                 </div>
                             </div>
-                            <div class="bg-gray-50 border border-gray-100 rounded-2xl p-5">
+                            <div class="p-5 border border-gray-100 bg-gray-50 rounded-2xl">
                                 <p class="text-sm leading-7 text-gray-700 whitespace-pre-line">${escapeHtml(data.konten)}</p>
                             </div>
-                            ${data.lampiran ? `
-                                    <div class="border border-blue-100 bg-blue-50 rounded-2xl p-4">
-                                        <div class="flex items-center justify-between flex-wrap gap-3">
-                                            <div class="flex items-center gap-3">
-                                                <div class="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
-                                                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 16v-8m0 0l-3 3m3-3l3 3M5 20h14"/>
-                                                    </svg>
-                                                </div>
-                                                <div>
-                                                    <p class="text-sm font-medium text-gray-800">Attachment</p>
-                                                    <p class="text-xs text-gray-500">Click to ciew file</p>
-                                                </div>
-                                            </div>
-                                            <a href="/storage/${data.lampiran}" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm transition">View File</a>
-                                        </div>
-                                    </div>
-                                ` : ''}
+                            <!-- ATTACHMENT -->
+                                        ${data.lampiran ?
+                                        `
+                                                        <div class="space-y-3">
+                                                            <h5 class="text-sm font-semibold text-gray-700">
+                                                                Attachment
+                                                            </h5>
+
+                                                            ${
+                                                                /\.(jpg|jpeg|png|gif|webp)$/i.test(data.lampiran)
+                                                                ? `
+                                                    <img
+                                                        src="/storage/${data.lampiran}"
+                                                        alt="Lampiran"
+                                                        class="w-full border border-gray-200 rounded-xl"
+                                                    >
+                                                `
+                                                                : /\.(pdf)$/i.test(data.lampiran)
+                                                                ? `
+                                                    <iframe
+                                                        src="/storage/${data.lampiran}"
+                                                        class="w-full h-[600px] rounded-xl border border-gray-200"
+                                                    ></iframe>
+                                                `
+                                                                : `
+                                                    <div class="p-4 border border-blue-100 bg-blue-50 rounded-2xl">
+                                                        <a href="/storage/${data.lampiran}"
+                                                            target="_blank"
+                                                            class="inline-flex items-center gap-2 px-4 py-2 text-sm text-white bg-blue-600 rounded-xl hover:bg-blue-700">
+                                                            Download Attachment
+                                                        </a>
+                                                    </div>
+                                                `
+                                                            }
+                                                        </div>
+                                                    `
+                                    : ''
+                                }
                         </div>
                     `;
                     document.getElementById('detailContent').innerHTML = content;

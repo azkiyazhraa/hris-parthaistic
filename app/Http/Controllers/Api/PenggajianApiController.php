@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Penggajian;
 use App\Models\Karyawan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 
 class PenggajianApiController extends Controller
@@ -19,36 +20,36 @@ class PenggajianApiController extends Controller
         try {
             $query = Penggajian::with(['karyawan:id,nama_lengkap,nip,email', 'pembuat:id,nama_lengkap', 'getPayslipSentByUser:id,nama_lengkap'])
                 ->orderBy('created_at', 'desc');
-            
+
             // Filter by karyawan_id
             if ($request->has('karyawan_id') && $request->karyawan_id) {
                 $query->where('karyawan_id', $request->karyawan_id);
             }
-            
+
             // Filter by bulan
             if ($request->has('bulan') && $request->bulan) {
                 $query->where('bulan', $request->bulan);
             }
-            
+
             // Filter by tahun
             if ($request->has('tahun') && $request->tahun) {
                 $query->where('tahun', $request->tahun);
             }
-            
+
             // Filter by status
             if ($request->has('status') && $request->status) {
                 $query->where('status', $request->status);
             }
-            
+
             // Search by nama karyawan
             if ($request->has('search') && $request->search) {
                 $query->where('nama_karyawan', 'like', '%' . $request->search . '%');
             }
-            
+
             // Pagination
             $perPage = $request->get('per_page', 15);
             $penggajian = $query->paginate($perPage);
-            
+
             // Transform data
             $penggajian->getCollection()->transform(function ($item) {
                 return [
@@ -88,7 +89,7 @@ class PenggajianApiController extends Controller
                     'karyawan' => $item->karyawan
                 ];
             });
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Data penggajian berhasil diambil',
@@ -102,7 +103,6 @@ class PenggajianApiController extends Controller
                     'to' => $penggajian->lastItem()
                 ]
             ], 200);
-            
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -111,7 +111,7 @@ class PenggajianApiController extends Controller
             ], 500);
         }
     }
-    
+
     /**
      * Display the specified penggajian.
      * GET /api/v1/penggajian/{id}
@@ -121,14 +121,14 @@ class PenggajianApiController extends Controller
         try {
             $penggajian = Penggajian::with(['karyawan:id,nama_lengkap,nip,email,role,status', 'pembuat:id,nama_lengkap', 'getPayslipSentByUser:id,nama_lengkap'])
                 ->find($id);
-            
+
             if (!$penggajian) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Data penggajian tidak ditemukan'
                 ], 404);
             }
-            
+
             // Add calculated fields
             $data = $penggajian->toArray();
             $data['bulan_text'] = $penggajian->bulan_text;
@@ -137,13 +137,12 @@ class PenggajianApiController extends Controller
             $data['calculated_total_earnings'] = (float) $penggajian->calculateTotalEarnings();
             $data['calculated_total_deductions'] = (float) $penggajian->calculateTotalDeductions();
             $data['calculated_net_salary'] = (float) $penggajian->calculateNetSalary();
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Detail penggajian berhasil diambil',
                 'data' => $data
             ], 200);
-            
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -152,7 +151,7 @@ class PenggajianApiController extends Controller
             ], 500);
         }
     }
-    
+
     /**
      * Store a newly created penggajian.
      * POST /api/v1/penggajian
@@ -183,7 +182,7 @@ class PenggajianApiController extends Controller
                 'catatan' => 'nullable|string',
                 'dibuat_oleh' => 'required|string|max:255'
             ]);
-            
+
             if ($validator->fails()) {
                 return response()->json([
                     'success' => false,
@@ -191,31 +190,31 @@ class PenggajianApiController extends Controller
                     'errors' => $validator->errors()
                 ], 422);
             }
-            
+
             // Check duplicate
             $exists = Penggajian::where('karyawan_id', $request->karyawan_id)
                 ->where('bulan', $request->bulan)
                 ->where('tahun', $request->tahun)
                 ->exists();
-            
+
             if ($exists) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Penggajian untuk karyawan ini pada periode ' . 
-                               $request->bulan . '/' . $request->tahun . ' sudah ada'
+                    'message' => 'Penggajian untuk karyawan ini pada periode ' .
+                        $request->bulan . '/' . $request->tahun . ' sudah ada'
                 ], 409);
             }
-            
+
             // Get karyawan data
             $karyawan = Karyawan::find($request->karyawan_id);
-            
+
             if (!$karyawan) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Karyawan tidak ditemukan'
                 ], 404);
             }
-            
+
             // Create penggajian
             $penggajian = new Penggajian();
             $penggajian->karyawan_id = $request->karyawan_id;
@@ -240,10 +239,10 @@ class PenggajianApiController extends Controller
             $penggajian->status = $request->status;
             $penggajian->catatan = $request->catatan;
             $penggajian->dibuat_oleh = $request->dibuat_oleh;
-            
+
             // Calculate totals
             $penggajian->updateCalculations();
-            
+
             // Set detail_gaji
             $penggajian->detail_gaji = json_encode([
                 'gaji_pokok' => $penggajian->gaji_pokok,
@@ -263,18 +262,17 @@ class PenggajianApiController extends Controller
                 'created_by' => $request->dibuat_oleh,
                 'created_at' => now()->toDateTimeString()
             ]);
-            
+
             $penggajian->save();
-            
+
             // Load relations
             $penggajian->load(['karyawan:id,nama_lengkap,nip,email', 'pembuat:id,nama_lengkap']);
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Penggajian berhasil ditambahkan',
                 'data' => $penggajian
             ], 201);
-            
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -283,7 +281,7 @@ class PenggajianApiController extends Controller
             ], 500);
         }
     }
-    
+
     /**
      * Update the specified penggajian.
      * PUT/PATCH /api/v1/penggajian/{id}
@@ -292,14 +290,14 @@ class PenggajianApiController extends Controller
     {
         try {
             $penggajian = Penggajian::find($id);
-            
+
             if (!$penggajian) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Data penggajian tidak ditemukan'
                 ], 404);
             }
-            
+
             // Prevent update if status is paid
             if ($penggajian->status === 'paid') {
                 return response()->json([
@@ -307,7 +305,7 @@ class PenggajianApiController extends Controller
                     'message' => 'Penggajian yang sudah dibayar tidak dapat diubah'
                 ], 422);
             }
-            
+
             $validator = Validator::make($request->all(), [
                 'karyawan_id' => 'sometimes|exists:karyawans,id',
                 'bulan' => 'sometimes|integer|min:1|max:12',
@@ -331,7 +329,7 @@ class PenggajianApiController extends Controller
                 'catatan' => 'nullable|string',
                 'dibuat_oleh' => 'sometimes|string|max:255'
             ]);
-            
+
             if ($validator->fails()) {
                 return response()->json([
                     'success' => false,
@@ -339,23 +337,38 @@ class PenggajianApiController extends Controller
                     'errors' => $validator->errors()
                 ], 422);
             }
-            
+
             // Update fields
             $fillableFields = [
-                'karyawan_id', 'bulan', 'tahun', 'gaji_pokok', 
-                'transport_allowance', 'meal_allowance', 'internet_allowance',
-                'position_allowance', 'incentive', 'tax', 'bpjs_kesehatan',
-                'bpjs_ketenagakerjaan', 'late_absent_deduction', 'loan_deduction',
-                'tanggal_pembayaran', 'metode_pembayaran', 'nama_bank',
-                'nomor_rekening', 'status', 'catatan', 'dibuat_oleh'
+                'karyawan_id',
+                'bulan',
+                'tahun',
+                'gaji_pokok',
+                'transport_allowance',
+                'meal_allowance',
+                'internet_allowance',
+                'position_allowance',
+                'incentive',
+                'tax',
+                'bpjs_kesehatan',
+                'bpjs_ketenagakerjaan',
+                'late_absent_deduction',
+                'loan_deduction',
+                'tanggal_pembayaran',
+                'metode_pembayaran',
+                'nama_bank',
+                'nomor_rekening',
+                'status',
+                'catatan',
+                'dibuat_oleh'
             ];
-            
+
             foreach ($fillableFields as $field) {
                 if ($request->has($field)) {
                     $penggajian->$field = $request->$field;
                 }
             }
-            
+
             // Update nama_karyawan if karyawan_id changed
             if ($request->has('karyawan_id')) {
                 $karyawan = Karyawan::find($request->karyawan_id);
@@ -363,27 +376,26 @@ class PenggajianApiController extends Controller
                     $penggajian->nama_karyawan = $karyawan->nama_lengkap;
                 }
             }
-            
+
             // Recalculate totals
             $penggajian->updateCalculations();
-            
+
             // Update detail_gaji
             $detailGaji = json_decode($penggajian->detail_gaji ?? '{}', true);
             $detailGaji['updated_by'] = $request->dibuat_oleh ?? $penggajian->dibuat_oleh;
             $detailGaji['updated_at'] = now()->toDateTimeString();
             $penggajian->detail_gaji = json_encode($detailGaji);
-            
+
             $penggajian->save();
-            
+
             // Load relations
             $penggajian->load(['karyawan:id,nama_lengkap,nip,email', 'pembuat:id,nama_lengkap']);
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Penggajian berhasil diupdate',
                 'data' => $penggajian
             ], 200);
-            
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -392,7 +404,7 @@ class PenggajianApiController extends Controller
             ], 500);
         }
     }
-    
+
     /**
      * Remove the specified penggajian.
      * DELETE /api/v1/penggajian/{id}
@@ -401,14 +413,14 @@ class PenggajianApiController extends Controller
     {
         try {
             $penggajian = Penggajian::find($id);
-            
+
             if (!$penggajian) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Data penggajian tidak ditemukan'
                 ], 404);
             }
-            
+
             // Prevent delete if status is paid or approved
             if (in_array($penggajian->status, ['paid', 'approved'])) {
                 return response()->json([
@@ -416,14 +428,13 @@ class PenggajianApiController extends Controller
                     'message' => 'Penggajian dengan status ' . $penggajian->status . ' tidak dapat dihapus'
                 ], 422);
             }
-            
+
             $penggajian->delete();
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Penggajian berhasil dihapus'
             ], 200);
-            
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -432,7 +443,7 @@ class PenggajianApiController extends Controller
             ], 500);
         }
     }
-    
+
     /**
      * Update status penggajian.
      * PATCH /api/v1/penggajian/{id}/status
@@ -441,14 +452,14 @@ class PenggajianApiController extends Controller
     {
         try {
             $penggajian = Penggajian::find($id);
-            
+
             if (!$penggajian) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Data penggajian tidak ditemukan'
                 ], 404);
             }
-            
+
             $validator = Validator::make($request->all(), [
                 'status' => 'required|in:draft,pending,approved,paid,cancelled',
                 'tanggal_pembayaran' => 'required_if:status,paid|nullable|date',
@@ -458,7 +469,7 @@ class PenggajianApiController extends Controller
                 'catatan' => 'nullable|string',
                 'updated_by' => 'required|string|max:255'
             ]);
-            
+
             if ($validator->fails()) {
                 return response()->json([
                     'success' => false,
@@ -466,7 +477,7 @@ class PenggajianApiController extends Controller
                     'errors' => $validator->errors()
                 ], 422);
             }
-            
+
             // Validate status transition
             $validTransitions = [
                 'draft' => ['pending', 'cancelled'],
@@ -475,17 +486,17 @@ class PenggajianApiController extends Controller
                 'paid' => [],
                 'cancelled' => ['draft']
             ];
-            
+
             if (!in_array($request->status, $validTransitions[$penggajian->status] ?? [])) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Transisi status dari ' . $penggajian->status . 
-                               ' ke ' . $request->status . ' tidak valid'
+                    'message' => 'Transisi status dari ' . $penggajian->status .
+                        ' ke ' . $request->status . ' tidak valid'
                 ], 422);
             }
-            
+
             $penggajian->status = $request->status;
-            
+
             // If status is paid, set payment details
             if ($request->status === 'paid') {
                 $penggajian->tanggal_pembayaran = $request->tanggal_pembayaran ?? now()->format('Y-m-d');
@@ -494,22 +505,29 @@ class PenggajianApiController extends Controller
                 $penggajian->nomor_rekening = $request->nomor_rekening;
                 $penggajian->payslip_sent_at = now();
                 $penggajian->payslip_sent_by = $request->updated_by;
+
+                // update status paid dan hit ke api parthafin
+                Http::post(env('PARTHAFIN_API_URL') . '/expense-salary', [
+                    "category_id" => 6,
+                    "date" => $penggajian->tanggal_pembayaran,
+                    "amount" => $penggajian->net_salary,
+                    "description" => "gaji a.n " . $penggajian->karyawan->nama_lengkap,
+                ]);
             }
-            
+
             if ($request->has('catatan')) {
                 $penggajian->catatan = $request->catatan;
             }
-            
+
             $penggajian->save();
-            
+
             $penggajian->load(['karyawan:id,nama_lengkap,nip,email', 'getPayslipSentByUser:id,nama_lengkap']);
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Status penggajian berhasil diupdate menjadi ' . $request->status,
                 'data' => $penggajian
             ], 200);
-            
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -518,7 +536,7 @@ class PenggajianApiController extends Controller
             ], 500);
         }
     }
-    
+
     /**
      * Get penggajian by karyawan.
      * GET /api/v1/penggajian/karyawan/{karyawan_id}
@@ -527,30 +545,30 @@ class PenggajianApiController extends Controller
     {
         try {
             $karyawan = Karyawan::find($karyawan_id);
-            
+
             if (!$karyawan) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Karyawan tidak ditemukan'
                 ], 404);
             }
-            
+
             $query = Penggajian::where('karyawan_id', $karyawan_id)
                 ->orderBy('tahun', 'desc')
                 ->orderBy('bulan', 'desc');
-            
+
             if ($request->has('tahun') && $request->tahun) {
                 $query->where('tahun', $request->tahun);
             }
-            
+
             if ($request->has('status') && $request->status) {
                 $query->where('status', $request->status);
             }
-            
+
             // Pagination
             $perPage = $request->get('per_page', 15);
             $penggajian = $query->paginate($perPage);
-            
+
             // Calculate statistics
             $allPenggajian = Penggajian::where('karyawan_id', $karyawan_id)->get();
             $statistics = [
@@ -567,7 +585,7 @@ class PenggajianApiController extends Controller
                 'total_earnings' => (float) $allPenggajian->sum('total_earnings'),
                 'total_deductions' => (float) $allPenggajian->sum('total_deductions')
             ];
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Data penggajian karyawan berhasil diambil',
@@ -591,7 +609,6 @@ class PenggajianApiController extends Controller
                 ],
                 'total' => $penggajian->total()
             ], 200);
-            
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -600,7 +617,7 @@ class PenggajianApiController extends Controller
             ], 500);
         }
     }
-    
+
     /**
      * Get summary/report penggajian.
      * GET /api/v1/penggajian/summary
@@ -609,21 +626,21 @@ class PenggajianApiController extends Controller
     {
         try {
             $query = Penggajian::query();
-            
+
             $tahun = $request->get('tahun', date('Y'));
             $query->where('tahun', $tahun);
-            
+
             if ($request->has('bulan') && $request->bulan) {
                 $query->where('bulan', $request->bulan);
             }
-            
+
             if ($request->has('status') && $request->status) {
                 $query->where('status', $request->status);
             }
-            
+
             $totalKaryawan = (clone $query)->distinct('karyawan_id')->count('karyawan_id');
             $totalTransaksi = (clone $query)->count();
-            
+
             $summary = [
                 'periode' => [
                     'tahun' => (int) $tahun,
@@ -649,7 +666,7 @@ class PenggajianApiController extends Controller
                     'total_deductions' => (float) (clone $query)->sum('total_deductions')
                 ],
                 'total_net_salary' => (float) (clone $query)->sum('net_salary'),
-                'rata_rata_per_karyawan' => $totalKaryawan > 0 ? 
+                'rata_rata_per_karyawan' => $totalKaryawan > 0 ?
                     (float) ((clone $query)->sum('net_salary') / $totalKaryawan) : 0,
                 'by_status' => [
                     'draft' => (clone $query)->where('status', 'draft')->count(),
@@ -659,13 +676,12 @@ class PenggajianApiController extends Controller
                     'cancelled' => (clone $query)->where('status', 'cancelled')->count()
                 ]
             ];
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Ringkasan penggajian berhasil diambil',
                 'data' => $summary
             ], 200);
-            
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -674,7 +690,7 @@ class PenggajianApiController extends Controller
             ], 500);
         }
     }
-    
+
     /**
      * Send payslip to karyawan.
      * POST /api/v1/penggajian/{id}/send-payslip
@@ -683,26 +699,26 @@ class PenggajianApiController extends Controller
     {
         try {
             $penggajian = Penggajian::with('karyawan')->find($id);
-            
+
             if (!$penggajian) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Data penggajian tidak ditemukan'
                 ], 404);
             }
-            
+
             if ($penggajian->isPayslipSent()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Payslip sudah pernah dikirim pada ' . 
-                               $penggajian->payslip_sent_at->format('d F Y H:i:s')
+                    'message' => 'Payslip sudah pernah dikirim pada ' .
+                        $penggajian->payslip_sent_at->format('d F Y H:i:s')
                 ], 422);
             }
-            
+
             $validator = Validator::make($request->all(), [
                 'sent_by' => 'required|string|max:255'
             ]);
-            
+
             if ($validator->fails()) {
                 return response()->json([
                     'success' => false,
@@ -710,12 +726,12 @@ class PenggajianApiController extends Controller
                     'errors' => $validator->errors()
                 ], 422);
             }
-            
+
             // Update payslip sent info
             $penggajian->payslip_sent_at = now();
             $penggajian->payslip_sent_by = $request->sent_by;
             $penggajian->save();
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Payslip berhasil dikirim',
@@ -727,7 +743,6 @@ class PenggajianApiController extends Controller
                     'sent_by' => $penggajian->payslip_sent_by
                 ]
             ], 200);
-            
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

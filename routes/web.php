@@ -145,6 +145,8 @@ Route::middleware(['auth', 'admin'])
         Route::get('/karyawan/{id}/show-password', [AdminDashboardController::class, 'showPassword'])->name('karyawan.show-password');
         Route::get('/karyawan/{id}/employee-detail', [AdminDashboardController::class, 'getEmployeeDetail'])->name('karyawan.employee-detail');
 
+        Route::get('/karyawan/detail/{id}', [AdminDashboardController::class, 'karyawanDetail'])->name('karyawan.detail');
+
         // Absensi Management for Admin/HR
         Route::prefix('absensi')
             ->name('absensi.')

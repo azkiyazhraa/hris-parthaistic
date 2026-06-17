@@ -1,11 +1,11 @@
 <div id="requestLeaveModal" tabindex="-1" aria-hidden="true"
-    class="hidden fixed inset-0 z-50 flex justify-center items-center bg-black/40">
+    class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black/40">
     <div class="relative w-full max-w-xl p-4">
-        <div class="bg-white rounded-3xl shadow-lg p-6">
-            <div class="flex justify-between items-center border-b pb-4">
+        <div class="p-6 bg-white shadow-lg rounded-3xl">
+            <div class="flex items-center justify-between pb-4 border-b">
                 <h3 class="text-lg font-semibold text-blue-900">Request Leave</h3>
                 <button data-modal-hide="requestLeaveModal"
-                    class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100">✕</button>
+                    class="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100">✕</button>
             </div>
             <div class="max-h-[80vh] overflow-y-auto p-4">
                 <form method="POST" action="{{ route('cuti.store') }}" enctype="multipart/form-data" class="space-y-5">
@@ -13,88 +13,58 @@
 
                     <!-- JENIS CUTI -->
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        <label class="block mb-2 text-sm font-semibold text-gray-700">
                             Type of Leave
                             <span class="text-red-500">*</span>
                         </label>
 
                         <select name="jenis_cuti" required
-                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
+                            class="w-full px-4 py-3 text-sm transition border border-gray-300 outline-none rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                             <option value="">Select Leave Type</option>
-                        
+
                             <option value="tahunan" {{ old('jenis_cuti') == 'tahunan' ? 'selected' : '' }}>
                                 Annual Leave (Remaining: {{ $sisaTahunan }} days)
                             </option>
-                        
-                            <option value="sakit" {{ old('jenis_cuti') == 'sakit' ? 'selected' : '' }}>
-                                Sick Leave
-                            </option>
-                        
+
                             <option value="melahirkan" {{ old('jenis_cuti') == 'melahirkan' ? 'selected' : '' }}>
                                 Maternity Leave
-                            </option>
-                        
-                            <option value="penting" {{ old('jenis_cuti') == 'penting' ? 'selected' : '' }}>
-                                Personal Leave
-                            </option>
-                        
-                            <option value="ibadah" {{ old('jenis_cuti') == 'ibadah' ? 'selected' : '' }}>
-                                Religious Leave
-                            </option>
-                        
-                            <option value="lainnya" {{ old('jenis_cuti') == 'lainnya' ? 'selected' : '' }}>
-                                Other Leave
                             </option>
                         </select>
                     </div>
 
                     <!-- TANGGAL -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
 
                         <div>
-    <label class="block text-sm font-semibold text-gray-700 mb-2">
-        Start Date
-        <span class="text-red-500">*</span>
-    </label>
+                            <label class="block mb-2 text-sm font-semibold text-gray-700">
+                                Start Date
+                                <span class="text-red-500">*</span>
+                            </label>
 
-    <input type="date" name="tanggal_mulai" value="{{ old('tanggal_mulai') }}" required
-        class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
-</div>
+                            <input type="date" name="tanggal_mulai" value="{{ old('tanggal_mulai') }}" required
+                                class="w-full px-4 py-3 text-sm transition border border-gray-300 outline-none rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
 
-<div>
-    <label class="block text-sm font-semibold text-gray-700 mb-2">
-        End Date
-        <span class="text-red-500">*</span>
-    </label>
+                        <div>
+                            <label class="block mb-2 text-sm font-semibold text-gray-700">
+                                End Date
+                                <span class="text-red-500">*</span>
+                            </label>
 
                             <input type="date" name="tanggal_selesai" value="{{ old('tanggal_selesai') }}" required
-                                class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
+                                class="w-full px-4 py-3 text-sm transition border border-gray-300 outline-none rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         </div>
                     </div>
 
                     <!-- ALASAN -->
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        <label class="block mb-2 text-sm font-semibold text-gray-700">
                             Reason
                             <span class="text-red-500">*</span>
                         </label>
 
                         <textarea name="alasan" rows="5" required placeholder="Write your leave request reason..."
-                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">{{ old('alasan') }}</textarea>
-                    </div>
-
-                    <!-- FILE -->
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">
-                            Attachment
-                            <span class="text-gray-400 text-xs">(Opsional)</span>
-                        </label>
-
-                        <input type="file" name="lampiran"
-                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
-                        <p class="text-xs text-gray-500 mt-3">
-                            Maximum size 5MB • PDF, DOC, DOCX, JPG, JPEG, PNG
-                        </p>
+                            class="w-full px-4 py-3 text-sm transition border border-gray-300 outline-none resize-none rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ old('alasan') }}</textarea>
                     </div>
 
                     <!-- FOOTER -->
