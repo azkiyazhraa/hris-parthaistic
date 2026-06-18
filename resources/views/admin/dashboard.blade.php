@@ -93,29 +93,99 @@
                         @include('components.Announcements.create')
                     </div>
 
-                    <div class="space-y-3 text-sm text-gray-600">
-                        @foreach ($attachment as $item)
-                            <div>
-                                <a onclick="showDetail({{ $item->id }})" href="javascript:void(0)"
-                                    class="cursor-pointer">
-                                    <div class="flex justify-between text-sm">
-                                        <span
-                                            class="font-medium">{{ \Illuminate\Support\Str::limit($item->judul, 20, '...') }}</span>
-                                        <span
-                                            class="text-{{ $item->status == 1 ? 'green' : 'yellow' }}-500 text-xs">{{ $item->tanggal_terbit->format('d M Y') }}</span>
-                                    </div>
-                                    <p class="text-xs text-gray-400">
-                                        {{ \Illuminate\Support\Str::words($item->konten, 10, '...') }}
-                                    </p>
-                                </a>
-                            </div>
-                        @endforeach
-                    </div>
+                    @if ($attachment->count() > 1)
+                        <div class="space-y-3 text-sm text-gray-600">
+                            @foreach ($attachment as $item)
+                                <div>
+                                    <a onclick="showDetail({{ $item->id }})" href="javascript:void(0)"
+                                        class="cursor-pointer">
 
-                    <div class="mt-3 text-right">
-                        <a href="{{ route('admin.pengumuman.index') }}" class="text-xs text-cyan-500 hover:underline">View
-                            All</a>
-                    </div>
+                                        <div class="flex justify-between text-sm">
+                                            <span class="font-medium">
+                                                {{ \Illuminate\Support\Str::limit($item->judul, 20, '...') }}
+                                            </span>
+
+                                            <span class="text-{{ $item->status == 1 ? 'green' : 'yellow' }}-500 text-xs">
+                                                {{ $item->tanggal_terbit->format('d M Y') }}
+                                            </span>
+                                        </div>
+
+                                        <p class="text-xs text-gray-400">
+                                            {{ \Illuminate\Support\Str::words($item->konten, 10, '...') }}
+                                        </p>
+                                    </a>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <div class="mt-3 text-right">
+                            <a href="{{ route('admin.pengumuman.index') }}" class="text-xs text-cyan-500 hover:underline">
+                                View All
+                            </a>
+                        </div>
+                    @elseif($attachment->count() === 1)
+                        @php
+                            $item = $attachment->first();
+                        @endphp
+
+                        <div class="space-y-3">
+                            @if ($item->gambar)
+                                <img src="{{ asset('storage/' . $item->gambar) }}" alt="{{ $item->judul }}"
+                                    class="object-cover w-full rounded-lg">
+                            @endif
+
+                            <div>
+                                <h4 class="font-semibold text-gray-800">
+                                    {{ $item->judul }}
+                                </h4>
+
+                                <p class="mt-1 text-xs text-gray-500">
+                                    {{ $item->tanggal_terbit->format('d F Y') }}
+                                </p>
+
+                                @php
+                                    $contentText = strip_tags($item->konten);
+                                @endphp
+
+                                <div class="mt-3 text-xs text-gray-600">
+                                    {{ \Illuminate\Support\Str::limit($contentText, 100, '...') }}
+                                </div>
+
+                                @if (strlen($contentText) > 10)
+                                    <div class="mt-4 text-right">
+                                        <a href="javascript:void(0)" onclick="showDetail({{ $item->id }})"
+                                            class="text-xs text-cyan-500 hover:underline">
+                                            Read More
+                                        </a>
+                                    </div>
+                                @endif
+
+                                @if ($item->lampiran)
+                                    <div class="mt-4 space-y-3">
+                                        <h5 class="text-sm font-semibold text-gray-700">
+                                            Attachment
+                                        </h5>
+
+                                        @if (preg_match('/\.(jpg|jpeg|png|gif|webp)$/i', $item->lampiran))
+                                            <img src="{{ asset('storage/' . $item->lampiran) }}" alt="Lampiran"
+                                                class="w-full border border-gray-200 rounded-xl">
+                                        @elseif (preg_match('/\.pdf$/i', $item->lampiran))
+                                            <iframe src="{{ asset('storage/' . $item->lampiran) }}"
+                                                class="w-full h-[600px] rounded-xl border border-gray-200">
+                                            </iframe>
+                                        @else
+                                            <div class="p-4 border border-blue-100 bg-blue-50 rounded-2xl">
+                                                <a href="{{ asset('storage/' . $item->lampiran) }}" target="_blank"
+                                                    class="inline-flex items-center gap-2 px-4 py-2 text-sm text-white bg-blue-600 rounded-xl hover:bg-blue-700">
+                                                    Download Attachment
+                                                </a>
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -556,28 +626,28 @@
                             <!-- ATTACHMENT -->
                                         ${data.lampiran ?
                                         `
-                                                        <div class="space-y-3">
-                                                            <h5 class="text-sm font-semibold text-gray-700">
-                                                                Attachment
-                                                            </h5>
+                                                                                                            <div class="space-y-3">
+                                                                                                                <h5 class="text-sm font-semibold text-gray-700">
+                                                                                                                    Attachment
+                                                                                                                </h5>
 
-                                                            ${
-                                                                /\.(jpg|jpeg|png|gif|webp)$/i.test(data.lampiran)
-                                                                ? `
+                                                                                                                ${
+                                                                                                                    /\.(jpg|jpeg|png|gif|webp)$/i.test(data.lampiran)
+                                                                                                                    ? `
                                                     <img
                                                         src="/storage/${data.lampiran}"
                                                         alt="Lampiran"
                                                         class="w-full border border-gray-200 rounded-xl"
                                                     >
                                                 `
-                                                                : /\.(pdf)$/i.test(data.lampiran)
-                                                                ? `
+                                                                                                                    : /\.(pdf)$/i.test(data.lampiran)
+                                                                                                                    ? `
                                                     <iframe
                                                         src="/storage/${data.lampiran}"
                                                         class="w-full h-[600px] rounded-xl border border-gray-200"
                                                     ></iframe>
                                                 `
-                                                                : `
+                                                                                                                    : `
                                                     <div class="p-4 border border-blue-100 bg-blue-50 rounded-2xl">
                                                         <a href="/storage/${data.lampiran}"
                                                             target="_blank"
@@ -586,9 +656,9 @@
                                                         </a>
                                                     </div>
                                                 `
-                                                            }
-                                                        </div>
-                                                    `
+                                                                                                                }
+                                                                                                            </div>
+                                                                                                        `
                                     : ''
                                 }
                         </div>

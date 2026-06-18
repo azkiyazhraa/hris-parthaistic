@@ -59,6 +59,14 @@ class LeaveController extends Controller
             'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
             'alasan' => 'required|string|min:10',
             'lampiran' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
+        ], [
+            'jenis_cuti.required' => 'Leave type is required.',
+            'tanggal_mulai.required' => 'Start date is required.',
+            'tanggal_selesai.required' => 'End date is required.',
+            'alasan.required' => 'Reason for leave is required.',
+            'alasan.min' => 'Reason for leave must be at least 10 characters.',
+            'lampiran.mimes' => 'File type must be PDF, DOC, DOCX, JPG, JPEG, or PNG.',
+            'lampiran.max' => 'File size must be less than 5MB.',
         ]);
 
         $karyawan = Karyawan::find(Auth::id());
@@ -75,7 +83,7 @@ class LeaveController extends Controller
             $sisaKuota = 12 - $kuotaTerpakai;
 
             if ($totalHari > $sisaKuota) {
-                return redirect()->back()->with('error', 'Insufficient annual leave quota. Remaining quota: '.$sisaKuota.' days')->withInput();
+                return redirect()->back()->with('error', 'Insufficient annual leave quota. Remaining quota: ' . $sisaKuota . ' days')->withInput();
             }
         }
 
@@ -165,7 +173,7 @@ class LeaveController extends Controller
             $sisaKuota = 12 - $kuotaTerpakai;
 
             if ($totalHari > $sisaKuota) {
-                return redirect()->back()->with('error', 'Insufficient annual leave quota. Remaining quota: '.$sisaKuota.' days')->withInput();
+                return redirect()->back()->with('error', 'Insufficient annual leave quota. Remaining quota: ' . $sisaKuota . ' days')->withInput();
             }
         }
 
@@ -274,10 +282,10 @@ class LeaveController extends Controller
         $cuti->save();
 
         $statusText = $request->status == 'disetujui' ? 'approved' : 'rejected';
-        $message = 'Your leave request for '.Carbon::parse($cuti->tanggal_mulai)->format('d/m/Y').' - '.Carbon::parse($cuti->tanggal_selesai)->format('d/m/Y')." has been $statusText";
+        $message = 'Your leave request for ' . Carbon::parse($cuti->tanggal_mulai)->format('d/m/Y') . ' - ' . Carbon::parse($cuti->tanggal_selesai)->format('d/m/Y') . " has been $statusText";
 
         if ($request->filled('catatan')) {
-            $message .= ' with note: '.$request->catatan;
+            $message .= ' with note: ' . $request->catatan;
         }
 
         Notifikasi::create([

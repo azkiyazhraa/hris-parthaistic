@@ -402,6 +402,8 @@ class PenggajianController extends Controller
 
     public function downloadPayslip($id)
     {
+        ini_set('memory_limit', '512M');
+
         $penggajian = Penggajian::with('karyawan')->findOrFail($id);
 
         if (! (auth()->user()->isAdmin() || auth()->user()->isHR() || auth()->id() == $penggajian->karyawan_id)) {

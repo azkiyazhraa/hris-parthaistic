@@ -291,8 +291,8 @@
                     let form = this.closest('form');
 
                     Swal.fire({
-                        title: 'Yakin?',
-                        text: "Data akan dihapus permanen!",
+                        title: 'Are you sure?',
+                        text: "Data will be deleted permanently!",
                         icon: 'warning',
                         showCancelButton: true,
                         buttonsStyling: false,
@@ -300,8 +300,8 @@
                             confirmButton: 'bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg',
                             cancelButton: 'bg-gray-300 hover:bg-gray-400 text-black px-4 py-2 rounded-lg ml-2'
                         },
-                        confirmButtonText: 'Ya, hapus!',
-                        cancelButtonText: 'Batal'
+                        confirmButtonText: 'Yes, delete!',
+                        cancelButtonText: 'Cancel'
                     }).then((result) => {
                         if (result.isConfirmed) {
                             form.submit();
@@ -340,7 +340,7 @@
             @if ($errors->any())
                 Swal.fire({
                     icon: 'error',
-                    title: 'Validasi Gagal',
+                    title: 'Validation Failed',
                     html: `
                         <ul style="text-align:left;">
                             @foreach ($errors->all() as $error)

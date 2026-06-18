@@ -11,6 +11,13 @@
         $footerData = base64_encode(file_get_contents($footerPath));
         $footerType = pathinfo($footerPath, PATHINFO_EXTENSION);
     }
+
+    $signature = public_path('assets/image/ttd-nina.png');
+    $signaturePath = base64_encode(file_get_contents($signature));
+
+    $stample = public_path('assets/image/cap-parthaistic.png');
+    $stampPath = base64_encode(file_get_contents($stample));
+
 @endphp
 
 <head>
@@ -342,6 +349,49 @@
                 <p>{{ $penggajian->catatan }}</p>
             </div>
         @endif
+
+        {{-- SIGNATURE & STAMP --}}
+        <table width="100%" style="border-collapse: collapse; border:none; margin-top:20px;">
+            <tr>
+                <td width="60%" style="border:none;">
+                </td>
+
+                <td width="40%" style="border:none; text-align:center;">
+                    <h3 style="margin-bottom:10px;">Authorized Signature</h3>
+
+                    <div style="position: relative; width:180px; height:120px; margin:0 auto;">
+
+                        {{-- Stamp --}}
+                        <img src="data:image/{{ $logoType }};base64,{{ $stampPath }}" alt="Stamp"
+                            style="
+                        position:absolute;
+                        left:20px;
+                        top:10px;
+                        width:100px;
+                        height:100px;
+                        opacity:0.8;
+                    ">
+
+                        {{-- Signature --}}
+                        <img src="data:image/{{ $logoType }};base64,{{ $signaturePath }}" alt="Signature"
+                            style="
+                        position:absolute;
+                        left:50px;
+                        top:25px;
+                        width:120px;
+                        height:auto;
+                        z-index:10;
+                    ">
+                    </div>
+
+                    <div style="margin-top:15px;">
+                        <strong>Nina Sakinah</strong>
+                        <br>
+                        <span style="font-size:12px;">Chief Operating Officer</span>
+                    </div>
+                </td>
+            </tr>
+        </table>
 
     </div>
 </body>
