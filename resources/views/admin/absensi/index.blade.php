@@ -84,12 +84,32 @@
                                 <option value="">All Status</option>
                                 <option value="pending">Pending</option>
                                 <option value="present">Present</option>
-                                <option value="permit">Permission</option>
+                                <option value="permit">Permit</option>
                                 <option value="sick">Sick</option>
                                 <option value="absent">Absent</option>
-                                <option value="approved">Approved</option>
-                                <option value="rejected">Rejected</option>
                             </select>
+                        </div>
+
+                        <!-- DATE FROM -->
+                        <div class="w-full sm:w-44">
+                            <input type="date" id="filterDateFrom"
+                                class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                title="From date">
+                        </div>
+
+                        <!-- DATE TO -->
+                        <div class="w-full sm:w-44">
+                            <input type="date" id="filterDateTo"
+                                class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                title="To date">
+                        </div>
+
+                        <!-- RESET DATE -->
+                        <div class="w-full sm:w-auto">
+                            <button id="resetDateFilter"
+                                class="w-full sm:w-auto border border-gray-300 rounded-xl px-4 py-2.5 text-sm text-gray-500 hover:bg-gray-50 focus:outline-none whitespace-nowrap">
+                                Reset Date
+                            </button>
                         </div>
 
                     </div>
@@ -112,7 +132,8 @@
                             @foreach ($absensi as $item)
                                 <tr class="attendance-row border-b border-gray-100 hover:bg-blue-50/40 transition"
                                     data-search="{{ strtolower(($item->karyawan->nama_lengkap ?? '') . ' ' . ($item->karyawan->email ?? '') . ' ' . ($item->karyawan->nip ?? '')) }}"
-                                    data-status="{{ strtolower($item->is_change_day ? $item->change_day_status : $item->status_kehadiran) }}">
+                                    data-status="{{ strtolower($item->is_change_day ? $item->change_day_status : $item->status_kehadiran) }}"
+                                    data-date="{{ $item->tanggal ? $item->tanggal->format('Y-m-d') : '' }}">
                                     <td class="py-3">
                                         <div class="flex items-center gap-3">
                                             @php
@@ -446,6 +467,9 @@
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('searchAttendance');
             const statusFilter = document.getElementById('filterStatus');
+            const dateFromInput = document.getElementById('filterDateFrom');
+            const dateToInput = document.getElementById('filterDateTo');
+            const resetDateBtn = document.getElementById('resetDateFilter');
             const allRows = Array.from(document.querySelectorAll('.attendance-row'));
             const emptyRow = document.getElementById('emptySearchRow');
             const paginationContainer = document.getElementById('paginationContainer');
@@ -457,21 +481,32 @@
             function applyFilters() {
                 const keyword = searchInput.value.toLowerCase().trim();
                 const status = statusFilter.value.toLowerCase().trim();
+                const dateFrom = dateFromInput.value;
+                const dateTo = dateToInput.value;
 
                 filteredRows = allRows.filter(row => {
                     const searchText = (row.dataset.search || '').toLowerCase();
                     const rowStatus = (row.dataset.status || '').toLowerCase();
+                    const rowDate = row.dataset.date || '';
 
                     const matchKeyword = !keyword || searchText.includes(keyword);
                     const matchStatus = !status || rowStatus === status;
+                    const matchDateFrom = !dateFrom || rowDate >= dateFrom;
+                    const matchDateTo = !dateTo || rowDate <= dateTo;
 
-                    return matchKeyword && matchStatus;
+                    return matchKeyword && matchStatus && matchDateFrom && matchDateTo;
                 });
 
                 currentPage = 1;
                 renderTable();
                 renderPagination();
             }
+
+            resetDateBtn.addEventListener('click', function() {
+                dateFromInput.value = '';
+                dateToInput.value = '';
+                applyFilters();
+            });
 
             function renderTable() {
                 allRows.forEach(row => {
@@ -552,6 +587,8 @@
 
             searchInput.addEventListener('input', applyFilters);
             statusFilter.addEventListener('change', applyFilters);
+            dateFromInput.addEventListener('change', applyFilters);
+            dateToInput.addEventListener('change', applyFilters);
 
             applyFilters();
         });
