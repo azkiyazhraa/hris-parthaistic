@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\AbsensiController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
-use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\ChangedayController;
 use App\Http\Controllers\Karyawan\DashboardController as KaryawanDashboardController;
@@ -19,8 +18,6 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return redirect()->route('login');
 });
-
-Route::post('/check-employee-status', [LoginController::class, 'checkEmployeeStatus'])->name('check.employee.status');
 
 
 // Default dashboard route for authenticated users

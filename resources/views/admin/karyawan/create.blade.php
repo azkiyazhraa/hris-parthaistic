@@ -31,9 +31,8 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">NIK</label>
-                        <input type="text" name="nik"
-                            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                            required>
+                        <input type="text" name="nik" value="{{ old('nik') }}"
+                            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
 
                     <div>
@@ -66,7 +65,8 @@
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Profile Photo</label>
-                        <input type="file" name="foto_profil" class="w-full border rounded-lg px-3 py-2" required>
+                        <input type="file" name="foto_profil" accept="image/*"
+                            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                 </div>
             </div>
@@ -80,33 +80,33 @@
                                 class="text-red-500">*</span></label>
                         <select name="role" required
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                            <option value="karyawan">Employee</option>
-                            <option value="hr">HR</option>
-                            <option value="admin">Admin</option>
+                            <option value="karyawan" {{ old('role') == 'karyawan' ? 'selected' : '' }}>Employee</option>
+                            <option value="hr" {{ old('role') == 'hr' ? 'selected' : '' }}>HR</option>
+                            <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
                         </select>
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Position</label>
-                        <select name="jabatan" id="jabatanSelect" onchange="toggleJabatanLainnya()" required
+                        <select name="jabatan" id="jabatanSelect" onchange="toggleJabatanLainnya()"
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                             <option value="">Select Position</option>
-                            <option value="Chief Executive Officer">Chief Executive Officer</option>
-                            <option value="Chief Operating Officer">Chief Operating Officer</option>
-                            <option value="Creative Writer">Creative Writer</option>
-                            <option value="Finance">Finance</option>
-                            <option value="Business Development">Business Development</option>
-                            <option value="Videographer">Videographer</option>
-                            <option value="Video Editor">Video Editor</option>
-                            <option value="Social Media Manager">Social Media Manager</option>
-                            <option value="lainnya">Lainnya</option>
+                            <option value="Chief Executive Officer" {{ old('jabatan') == 'Chief Executive Officer' ? 'selected' : '' }}>Chief Executive Officer</option>
+                            <option value="Chief Operating Officer" {{ old('jabatan') == 'Chief Operating Officer' ? 'selected' : '' }}>Chief Operating Officer</option>
+                            <option value="Creative Writer" {{ old('jabatan') == 'Creative Writer' ? 'selected' : '' }}>Creative Writer</option>
+                            <option value="Finance" {{ old('jabatan') == 'Finance' ? 'selected' : '' }}>Finance</option>
+                            <option value="Business Development" {{ old('jabatan') == 'Business Development' ? 'selected' : '' }}>Business Development</option>
+                            <option value="Videographer" {{ old('jabatan') == 'Videographer' ? 'selected' : '' }}>Videographer</option>
+                            <option value="Video Editor" {{ old('jabatan') == 'Video Editor' ? 'selected' : '' }}>Video Editor</option>
+                            <option value="Social Media Manager" {{ old('jabatan') == 'Social Media Manager' ? 'selected' : '' }}>Social Media Manager</option>
+                            <option value="lainnya" {{ old('jabatan') == 'lainnya' ? 'selected' : '' }}>Lainnya</option>
                         </select>
                     </div>
 
-                    <div id="jabatanLainnyaField" style="display:none;">
+                    <div id="jabatanLainnyaField" style="display:{{ old('jabatan') == 'lainnya' ? 'block' : 'none' }};">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Custom Position <span
                                 class="text-red-500">*</span></label>
-                        <input type="text" name="jabatan_lainnya" required
+                        <input type="text" name="jabatan_lainnya" value="{{ old('jabatan_lainnya') }}"
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                             placeholder="Enter custom position">
                     </div>
@@ -118,37 +118,39 @@
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                             <option value="">Select Status</option>
                             <optgroup label="Active">
-                                <option value="Full-time">Full-time</option>
-                                <option value="Contract">Contract</option>
-                                <option value="Internship">Internship</option>
+                                <option value="Full-time" {{ old('status') == 'Full-time' ? 'selected' : '' }}>Full-time</option>
+                                <option value="Contract" {{ old('status') == 'Contract' ? 'selected' : '' }}>Contract</option>
+                                <option value="Internship" {{ old('status') == 'Internship' ? 'selected' : '' }}>Internship</option>
                             </optgroup>
                             <optgroup label="Inactive">
-                                <option value="Resigned">Resigned</option>
-                                <option value="Contract Ended">Contract Ended</option>
-                                <option value="Internship Completed">Internship Completed</option>
-                                <option value="Terminated">Terminated</option>
+                                <option value="Resigned" {{ old('status') == 'Resigned' ? 'selected' : '' }}>Resigned</option>
+                                <option value="Contract Ended" {{ old('status') == 'Contract Ended' ? 'selected' : '' }}>Contract Ended</option>
+                                <option value="Internship Completed" {{ old('status') == 'Internship Completed' ? 'selected' : '' }}>Internship Completed</option>
+                                <option value="Terminated" {{ old('status') == 'Terminated' ? 'selected' : '' }}>Terminated</option>
                             </optgroup>
                         </select>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Join Date</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Join Date <span class="text-red-500">*</span></label>
                         <input type="date" name="tanggal_bergabung" id="tanggal_bergabung" required
+                            value="{{ old('tanggal_bergabung') }}"
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
 
-                    <div id="endDateField" style="display:none;">
+                    <div id="endDateField" style="display:{{ in_array(old('status'), ['Resigned', 'Contract Ended', 'Internship Completed', 'Terminated']) ? 'block' : 'none' }};">
                         <label class="block text-sm font-medium text-gray-700 mb-1">End Date <span
                                 class="text-red-500">*</span></label>
-                        <input type="date" name="end_date" id="end_date" required
+                        <input type="date" name="end_date" id="end_date"
+                            value="{{ old('end_date') }}"
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
 
-                    <div id="reasonResignedField" style="display:none;">
+                    <div id="reasonResignedField" style="display:{{ in_array(old('status'), ['Resigned', 'Contract Ended', 'Internship Completed', 'Terminated']) ? 'block' : 'none' }};">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Reason</label>
-                        <textarea name="reason_resigned" rows="2" required
+                        <textarea name="reason_resigned" rows="2"
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                            placeholder="Reason for leaving..."></textarea>
+                            placeholder="Reason for leaving...">{{ old('reason_resigned') }}</textarea>
                     </div>
                 </div>
             </div>
@@ -165,7 +167,7 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Account Number</label>
-                        <input type="text" name="nomor_rekening" required
+                        <input type="text" name="nomor_rekening" value="{{ old('nomor_rekening') }}"
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                 </div>
@@ -177,24 +179,19 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-<<<<<<< HEAD
-                        <input type="text" name="nomor_telepon" required
-=======
                         <input type="text" name="nomor_telepon" value="{{ old('nomor_telepon') }}"
                             placeholder="08xxxxxxxxxx"
->>>>>>> 70846a125816ac4916d1cd59ebd4de5133f41642
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">NPWP</label>
-                        <input type="text" name="npwp" required
+                        <input type="text" name="npwp" value="{{ old('npwp') }}"
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
-                        <textarea name="alamat" rows="3" required
-                            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
+                        <textarea name="alamat" rows="3"
+                            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">{{ old('alamat') }}</textarea>
                     </div>
                 </div>
             </div>
@@ -205,30 +202,31 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Place of Birth</label>
-                        <input type="text" name="tempat_lahir" class="w-full border rounded-lg px-3 py-2"
-                            required>
+                        <input type="text" name="tempat_lahir" value="{{ old('tempat_lahir') }}"
+                            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
-                        <input type="date" name="tanggal_lahir" class="w-full border rounded-lg px-3 py-2"
-                            required>
+                        <input type="date" name="tanggal_lahir" value="{{ old('tanggal_lahir') }}"
+                            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
-                        <select name="jenis_kelamin" class="w-full border rounded-lg px-3 py-2" required>
+                        <select name="jenis_kelamin" class="w-full border rounded-lg px-3 py-2">
                             <option value="">Select</option>
-                            <option value="L">Male</option>
-                            <option value="P">Female</option>
+                            <option value="L" {{ old('jenis_kelamin') == 'L' ? 'selected' : '' }}>Male</option>
+                            <option value="P" {{ old('jenis_kelamin') == 'P' ? 'selected' : '' }}>Female</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Religion</label>
-                        <input type="text" name="agama" class="w-full border rounded-lg px-3 py-2" required>
+                        <input type="text" name="agama" value="{{ old('agama') }}"
+                            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Marital Status</label>
-                        <input type="text" name="status_pernikahan" class="w-full border rounded-lg px-3 py-2"
-                            required>
+                        <input type="text" name="status_pernikahan" value="{{ old('status_pernikahan') }}"
+                            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                 </div>
             </div>
@@ -244,29 +242,32 @@
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                             required>
                             <option value="">Select Education</option>
-                            <option value="SMP">SMP</option>
-                            <option value="SMA/MA">SMA/MA</option>
-                            <option value="SMK">SMK</option>
-                            <option value="D1">D1</option>
-                            <option value="D2">D2</option>
-                            <option value="D3">D3</option>
-                            <option value="D4">D4</option>
-                            <option value="S1">S1</option>
-                            <option value="S2">S2</option>
+                            <option value="SMP" {{ old('pendidikan_terakhir') == 'SMP' ? 'selected' : '' }}>SMP</option>
+                            <option value="SMA/MA" {{ old('pendidikan_terakhir') == 'SMA/MA' ? 'selected' : '' }}>SMA/MA</option>
+                            <option value="SMK" {{ old('pendidikan_terakhir') == 'SMK' ? 'selected' : '' }}>SMK</option>
+                            <option value="D1" {{ old('pendidikan_terakhir') == 'D1' ? 'selected' : '' }}>D1</option>
+                            <option value="D2" {{ old('pendidikan_terakhir') == 'D2' ? 'selected' : '' }}>D2</option>
+                            <option value="D3" {{ old('pendidikan_terakhir') == 'D3' ? 'selected' : '' }}>D3</option>
+                            <option value="D4" {{ old('pendidikan_terakhir') == 'D4' ? 'selected' : '' }}>D4</option>
+                            <option value="S1" {{ old('pendidikan_terakhir') == 'S1' ? 'selected' : '' }}>S1</option>
+                            <option value="S2" {{ old('pendidikan_terakhir') == 'S2' ? 'selected' : '' }}>S2</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">University/School</label>
-                        <input type="text" name="universitas" class="w-full border rounded-lg px-3 py-2" required>
+                        <input type="text" name="universitas" value="{{ old('universitas') }}"
+                            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Major</label>
-                        <input type="text" name="jurusan" class="w-full border rounded-lg px-3 py-2" required>
+                        <input type="text" name="jurusan" value="{{ old('jurusan') }}"
+                            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Graduation Year</label>
-                        <input type="number" name="tahun_lulus" class="w-full border rounded-lg px-3 py-2"
-                            min="1900" max="2099" step="1" required>
+                        <input type="number" name="tahun_lulus" value="{{ old('tahun_lulus') }}"
+                            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                            min="1900" max="2099" step="1">
                     </div>
                 </div>
             </div>
@@ -277,13 +278,13 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Emergency Contact Name</label>
-                        <input type="text" name="nama_kontak_darurat" class="w-full border rounded-lg px-3 py-2"
-                            required>
+                        <input type="text" name="nama_kontak_darurat" value="{{ old('nama_kontak_darurat') }}"
+                            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Emergency Contact Phone</label>
-                        <input type="text" name="telepon_kontak_darurat"
-                            class="w-full border rounded-lg px-3 py-2" required>
+                        <input type="text" name="telepon_kontak_darurat" value="{{ old('telepon_kontak_darurat') }}"
+                            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                 </div>
             </div>

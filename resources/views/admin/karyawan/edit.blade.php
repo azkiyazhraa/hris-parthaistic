@@ -15,6 +15,18 @@
             @csrf
             @method('PUT')
 
+            {{-- VALIDATION ERRORS --}}
+            @if ($errors->any())
+                <div class="bg-red-50 border border-red-200 rounded-lg px-4 py-3">
+                    <p class="text-sm font-semibold text-red-700 mb-1">Please fix the following errors:</p>
+                    <ul class="list-disc list-inside space-y-0.5">
+                        @foreach ($errors->all() as $error)
+                            <li class="text-sm text-red-600">{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             {{-- DATA UTAMA --}}
             <div>
                 <h3 class="text-sm font-semibold text-gray-700 mb-3 border-b pb-2">Main Data</h3>
@@ -27,16 +39,17 @@
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">NIK</label>
-                        <input type="text" name="nik" value="{{ $item->nik }}"
-                            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                            required>
+                        <input type="text" name="nik" value="{{ old('nik', $item->nik) }}"
+                            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">First Name <span
                                 class="text-red-500">*</span></label>
-                        <input type="text" name="nama_depan" required
-                            value="{{ old('nama_depan', explode(' ', $item->nama_lengkap)[0] ?? $item->nama_lengkap) }}"
+                        @php
+                            $firstName = old('nama_depan', explode(' ', $item->nama_lengkap)[0] ?? $item->nama_lengkap);
+                        @endphp
+                        <input type="text" name="nama_depan" required value="{{ $firstName }}"
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
 
@@ -45,30 +58,30 @@
                                 class="text-red-500">*</span></label>
                         @php
                             $namaParts = explode(' ', $item->nama_lengkap);
-                            $namaBelakang = count($namaParts) > 1 ? implode(' ', array_slice($namaParts, 1)) : '';
+                            $lastName = old('nama_belakang', count($namaParts) > 1 ? implode(' ', array_slice($namaParts, 1)) : '');
                         @endphp
-                        <input type="text" name="nama_belakang" required
-                            value="{{ old('nama_belakang', $namaBelakang) }}"
+                        <input type="text" name="nama_belakang" required value="{{ $lastName }}"
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Email <span
                                 class="text-red-500">*</span></label>
-                        <input type="email" name="email" required value="{{ $item->email }}" required
+                        <input type="email" name="email" required value="{{ old('email', $item->email) }}"
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                        <input type="password" name="kata_sandi" required
+                        <input type="password" name="kata_sandi"
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                         <p class="text-xs text-gray-500 mt-1">Leave blank if you don't want to change the password.</p>
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Profile Photo</label>
-                        <input type="file" name="foto_profil" class="w-full border rounded-lg px-3 py-2" required>
+                        <input type="file" name="foto_profil" accept="image/*"
+                            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                         @if ($item->foto_profil)
                             <p class="text-xs text-gray-500 mt-1">Current photo: {{ basename($item->foto_profil) }}</p>
                         @endif
@@ -81,14 +94,13 @@
                 <h3 class="text-sm font-semibold text-gray-700 mb-3 border-b pb-2">Job Information</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Role</label>
-                        <select name="role"
-                            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                            required>
-                            <option value="karyawan" {{ $item->role === 'karyawan' ? 'selected' : '' }}>Employee
-                            </option>
-                            <option value="hr" {{ $item->role === 'hr' ? 'selected' : '' }}>HR</option>
-                            <option value="admin" {{ $item->role === 'admin' ? 'selected' : '' }}>Admin</option>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Role <span
+                                class="text-red-500">*</span></label>
+                        <select name="role" required
+                            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            <option value="karyawan" {{ old('role', $item->role) === 'karyawan' ? 'selected' : '' }}>Employee</option>
+                            <option value="hr" {{ old('role', $item->role) === 'hr' ? 'selected' : '' }}>HR</option>
+                            <option value="admin" {{ old('role', $item->role) === 'admin' ? 'selected' : '' }}>Admin</option>
                         </select>
                     </div>
 
@@ -96,8 +108,7 @@
                         <label class="block text-sm font-medium text-gray-700 mb-1">Position</label>
                         <select name="jabatan" id="jabatanSelectEdit{{ $item->id }}"
                             onchange="toggleJabatanLainnyaEdit({{ $item->id }})"
-                            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                            required>
+                            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                             <option value="">Select Position</option>
                             @php
                                 $jabatanOptions = [
@@ -111,20 +122,22 @@
                                     'Social Media Manager',
                                     'lainnya',
                                 ];
+                                $oldJabatan = old('jabatan', $item->jabatan);
                             @endphp
                             @foreach ($jabatanOptions as $opt)
-                                <option value="{{ $opt }}" {{ $item->jabatan === $opt ? 'selected' : '' }}>
+                                <option value="{{ $opt }}" {{ $oldJabatan === $opt ? 'selected' : '' }}>
                                     {{ $opt === 'lainnya' ? 'Lainnya' : $opt }}</option>
                             @endforeach
                         </select>
                     </div>
 
                     <div id="jabatanLainnyaFieldEdit{{ $item->id }}"
-                        style="display:{{ $item->jabatan === 'lainnya' ? 'block' : 'none' }};">
+                        style="display:{{ old('jabatan', $item->jabatan) === 'lainnya' ? 'block' : 'none' }};">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Custom Position</label>
-                        <input type="text" name="jabatan_lainnya" value="{{ $item->jabatan_lainnya }}"
+                        <input type="text" name="jabatan_lainnya"
+                            value="{{ old('jabatan_lainnya', $item->jabatan_lainnya) }}"
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                            placeholder="Enter custom position" required>
+                            placeholder="Enter custom position">
                     </div>
 
                     <div>
@@ -134,39 +147,37 @@
                             onchange="toggleEndDateEdit({{ $item->id }})" required
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                             <optgroup label="Active (Can Login)">
-                                <option value="Full-time" {{ $item->status === 'Full-time' ? 'selected' : '' }}>
+                                <option value="Full-time" {{ old('status', $item->status) === 'Full-time' ? 'selected' : '' }}>
                                     ✅ Full-time</option>
-                                <option value="Contract" {{ $item->status === 'Contract' ? 'selected' : '' }}>
+                                <option value="Contract" {{ old('status', $item->status) === 'Contract' ? 'selected' : '' }}>
                                     ✅ Contract</option>
-                                <option value="Internship" {{ $item->status === 'Internship' ? 'selected' : '' }}>
+                                <option value="Internship" {{ old('status', $item->status) === 'Internship' ? 'selected' : '' }}>
                                     ✅ Internship</option>
                             </optgroup>
                             <optgroup label="Suspended (Cannot Login)">
-                                <option value="Resigned" {{ $item->status === 'Resigned' ? 'selected' : '' }}>
+                                <option value="Resigned" {{ old('status', $item->status) === 'Resigned' ? 'selected' : '' }}>
                                     🔒 Resigned</option>
-                                <option value="Contract Ended"
-                                    {{ $item->status === 'Contract Ended' ? 'selected' : '' }}>
+                                <option value="Contract Ended" {{ old('status', $item->status) === 'Contract Ended' ? 'selected' : '' }}>
                                     🔒 Contract Ended</option>
-                                <option value="Internship Completed"
-                                    {{ $item->status === 'Internship Completed' ? 'selected' : '' }}>
+                                <option value="Internship Completed" {{ old('status', $item->status) === 'Internship Completed' ? 'selected' : '' }}>
                                     🔒 Internship Completed</option>
-                                <option value="Terminated" {{ $item->status === 'Terminated' ? 'selected' : '' }}>
+                                <option value="Terminated" {{ old('status', $item->status) === 'Terminated' ? 'selected' : '' }}>
                                     🔒 Terminated</option>
                             </optgroup>
                         </select>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Join Date</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Join Date <span class="text-red-500">*</span></label>
                         <input type="date" name="tanggal_bergabung"
-                            value="{{ $item->tanggal_bergabung ? $item->tanggal_bergabung->format('Y-m-d') : '' }}"
+                            value="{{ old('tanggal_bergabung', $item->tanggal_bergabung ? $item->tanggal_bergabung->format('Y-m-d') : '') }}"
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                             required>
                     </div>
 
                     @php
                         $inactiveStatuses = ['Resigned', 'Contract Ended', 'Internship Completed', 'Terminated'];
-                        $isInactive = in_array($item->status, $inactiveStatuses);
+                        $isInactive = in_array(old('status', $item->status), $inactiveStatuses);
                     @endphp
 
                     {{-- WARNING SUSPEND --}}
@@ -179,7 +190,7 @@
                                 <p class="text-sm font-semibold text-red-800">Warning: Suspending Employee</p>
                                 <p class="text-xs text-red-600 mt-1">
                                     Changing status to "<span
-                                        id="statusTextEdit{{ $item->id }}">{{ $item->status }}</span>" will:
+                                        id="statusTextEdit{{ $item->id }}">{{ old('status', $item->status) }}</span>" will:
                                 </p>
                                 <ul class="text-xs text-red-600 mt-1 list-disc list-inside">
                                     <li>Suspend this employee's account immediately</li>
@@ -201,17 +212,17 @@
                             <span class="text-red-500">*</span>
                             <span class="text-xs text-gray-400">(auto-filled if empty)</span>
                         </label>
-                        <input type="date" name="end_date" required
-                            value="{{ $item->end_date ? $item->end_date->format('Y-m-d') : '' }}"
+                        <input type="date" name="end_date"
+                            value="{{ old('end_date', $item->end_date ? $item->end_date->format('Y-m-d') : '') }}"
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
 
                     <div id="reasonResignedFieldEdit{{ $item->id }}"
                         style="display:{{ $isInactive ? 'block' : 'none' }};">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Reason</label>
-                        <textarea name="reason_resigned" rows="2" required
+                        <textarea name="reason_resigned" rows="2"
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                            placeholder="Reason for leaving...">{{ $item->reason_resigned }}</textarea>
+                            placeholder="Reason for leaving...">{{ old('reason_resigned', $item->reason_resigned) }}</textarea>
                     </div>
 
                     {{-- Tampilkan total hari kerja jika status inactive --}}
@@ -245,7 +256,7 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Account Number</label>
-                        <input type="text" name="nomor_rekening" value="{{ $item->nomor_rekening }}" required
+                        <input type="text" name="nomor_rekening" value="{{ old('nomor_rekening', $item->nomor_rekening) }}"
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                 </div>
@@ -257,18 +268,18 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                        <input type="text" name="nomor_telepon" value="{{ $item->nomor_telepon }}" required
+                        <input type="text" name="nomor_telepon" value="{{ old('nomor_telepon', $item->nomor_telepon) }}"
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">NPWP</label>
-                        <input type="text" name="npwp" value="{{ $item->npwp }}" required
+                        <input type="text" name="npwp" value="{{ old('npwp', $item->npwp) }}"
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
-                        <textarea name="alamat" rows="3" required
-                            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">{{ $item->alamat }}</textarea>
+                        <textarea name="alamat" rows="3"
+                            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">{{ old('alamat', $item->alamat) }}</textarea>
                     </div>
                 </div>
             </div>
@@ -279,33 +290,32 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Place of Birth</label>
-                        <input type="text" name="tempat_lahir" value="{{ $item->tempat_lahir }}"
-                            class="w-full border rounded-lg px-3 py-2" required>
+                        <input type="text" name="tempat_lahir" value="{{ old('tempat_lahir', $item->tempat_lahir) }}"
+                            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
                         <input type="date" name="tanggal_lahir"
-                            value="{{ $item->tanggal_lahir ? $item->tanggal_lahir->format('Y-m-d') : '' }}"
-                            class="w-full border rounded-lg px-3 py-2" required>
+                            value="{{ old('tanggal_lahir', $item->tanggal_lahir ? $item->tanggal_lahir->format('Y-m-d') : '') }}"
+                            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
-                        <select name="jenis_kelamin" class="w-full border rounded-lg px-3 py-2" required>
+                        <select name="jenis_kelamin" class="w-full border rounded-lg px-3 py-2">
                             <option value="">Select</option>
-                            <option value="L" {{ $item->jenis_kelamin === 'L' ? 'selected' : '' }}>Male</option>
-                            <option value="P" {{ $item->jenis_kelamin === 'P' ? 'selected' : '' }}>Female
-                            </option>
+                            <option value="L" {{ old('jenis_kelamin', $item->jenis_kelamin) === 'L' ? 'selected' : '' }}>Male</option>
+                            <option value="P" {{ old('jenis_kelamin', $item->jenis_kelamin) === 'P' ? 'selected' : '' }}>Female</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Religion</label>
-                        <input type="text" name="agama" value="{{ $item->agama }}"
-                            class="w-full border rounded-lg px-3 py-2" required>
+                        <input type="text" name="agama" value="{{ old('agama', $item->agama) }}"
+                            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Marital Status</label>
-                        <input type="text" name="status_pernikahan" value="{{ $item->status_pernikahan }}"
-                            class="w-full border rounded-lg px-3 py-2" required>
+                        <input type="text" name="status_pernikahan" value="{{ old('status_pernikahan', $item->status_pernikahan) }}"
+                            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                 </div>
             </div>
@@ -315,13 +325,13 @@
                 <h3 class="text-sm font-semibold text-gray-700 mb-3 border-b pb-2">Education</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Last Education</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Last Education <span class="text-red-500">*</span></label>
                         <select name="pendidikan_terakhir" required
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                             <option value="">Select Education</option>
                             @php
                                 $eduOptions = ['SMP', 'SMA/MA', 'SMK', 'D1', 'D2', 'D3', 'D4', 'S1', 'S2'];
-                                $currentEdu = $item->pendidikan_terakhir_new ?? $item->pendidikan_terakhir;
+                                $currentEdu = old('pendidikan_terakhir', $item->pendidikan_terakhir_new ?? $item->pendidikan_terakhir);
                             @endphp
                             @foreach ($eduOptions as $opt)
                                 <option value="{{ $opt }}" {{ $currentEdu === $opt ? 'selected' : '' }}>
@@ -331,18 +341,19 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">University/School</label>
-                        <input type="text" name="universitas" value="{{ $item->universitas }}" required
-                            class="w-full border rounded-lg px-3 py-2">
+                        <input type="text" name="universitas" value="{{ old('universitas', $item->universitas) }}"
+                            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Major</label>
-                        <input type="text" name="jurusan" value="{{ $item->jurusan }}" required
-                            class="w-full border rounded-lg px-3 py-2">
+                        <input type="text" name="jurusan" value="{{ old('jurusan', $item->jurusan) }}"
+                            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Graduation Year</label>
-                        <input type="number" name="tahun_lulus" value="{{ $item->tahun_lulus }}" required
-                            class="w-full border rounded-lg px-3 py-2" min="1900" max="2099" step="1">
+                        <input type="number" name="tahun_lulus" value="{{ old('tahun_lulus', $item->tahun_lulus) }}"
+                            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                            min="1900" max="2099" step="1">
                     </div>
                 </div>
             </div>
@@ -353,14 +364,13 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Emergency Contact Name</label>
-                        <input type="text" name="nama_kontak_darurat" value="{{ $item->nama_kontak_darurat }}"
-                            class="w-full border rounded-lg px-3 py-2" required>
+                        <input type="text" name="nama_kontak_darurat" value="{{ old('nama_kontak_darurat', $item->nama_kontak_darurat) }}"
+                            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Emergency Contact Phone</label>
-                        <input type="text" name="telepon_kontak_darurat"
-                            value="{{ $item->telepon_kontak_darurat }}" class="w-full border rounded-lg px-3 py-2"
-                            required>
+                        <input type="text" name="telepon_kontak_darurat" value="{{ old('telepon_kontak_darurat', $item->telepon_kontak_darurat) }}"
+                            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                 </div>
             </div>
