@@ -13,34 +13,46 @@
         <form method="POST" action="{{ route('admin.karyawan.store') }}" enctype="multipart/form-data" class="space-y-6">
             @csrf
 
+            {{-- VALIDATION ERRORS --}}
+            @if ($errors->any())
+                <div class="bg-red-50 border border-red-200 rounded-lg px-4 py-3">
+                    <p class="text-sm font-semibold text-red-700 mb-1">Please fix the following errors:</p>
+                    <ul class="list-disc list-inside space-y-0.5">
+                        @foreach ($errors->all() as $error)
+                            <li class="text-sm text-red-600">{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             {{-- DATA UTAMA --}}
             <div>
                 <h3 class="text-sm font-semibold text-gray-700 mb-3 border-b pb-2">Main Data</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">NIK</label>
-                        <input type="text" name="nik"
+                        <input type="text" name="nik" value="{{ old('nik') }}"
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">First Name <span
                                 class="text-red-500">*</span></label>
-                        <input type="text" name="nama_depan" required
+                        <input type="text" name="nama_depan" required value="{{ old('nama_depan') }}"
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Last Name <span
                                 class="text-red-500">*</span></label>
-                        <input type="text" name="nama_belakang" required
+                        <input type="text" name="nama_belakang" required value="{{ old('nama_belakang') }}"
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Email <span
                                 class="text-red-500">*</span></label>
-                        <input type="email" name="email" required
+                        <input type="email" name="email" required value="{{ old('email') }}"
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
 
@@ -163,8 +175,10 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                        <input type="text" name="nomor_telepon"
+                        <input type="text" name="nomor_telepon" value="{{ old('nomor_telepon') }}"
+                            placeholder="08xxxxxxxxxx"
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">NPWP</label>
@@ -300,14 +314,14 @@
         }
     }
 
-    // Trigger on page load
     document.addEventListener('DOMContentLoaded', function() {
         toggleJabatanLainnya();
         toggleEndDate();
-    });
 
-    // Trigger on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        toggleJabatanLainnya();
+        @if ($errors->any())
+            // Auto-open modal when there are validation errors
+            const modal = document.getElementById('employee-modal');
+            if (modal) modal.classList.remove('hidden');
+        @endif
     });
 </script>

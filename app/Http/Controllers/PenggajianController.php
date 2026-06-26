@@ -240,13 +240,17 @@ class PenggajianController extends Controller
 
 
         // update status paid dan hit ke api parthafin
-        if ($penggajian->status == Penggajian::STATUS_PAID) {
-            Http::post(env('PARTHAFIN_API_URL') . '/expense-salary', [
-                "category_id" => 6,
-                "date" => $penggajian->tanggal_pembayaran,
-                "amount" => $penggajian->net_salary,
-                "description" => "gaji a.n " . $penggajian->karyawan->nama_lengkap,
-            ]);
+        if ($penggajian->status == Penggajian::STATUS_PAID && env('PARTHAFIN_API_URL')) {
+            try {
+                Http::timeout(5)->post(env('PARTHAFIN_API_URL') . '/expense-salary', [
+                    "category_id" => 6,
+                    "date" => $penggajian->tanggal_pembayaran,
+                    "amount" => $penggajian->net_salary,
+                    "description" => "gaji a.n " . $penggajian->karyawan->nama_lengkap,
+                ]);
+            } catch (\Exception $e) {
+                // Parthafin API unavailable — proceed without blocking payroll update
+            }
         }
 
 

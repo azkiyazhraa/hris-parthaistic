@@ -149,7 +149,7 @@
 
                 <!-- CARD 2 (DONUT) -->
                 <div class="flex flex-col items-center justify-center p-5 bg-white shadow rounded-2xl">
-                    <p class="mb-4 text-sm text-gray-500">Employee's Task Record</p>
+                    <p class="mb-4 text-sm text-gray-500">My Task Record</p>
                     <div id="donutChart"></div>
                 </div>
 
