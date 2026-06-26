@@ -6,7 +6,7 @@
 
             <!-- Modal header -->
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-medium text-heading">Employee Detail</h3>
+                <h3 class="text-lg font-medium text-heading">Employee Detail Admin</h3>
                 <button type="button"
                     class="text-body bg-transparent hover:bg-neutral-tertiary hover:text-heading rounded-md text-sm w-9 h-9 inline-flex justify-center items-center"
                     data-modal-hide="default-modal">
@@ -55,62 +55,70 @@
                                 <div class="grid md:grid-cols-2 gap-x-10 gap-y-4 text-sm">
                                     <div class="space-y-4">
                                         <div>
-                                            <p class="text-gray-400">Full Name</p>
-                                            <p class="font-medium text-gray-700" id="detail_nama_lengkap">-</p>
+                                            <p class="text-gray-400 text-xs uppercase tracking-wider">Full Name</p>
+                                            <p class="font-medium text-gray-800" id="detail_nama_lengkap">-</p>
                                         </div>
                                         <div>
-                                            <p class="text-gray-400">NIP</p>
-                                            <p class="font-medium text-gray-700" id="detail_nip">-</p>
+                                            <p class="text-gray-400 text-xs uppercase tracking-wider">NIP</p>
+                                            <p class="font-medium text-gray-800" id="detail_nip">-</p>
                                         </div>
                                         <div>
-                                            <p class="text-gray-400">Address</p>
-                                            <p class="font-medium text-gray-700" id="detail_alamat">-</p>
+                                            <p class="text-gray-400 text-xs uppercase tracking-wider">Address</p>
+                                            <p class="font-medium text-gray-800" id="detail_alamat">-</p>
                                         </div>
                                         <div>
-                                            <p class="text-gray-400">Place of Birth</p>
-                                            <p class="font-medium text-gray-700" id="detail_tempat_lahir">-</p>
+                                            <p class="text-gray-400 text-xs uppercase tracking-wider">Place of Birth</p>
+                                            <p class="font-medium text-gray-800" id="detail_tempat_lahir">-</p>
                                         </div>
                                         <div>
-                                            <p class="text-gray-400">Date of Birth</p>
-                                            <p class="font-medium text-gray-700" id="detail_tanggal_lahir">-</p>
+                                            <p class="text-gray-400 text-xs uppercase tracking-wider">Date of Birth</p>
+                                            <p class="font-medium text-gray-800" id="detail_tanggal_lahir">-</p>
                                         </div>
                                         <div>
-                                            <p class="text-gray-400">Gender</p>
-                                            <p class="font-medium text-gray-700" id="detail_jenis_kelamin">-</p>
+                                            <p class="text-gray-400 text-xs uppercase tracking-wider">Gender</p>
+                                            <p class="font-medium text-gray-800" id="detail_jenis_kelamin">-</p>
                                         </div>
                                         <div>
-                                            <p class="text-gray-400">Religion</p>
-                                            <p class="font-medium text-gray-700" id="detail_agama">-</p>
+                                            <p class="text-gray-400 text-xs uppercase tracking-wider">Religion</p>
+                                            <p class="font-medium text-gray-800" id="detail_agama">-</p>
                                         </div>
                                         <div>
-                                            <p class="text-gray-400">Marital Status</p>
-                                            <p class="font-medium text-gray-700" id="detail_status_pernikahan">-</p>
+                                            <p class="text-gray-400 text-xs uppercase tracking-wider">Marital Status</p>
+                                            <p class="font-medium text-gray-800" id="detail_status_pernikahan">-</p>
                                         </div>
                                     </div>
                                     <div class="space-y-4">
                                         <div>
-                                            <p class="text-gray-400">Email</p>
-                                            <p class="font-medium text-gray-700" id="detail_email">-</p>
+                                            <p class="text-gray-400 text-xs uppercase tracking-wider">Email</p>
+                                            <p class="font-medium text-gray-800" id="detail_email">-</p>
                                         </div>
                                         <div>
-                                            <p class="text-gray-400">Phone Number</p>
-                                            <p class="font-medium text-gray-700" id="detail_nomor_telepon">-</p>
+                                            <p class="text-gray-400 text-xs uppercase tracking-wider">Phone Number</p>
+                                            <p class="font-medium text-gray-800" id="detail_nomor_telepon">-</p>
                                         </div>
                                         <div>
-                                            <p class="text-gray-400">NIK</p>
-                                            <p class="font-medium text-gray-700" id="detail_nik">-</p>
+                                            <p class="text-gray-400 text-xs uppercase tracking-wider">NIK</p>
+                                            <p class="font-medium text-gray-800" id="detail_nik">-</p>
                                         </div>
                                         <div>
-                                            <p class="text-gray-400">NPWP</p>
-                                            <p class="font-medium text-gray-700" id="detail_npwp">-</p>
+                                            <p class="text-gray-400 text-xs uppercase tracking-wider">NPWP</p>
+                                            <p class="font-medium text-gray-800" id="detail_npwp">-</p>
                                         </div>
                                         <div>
-                                            <p class="text-gray-400">Emergency Contact Name</p>
-                                            <p class="font-medium text-gray-700" id="detail_nama_kontak_darurat">-</p>
+                                            <p class="text-gray-400 text-xs uppercase tracking-wider">Bank Name</p>
+                                            <p class="font-medium text-gray-800" id="detail_nama_bank">-</p>
                                         </div>
                                         <div>
-                                            <p class="text-gray-400">Emergency Contact Phone</p>
-                                            <p class="font-medium text-gray-700" id="detail_telepon_kontak_darurat">-</p>
+                                            <p class="text-gray-400 text-xs uppercase tracking-wider">Account Number</p>
+                                            <p class="font-medium text-gray-800" id="detail_nomor_rekening">-</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-gray-400 text-xs uppercase tracking-wider">Emergency Contact</p>
+                                            <p class="font-medium text-gray-800" id="detail_nama_kontak_darurat">-</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-gray-400 text-xs uppercase tracking-wider">Emergency Phone</p>
+                                            <p class="font-medium text-gray-800" id="detail_telepon_kontak_darurat">-</p>
                                         </div>
                                     </div>
                                 </div>
@@ -120,42 +128,61 @@
                             <div>
                                 <h4 class="text-lg font-semibold text-blue-900 mb-4">Employment Info</h4>
                                 <div class="grid md:grid-cols-2 gap-4 text-sm">
-                                    <div class="bg-gray-100 p-2 rounded">
-                                        <span class="text-gray-400">Role:</span>
-                                        <span class="font-medium" id="detail_role">-</span>
+                                    <div class="bg-gray-50 p-3 rounded-lg">
+                                        <span class="text-gray-400 text-xs uppercase tracking-wider block">Role</span>
+                                        <span class="font-medium text-gray-800" id="detail_role">-</span>
                                     </div>
-                                    <div class="bg-gray-100 p-2 rounded">
-                                        <span class="text-gray-400">Join Date:</span>
-                                        <span class="font-medium" id="detail_tanggal_bergabung">-</span>
+                                    <div class="bg-gray-50 p-3 rounded-lg">
+                                        <span class="text-gray-400 text-xs uppercase tracking-wider block">Position</span>
+                                        <span class="font-medium text-gray-800" id="detail_jabatan">-</span>
                                     </div>
-                                    <div class="bg-gray-100 p-2 rounded">
-                                        <span class="text-gray-400">Status:</span>
+                                    <div class="bg-gray-50 p-3 rounded-lg">
+                                        <span class="text-gray-400 text-xs uppercase tracking-wider block">Join Date</span>
+                                        <span class="font-medium text-gray-800" id="detail_tanggal_bergabung">-</span>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded-lg">
+                                        <span class="text-gray-400 text-xs uppercase tracking-wider block">Status</span>
                                         <span class="font-medium" id="detail_status">-</span>
                                     </div>
-                                    <div class="bg-gray-100 p-2 rounded">
-                                        <span class="text-gray-400">Last Education:</span>
-                                        <span class="font-medium" id="detail_pendidikan_terakhir">-</span>
+                                    <div class="bg-gray-50 p-3 rounded-lg">
+                                        <span class="text-gray-400 text-xs uppercase tracking-wider block">End Date</span>
+                                        <span class="font-medium text-gray-800" id="detail_end_date">-</span>
                                     </div>
-                                    <div class="bg-gray-100 p-2 rounded">
-                                        <span class="text-gray-400">University:</span>
-                                        <span class="font-medium" id="detail_universitas">-</span>
+                                    <div class="bg-gray-50 p-3 rounded-lg">
+                                        <span class="text-gray-400 text-xs uppercase tracking-wider block">Total Working Days</span>
+                                        <span class="font-medium text-gray-800" id="detail_total_hari_kerja">-</span>
                                     </div>
-                                    <div class="bg-gray-100 p-2 rounded">
-                                        <span class="text-gray-400">Major:</span>
-                                        <span class="font-medium" id="detail_jurusan">-</span>
+                                    <div class="bg-gray-50 p-3 rounded-lg col-span-2">
+                                        <span class="text-gray-400 text-xs uppercase tracking-wider block">Last Education</span>
+                                        <span class="font-medium text-gray-800" id="detail_pendidikan_terakhir">-</span>
                                     </div>
-                                    <div class="bg-gray-100 p-2 rounded">
-                                        <span class="text-gray-400">Graduation Year:</span>
-                                        <span class="font-medium" id="detail_tahun_lulus">-</span>
+                                    <div class="bg-gray-50 p-3 rounded-lg">
+                                        <span class="text-gray-400 text-xs uppercase tracking-wider block">University</span>
+                                        <span class="font-medium text-gray-800" id="detail_universitas">-</span>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded-lg">
+                                        <span class="text-gray-400 text-xs uppercase tracking-wider block">Major</span>
+                                        <span class="font-medium text-gray-800" id="detail_jurusan">-</span>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded-lg">
+                                        <span class="text-gray-400 text-xs uppercase tracking-wider block">Graduation Year</span>
+                                        <span class="font-medium text-gray-800" id="detail_tahun_lulus">-</span>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded-lg">
+                                        <span class="text-gray-400 text-xs uppercase tracking-wider block">Reason Resigned</span>
+                                        <span class="font-medium text-gray-800" id="detail_reason_resigned">-</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- RIGHT: Avatar -->
-                        <div class="flex justify-center items-start md:items-center">
+                        <div class="flex flex-col justify-start items-center gap-4">
                             <div class="w-40 h-40 md:w-52 md:h-52 rounded-full border-[6px] border-blue-900 overflow-hidden bg-gray-100">
                                 <img id="detail_foto_profil" src="" alt="Profile Photo" class="w-full h-full object-cover">
+                            </div>
+                            <div class="text-center">
+                                <p class="text-sm text-gray-400">Profile Photo</p>
                             </div>
                         </div>
                     </div>
@@ -201,6 +228,20 @@
                                     </div>
                                 </div>
                                 <p class="text-xs mt-2 text-green-100">This Month</p>
+                            </div>
+                            <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl p-4 text-white shadow-lg">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <p class="text-yellow-100 text-xs">Late</p>
+                                        <p class="text-2xl font-bold mt-1" id="emp-late-count">-</p>
+                                    </div>
+                                    <div class="bg-white/20 rounded-full p-1.5">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <p class="text-xs mt-2 text-yellow-100">This Month</p>
                             </div>
                             <div class="bg-gradient-to-br from-red-500 to-red-600 rounded-xl p-4 text-white shadow-lg">
                                 <div class="flex justify-between items-start">
@@ -384,18 +425,21 @@
     @foreach ($karyawans as $karyawan)
         karyawanData[{{ $karyawan->id }}] = {
             id: {{ $karyawan->id }},
-            nip: "{{ $karyawan->nip }}",
-            nama_lengkap: "{{ addslashes($karyawan->nama_lengkap) }}",
-            email: "{{ $karyawan->email }}",
-            role: "{{ $karyawan->role }}",
-            status: "{{ $karyawan->status ?? 'Aktif' }}",
+            nip: "{{ $karyawan->nip ?? '-' }}",
+            nama_lengkap: "{{ addslashes($karyawan->nama_lengkap ?? '-') }}",
+            email: "{{ $karyawan->email ?? '-' }}",
+            role: "{{ $karyawan->role ?? '-' }}",
+            jabatan: "{{ addslashes($karyawan->jabatan_display ?? $karyawan->jabatan ?? '-') }}",
+            status: "{{ $karyawan->status ?? 'Active' }}",
+            status_class: "{{ $karyawan->status_class ?? 'bg-gray-100 text-gray-800' }}",
+            status_badge: "{{ $karyawan->status_badge ?? $karyawan->status ?? '-' }}",
             nomor_telepon: "{{ $karyawan->nomor_telepon ?? '-' }}",
             alamat: "{{ addslashes($karyawan->alamat ?? '-') }}",
             nik: "{{ $karyawan->nik ?? '-' }}",
             npwp: "{{ $karyawan->npwp ?? '-' }}",
             tempat_lahir: "{{ $karyawan->tempat_lahir ?? '-' }}",
             tanggal_lahir: "{{ $karyawan->tanggal_lahir ? $karyawan->tanggal_lahir->format('d F Y') : '-' }}",
-            jenis_kelamin: "{{ $karyawan->jenis_kelamin ?? '-' }}",
+            jenis_kelamin: "{{ $karyawan->jenis_kelamin == 'L' ? 'Male' : ($karyawan->jenis_kelamin == 'P' ? 'Female' : '-') }}",
             agama: "{{ $karyawan->agama ?? '-' }}",
             status_pernikahan: "{{ $karyawan->status_pernikahan ?? '-' }}",
             pendidikan_terakhir: "{{ $karyawan->pendidikan_terakhir ?? '-' }}",
@@ -405,6 +449,11 @@
             nama_kontak_darurat: "{{ $karyawan->nama_kontak_darurat ?? '-' }}",
             telepon_kontak_darurat: "{{ $karyawan->telepon_kontak_darurat ?? '-' }}",
             tanggal_bergabung: "{{ $karyawan->tanggal_bergabung ? $karyawan->tanggal_bergabung->format('d F Y') : '-' }}",
+            end_date: "{{ $karyawan->end_date ? $karyawan->end_date->format('d F Y') : '-' }}",
+            total_hari_kerja: "{{ $karyawan->total_hari_kerja > 0 ? number_format($karyawan->total_hari_kerja) . ' days' : '-' }}",
+            reason_resigned: "{{ $karyawan->reason_resigned ?? '-' }}",
+            nama_bank: "{{ $karyawan->nama_bank ?? '-' }}",
+            nomor_rekening: "{{ $karyawan->nomor_rekening ?? '-' }}",
             foto_profil: "{{ $karyawan->foto_profil && Storage::disk('public')->exists($karyawan->foto_profil) ? Storage::url($karyawan->foto_profil) : '' }}"
         };
     @endforeach
@@ -444,35 +493,51 @@
     function showEmployeeDetail(id) {
         currentEmployeeId = id;
         const data = karyawanData[id];
-        if (!data) return;
+        if (!data) {
+            console.error('Employee data not found for ID:', id);
+            return;
+        }
 
         // Populate overview
-        document.getElementById('detail_nama_lengkap').innerText       = data.nama_lengkap;
-        document.getElementById('detail_nip').innerText                = data.nip;
-        document.getElementById('detail_alamat').innerText             = data.alamat;
-        document.getElementById('detail_tempat_lahir').innerText       = data.tempat_lahir;
-        document.getElementById('detail_tanggal_lahir').innerText      = data.tanggal_lahir;
-        document.getElementById('detail_jenis_kelamin').innerText      = data.jenis_kelamin;
-        document.getElementById('detail_agama').innerText              = data.agama;
-        document.getElementById('detail_status_pernikahan').innerText  = data.status_pernikahan;
-        document.getElementById('detail_email').innerText              = data.email;
-        document.getElementById('detail_nomor_telepon').innerText      = data.nomor_telepon;
-        document.getElementById('detail_nik').innerText                = data.nik;
-        document.getElementById('detail_npwp').innerText               = data.npwp;
-        document.getElementById('detail_nama_kontak_darurat').innerText    = data.nama_kontak_darurat;
+        document.getElementById('detail_nama_lengkap').innerText         = data.nama_lengkap;
+        document.getElementById('detail_nip').innerText                  = data.nip;
+        document.getElementById('detail_alamat').innerText               = data.alamat;
+        document.getElementById('detail_tempat_lahir').innerText         = data.tempat_lahir;
+        document.getElementById('detail_tanggal_lahir').innerText        = data.tanggal_lahir;
+        document.getElementById('detail_jenis_kelamin').innerText        = data.jenis_kelamin;
+        document.getElementById('detail_agama').innerText                = data.agama;
+        document.getElementById('detail_status_pernikahan').innerText    = data.status_pernikahan;
+        document.getElementById('detail_email').innerText                = data.email;
+        document.getElementById('detail_nomor_telepon').innerText        = data.nomor_telepon;
+        document.getElementById('detail_nik').innerText                  = data.nik;
+        document.getElementById('detail_npwp').innerText                 = data.npwp;
+        document.getElementById('detail_nama_bank').innerText            = data.nama_bank;
+        document.getElementById('detail_nomor_rekening').innerText       = data.nomor_rekening;
+        document.getElementById('detail_nama_kontak_darurat').innerText  = data.nama_kontak_darurat;
         document.getElementById('detail_telepon_kontak_darurat').innerText = data.telepon_kontak_darurat;
-        document.getElementById('detail_role').innerText               = data.role.toUpperCase();
-        document.getElementById('detail_tanggal_bergabung').innerText  = data.tanggal_bergabung;
-        document.getElementById('detail_status').innerText             = data.status;
-        document.getElementById('detail_pendidikan_terakhir').innerText= data.pendidikan_terakhir;
-        document.getElementById('detail_universitas').innerText        = data.universitas;
-        document.getElementById('detail_jurusan').innerText            = data.jurusan;
-        document.getElementById('detail_tahun_lulus').innerText        = data.tahun_lulus;
+        document.getElementById('detail_role').innerText                 = data.role.toUpperCase();
+        document.getElementById('detail_jabatan').innerText              = data.jabatan;
+        document.getElementById('detail_tanggal_bergabung').innerText    = data.tanggal_bergabung;
+        document.getElementById('detail_end_date').innerText             = data.end_date;
+        document.getElementById('detail_total_hari_kerja').innerText     = data.total_hari_kerja;
+        document.getElementById('detail_reason_resigned').innerText      = data.reason_resigned;
+        document.getElementById('detail_pendidikan_terakhir').innerText  = data.pendidikan_terakhir;
+        document.getElementById('detail_universitas').innerText          = data.universitas;
+        document.getElementById('detail_jurusan').innerText              = data.jurusan;
+        document.getElementById('detail_tahun_lulus').innerText          = data.tahun_lulus;
 
+        // Status with badge
+        const statusEl = document.getElementById('detail_status');
+        statusEl.innerHTML = `<span class="px-3 py-1 text-xs rounded-full ${data.status_class}">${data.status_badge}</span>`;
+
+        // Foto profil
         const foto = document.getElementById('detail_foto_profil');
         foto.src = data.foto_profil
             ? data.foto_profil
             : `https://ui-avatars.com/api/?background=0D8F81&color=fff&size=200&name=${encodeURIComponent(data.nama_lengkap)}`;
+        foto.onerror = function() {
+            this.src = `https://ui-avatars.com/api/?background=0D8F81&color=fff&size=200&name=${encodeURIComponent(data.nama_lengkap)}`;
+        };
 
         // Reset other tabs to loading state
         document.getElementById('emp-attendance-loading').classList.remove('hidden');
@@ -491,12 +556,22 @@
             return;
         }
         fetch(`/admin/karyawan/${id}/employee-detail`)
-            .then(r => r.json())
+            .then(r => {
+                if (!r.ok) throw new Error('Network response was not ok');
+                return r.json();
+            })
             .then(data => {
                 empDetailCache[id] = data;
                 callback(data);
             })
-            .catch(() => console.error('Failed to load employee detail'));
+            .catch(err => {
+                console.error('Failed to load employee detail:', err);
+                // Show error in UI
+                document.getElementById('emp-attendance-loading').classList.add('hidden');
+                document.getElementById('emp-attendance-content').classList.remove('hidden');
+                document.getElementById('emp-attendance-tbody').innerHTML =
+                    `<tr><td colspan="4" class="px-5 py-8 text-center text-red-400">Failed to load data</td></tr>`;
+            });
     }
 
     function loadEmpAttendance() {
@@ -524,27 +599,33 @@
 
         document.getElementById('emp-attendance-rate').textContent  = a.rate + '%';
         document.getElementById('emp-present-count').textContent     = a.present;
+        document.getElementById('emp-late-count').textContent        = a.late || 0;
         document.getElementById('emp-absent-count').textContent      = a.absent;
 
         // Recent attendance rows
         const atBody = document.getElementById('emp-attendance-tbody');
         const statusMap = {
-            hadir:  ['bg-green-100 text-green-800',   'On Time'],
-            masuk:  ['bg-green-100 text-green-800',   'On Time'],
+            hadir:  ['bg-green-100 text-green-800',   'Present'],
+            masuk:  ['bg-green-100 text-green-800',   'Present'],
+            present:['bg-green-100 text-green-800',   'Present'],
             izin:   ['bg-blue-100 text-blue-800',     'Permit'],
+            permit: ['bg-blue-100 text-blue-800',     'Permit'],
             sakit:  ['bg-purple-100 text-purple-800', 'Sick'],
+            sick:   ['bg-purple-100 text-purple-800', 'Sick'],
             alpha:  ['bg-red-100 text-red-800',       'Absent'],
+            absent: ['bg-red-100 text-red-800',       'Absent'],
             pending:['bg-yellow-100 text-yellow-800', 'Pending'],
         };
-        if (!a.recent.length) {
+        if (!a.recent || !a.recent.length) {
             atBody.innerHTML = `<tr><td colspan="4" class="px-5 py-8 text-center text-gray-400">No attendance records found</td></tr>`;
         } else {
             atBody.innerHTML = a.recent.map(row => {
-                const [cls, txt] = statusMap[row.status] ?? ['bg-gray-100 text-gray-800', row.status];
+                const statusKey = row.status || 'pending';
+                const [cls, txt] = statusMap[statusKey.toLowerCase()] ?? ['bg-gray-100 text-gray-800', statusKey];
                 return `<tr class="hover:bg-gray-50">
-                    <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-900">${row.tanggal}</td>
-                    <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-600">${row.jam_masuk}</td>
-                    <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-600">${row.jam_pulang}</td>
+                    <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-900">${row.tanggal || '-'}</td>
+                    <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-600">${row.jam_masuk || '-'}</td>
+                    <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-600">${row.jam_pulang || '-'}</td>
                     <td class="px-5 py-3 whitespace-nowrap">
                         <span class="px-2 py-1 text-xs rounded-full ${cls}">${txt}</span>
                     </td>
@@ -553,14 +634,14 @@
         }
 
         // Leave quotas
-        document.getElementById('emp-annual-used').textContent    = l.annual_used;
-        document.getElementById('emp-annual-quota').textContent   = l.annual_quota;
-        document.getElementById('emp-sick-used').textContent      = l.sick_used;
-        document.getElementById('emp-sick-quota').textContent     = l.sick_quota;
-        document.getElementById('emp-emergency-used').textContent = l.emergency_used;
-        document.getElementById('emp-emergency-quota').textContent= l.emergency_quota;
-        document.getElementById('emp-other-used').textContent     = l.other_used;
-        document.getElementById('emp-other-quota').textContent    = l.other_quota;
+        document.getElementById('emp-annual-used').textContent    = l.annual_used || 0;
+        document.getElementById('emp-annual-quota').textContent   = l.annual_quota || 12;
+        document.getElementById('emp-sick-used').textContent      = l.sick_used || 0;
+        document.getElementById('emp-sick-quota').textContent     = l.sick_quota || 12;
+        document.getElementById('emp-emergency-used').textContent = l.emergency_used || 0;
+        document.getElementById('emp-emergency-quota').textContent= l.emergency_quota || 12;
+        document.getElementById('emp-other-used').textContent     = l.other_used || 0;
+        document.getElementById('emp-other-quota').textContent    = l.other_quota || 12;
 
         // Leave request rows
         const lvBody = document.getElementById('emp-leave-tbody');
@@ -571,15 +652,15 @@
             rejected:  ['bg-red-100 text-red-800',       'Rejected'],
             pending:   ['bg-yellow-100 text-yellow-800', 'Requested'],
         };
-        if (!l.requests.length) {
+        if (!l.requests || !l.requests.length) {
             lvBody.innerHTML = `<tr><td colspan="4" class="px-5 py-8 text-center text-gray-400">No leave requests found</td></tr>`;
         } else {
             lvBody.innerHTML = l.requests.map(row => {
                 const [cls, txt] = leaveStatusMap[row.status] ?? ['bg-gray-100 text-gray-800', row.status];
                 return `<tr class="hover:bg-gray-50">
-                    <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-900">${row.tanggal_mulai} – ${row.tanggal_selesai}</td>
-                    <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-600">${row.jenis_cuti}</td>
-                    <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-600">${row.total_hari}</td>
+                    <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-900">${row.tanggal_mulai || '-'} – ${row.tanggal_selesai || '-'}</td>
+                    <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-600">${row.jenis_cuti || '-'}</td>
+                    <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-600">${row.total_hari || 0}</td>
                     <td class="px-5 py-3 whitespace-nowrap">
                         <span class="px-2 py-1 text-xs rounded-full ${cls}">${txt}</span>
                     </td>
@@ -595,22 +676,26 @@
     function renderPerformanceTab(data) {
         const p = data.performance;
 
-        document.getElementById('emp-perf-score').textContent  = p.latest_score;
-        document.getElementById('emp-perf-rating').textContent = p.rating_label;
+        document.getElementById('emp-perf-score').textContent  = p.latest_score || 0;
+        document.getElementById('emp-perf-rating').textContent = p.rating_label || 'No Data';
 
         const changeEl = document.getElementById('emp-perf-change');
-        changeEl.textContent = (p.change >= 0 ? '+' : '') + p.change;
-        changeEl.className   = 'font-semibold text-sm ' + (p.change >= 0 ? 'text-green-300' : 'text-red-300');
+        const changeVal = p.change || 0;
+        changeEl.textContent = (changeVal >= 0 ? '+' : '') + changeVal;
+        changeEl.className   = 'font-semibold text-sm ' + (changeVal >= 0 ? 'text-green-300' : 'text-red-300');
 
         // KPI bars
         ['quality','productivity','teamwork','discipline'].forEach(k => {
-            document.getElementById(`emp-${k}`).textContent = p[k];
-            document.getElementById(`emp-${k}-bar`).style.width = p[k] + '%';
+            const val = p[k] || 0;
+            document.getElementById(`emp-${k}`).textContent = val;
+            document.getElementById(`emp-${k}-bar`).style.width = Math.min(val, 100) + '%';
         });
-        document.getElementById('emp-kpi-score').textContent = p.kpi_score;
+        document.getElementById('emp-kpi-score').textContent = p.kpi_score || 0;
 
         // ApexChart
         if (empPerfChart) { empPerfChart.destroy(); empPerfChart = null; }
+
+        const chartData = p.history || { months: [], scores: [] };
 
         empPerfChart = new ApexCharts(document.getElementById('emp-perf-chart'), {
             chart: {
@@ -619,9 +704,9 @@
                 toolbar: { show: false },
                 sparkline: { enabled: false },
             },
-            series: [{ name: 'Performance Score', data: p.history.scores }],
+            series: [{ name: 'Performance Score', data: chartData.scores || [] }],
             xaxis: {
-                categories: p.history.months,
+                categories: chartData.months || [],
                 labels: { style: { colors: '#6b7280', fontSize: '11px' } },
             },
             yaxis: {

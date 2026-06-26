@@ -13,6 +13,7 @@ use App\Http\Controllers\PerformaController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\BreakController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Karyawan\DashboardController;
 
 // Redirect root to login
 Route::get('/', function () {
@@ -230,7 +231,7 @@ Route::middleware(['auth', 'karyawan'])
 Route::middleware('auth')->group(function () {
     Route::post('/break/{id}/start', [BreakController::class, 'start'])->name('break.start');
     Route::post('/break/{id}/end', [BreakController::class, 'end'])->name('break.end');
-    Route::get('/attendance/status', [App\Http\Controllers\Karyawan\DashboardController::class, 'getStatus'])->name('attendance.status');
+    Route::get('/attendance/status', [DashboardController::class, 'getStatus'])->name('attendance.status');
 });
 
 require __DIR__ . '/auth.php';

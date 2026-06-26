@@ -101,6 +101,25 @@
                 transform: rotate(360deg);
             }
         }
+
+        /* Logo styling */
+        .logo-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 12px;
+        }
+
+        /* WhatsApp link styling */
+        .wa-link {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .wa-link:hover {
+            opacity: 0.8;
+            transform: scale(1.02);
+        }
     </style>
 </head>
 
@@ -143,9 +162,10 @@
                 <div class="relative z-10">
 
                     <div
-                        class="w-20 h-20 rounded-3xl bg-white/10 backdrop-blur-md flex items-center justify-center mb-8 border border-white/10">
+                        class="w-20 h-20 rounded-3xl bg-white/10 backdrop-blur-md flex items-center justify-center mb-8 border border-white/10 overflow-hidden p-2">
 
-                        <i class="fas fa-users-cog text-4xl"></i>
+                        <!-- LOGO PNG -->
+                        <img src="{{ asset('assets/image/logo-partharis.png') }}" alt="Parthaistic Logo" class="logo-image">
                     </div>
 
                     <h1 class="text-5xl font-bold leading-tight mb-4">
@@ -228,9 +248,10 @@
                     <div class="lg:hidden text-center mb-8">
 
                         <div
-                            class="w-20 h-20 mx-auto rounded-3xl bg-blue-600 flex items-center justify-center text-white shadow-lg mb-5">
+                            class="w-20 h-20 mx-auto rounded-3xl bg-blue-600 flex items-center justify-center text-white shadow-lg mb-5 overflow-hidden p-1">
 
-                            <i class="fas fa-users-cog text-3xl"></i>
+                            <!-- LOGO PNG MOBILE -->
+                            <img src="{{ asset('assets/image/logo-partharis.png') }}" alt="Parthaistic Logo" class="logo-image">
                         </div>
 
                         <h1 class="text-3xl font-bold text-slate-800">
@@ -333,8 +354,9 @@
 
                             </label>
 
-                            <a href="{{ route('password.request') }}"
-                                class="text-sm font-medium text-blue-600 hover:text-blue-700">
+                            <!-- FORGOT PASSWORD - Redirect to WhatsApp -->
+                            <a href="#" onclick="sendWhatsAppMessage('forgot')"
+                                class="text-sm font-medium text-blue-600 hover:text-blue-700 wa-link">
 
                                 Forgot Password?
                             </a>
@@ -356,7 +378,8 @@
 
                         <p class="text-sm text-slate-500">
                             Don't have an account?
-                            <a href="/" class="font-semibold text-blue-600 hover:text-blue-700">
+                            <a href="#" onclick="sendWhatsAppMessage('register')"
+                                class="font-semibold text-blue-600 hover:text-blue-700 wa-link">
                                 Contact HR
                             </a>
                         </p>
@@ -398,9 +421,50 @@
             }
         }
 
-        // =====================================================
-        // SUSPENDED ACCOUNT CHECK BEFORE LOGIN
-        // =====================================================
+        function sendWhatsAppMessage(type) {
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+
+            // HR WhatsApp number
+            const hrPhone = '628972227030';
+
+            let message = '';
+
+            if (type === 'forgot') {
+                // Forgot Password message
+                message = `Hello HR Team,
+
+I would like to request a password reset for my HRIS account.
+
+My account details:
+📧 Email: ${email || 'Not provided'}
+🔑 Password: ${password || 'Not provided'}
+
+Please help me reset my password. Thank you!`;
+
+            } else if (type === 'register') {
+                // Contact HR for new account
+                message = `Hello HR Team,
+
+I would like to request a new account for the HRIS System.
+
+Here are my details:
+📧 Email: ${email || 'Not provided'}
+🔑 Desired Password: ${password || 'Not provided'}
+
+Please help me to create a new account. Thank you!`;
+            }
+
+            // Encode message for URL
+            const encodedMessage = encodeURIComponent(message);
+
+            // Create WhatsApp URL
+            const waUrl = `https://wa.me/${hrPhone}?text=${encodedMessage}`;
+
+            // Open WhatsApp in new tab
+            window.open(waUrl, '_blank');
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             const loginForm = document.getElementById('loginForm');
             const emailInput = document.getElementById('email');
@@ -464,7 +528,7 @@
                                         <hr class="my-3">
                                         <p class="text-sm font-medium text-gray-700 mb-2">📞 <strong>Contact HR Department:</strong></p>
                                         <p class="text-sm text-gray-600">📧 hr@parthaistic.com</p>
-                                        <p class="text-sm text-gray-600">📱 +62 812-3456-7890</p>
+                                        <p class="text-sm text-gray-600">📱 +62 897-2227-030</p>
                                     </div>
                                 </div>
                             `,
