@@ -44,11 +44,11 @@
                         <!-- JUDUL -->
                         <div class="md:col-span-2">
                             <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Tittle
+                                Title
                             </label>
 
                             <input type="text" name="judul" value="{{ old('judul', $item->judul) }}" required
-                                placeholder="Masukkan judul pengumuman..."
+                                placeholder="Enter the title of the announcement..."
                                 class="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
 
                             @error('judul')
@@ -62,7 +62,7 @@
                                 Content
                             </label>
 
-                            <textarea name="konten" rows="8" required placeholder="Tulis isi pengumuman..."
+                            <textarea name="konten" rows="8" required placeholder="Write the announcement content here..."
                                 class="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ old('konten', $item->konten) }}</textarea>
 
                             @error('konten')
@@ -158,7 +158,7 @@
                                 class="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
 
                             <p class="text-xs text-gray-500 mt-2">
-                                Upload announcement supporting file 
+                                Leave blank to keep the current publish date
                             </p>
                         </div>
 
@@ -244,7 +244,7 @@
                 <!-- FOOTER -->
                 <div class="bg-white py-5 border-t flex justify-end gap-3">
 
-                    <button type="button" data-modal-hide="announcement-modal"
+                    <button type="button" data-modal-hide="announcement-modal-edit-{{ $item->id }}"
                         class="px-3 py-2 text-sm rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-100 transition">
                         Cancel
                     </button>

@@ -84,6 +84,14 @@
                             <th class="text-left pb-3 whitespace-nowrap">Teamwork</th>
                             <th class="text-left pb-3 whitespace-nowrap">Discipline</th>
                             <th class="text-left pb-3 whitespace-nowrap">KPI Score</th>
+                            <th class="text-left pb-3 whitespace-nowrap">
+                                <span class="flex items-center gap-1">
+                                    Task Done
+                                    <svg class="w-3 h-3 text-[#0052CC] opacity-50" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M21 0H3C1.343 0 0 1.343 0 3v18c0 1.656 1.343 3 3 3h18c1.656 0 3-1.344 3-3V3c0-1.657-1.344-3-3-3zM10.44 18.18c0 .795-.645 1.44-1.44 1.44H4.56c-.795 0-1.44-.645-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44H9c.795 0 1.44.645 1.44 1.44v12.36zm10.44-7.08c0 .794-.645 1.44-1.44 1.44H15c-.795 0-1.44-.646-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44h4.44c.795 0 1.44.645 1.44 1.44v5.28z"/>
+                                    </svg>
+                                </span>
+                            </th>
                             <th class="text-left pb-3 whitespace-nowrap">Attendance</th>
                             <th class="text-left pb-3 whitespace-nowrap">Total Score</th>
                             <th class="text-left pb-3 whitespace-nowrap">Status</th>
@@ -130,6 +138,15 @@
                                     <span class="text-xs text-gray-500">{{ $item->discipline }}%</span>
                                 </td>
                                 <td class="py-3 font-semibold text-blue-600">{{ $item->kpi_score }}%</td>
+                                <td class="py-3">
+                                    <div class="flex items-center gap-1">
+                                        <svg class="w-3 h-3 text-[#0052CC] opacity-40" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M21 0H3C1.343 0 0 1.343 0 3v18c0 1.656 1.343 3 3 3h18c1.656 0 3-1.344 3-3V3c0-1.657-1.344-3-3-3zM10.44 18.18c0 .795-.645 1.44-1.44 1.44H4.56c-.795 0-1.44-.645-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44H9c.795 0 1.44.645 1.44 1.44v12.36zm10.44-7.08c0 .794-.645 1.44-1.44 1.44H15c-.795 0-1.44-.646-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44h4.44c.795 0 1.44.645 1.44 1.44v5.28z"/>
+                                        </svg>
+                                        <span class="font-medium text-gray-700">{{ $item->task_done }}</span>
+                                    </div>
+                                    <span class="text-[10px] text-gray-400">score: {{ $item->task_score }}</span>
+                                </td>
                                 <td class="py-3">
                                     <div class="w-16 bg-gray-200 rounded-full h-1.5">
                                         <div class="bg-green-600 rounded-full h-1.5"
@@ -398,6 +415,39 @@
                                         <div class="grid grid-cols-2 px-5 py-3 font-bold bg-blue-50"><div>KPI Score</div><div class="text-blue-600">${data.kpi_score || 0}</div></div>
                                         <div class="grid grid-cols-2 px-5 py-3 font-bold bg-purple-50"><div>Total Performance Score</div><div class="text-lg text-purple-600">${data.performance_score || 0}</div></div>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-6">
+                            <h2 class="text-lg font-bold text-blue-900 mb-3 flex items-center gap-2">
+                                Task Summary
+                                <svg class="w-4 h-4 text-[#0052CC]" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M21 0H3C1.343 0 0 1.343 0 3v18c0 1.656 1.343 3 3 3h18c1.656 0 3-1.344 3-3V3c0-1.657-1.344-3-3-3zM10.44 18.18c0 .795-.645 1.44-1.44 1.44H4.56c-.795 0-1.44-.645-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44H9c.795 0 1.44.645 1.44 1.44v12.36zm10.44-7.08c0 .794-.645 1.44-1.44 1.44H15c-.795 0-1.44-.646-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44h4.44c.795 0 1.44.645 1.44 1.44v5.28z"/>
+                                </svg>
+                                <span class="text-sm font-normal text-[#0052CC]">via Trello</span>
+                            </h2>
+                            <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
+                                <div class="flex items-center gap-2 mb-3">
+                                    <span class="inline-block w-2 h-2 rounded-full bg-yellow-400 flex-shrink-0"></span>
+                                    <span class="text-xs text-gray-500">Trello API not connected — entered manually by admin</span>
+                                </div>
+                                <div class="grid grid-cols-3 gap-3">
+                                    <div class="bg-white rounded-lg border border-gray-200 p-3 text-center">
+                                        <div class="text-2xl font-bold text-[#0052CC]">${data.task_done ?? 0}</div>
+                                        <div class="text-xs text-gray-500 mt-1">Tasks Done</div>
+                                    </div>
+                                    <div class="bg-white rounded-lg border border-gray-200 p-3 text-center">
+                                        <div class="text-2xl font-bold text-gray-500">20</div>
+                                        <div class="text-xs text-gray-500 mt-1">Monthly Target</div>
+                                    </div>
+                                    <div class="bg-white rounded-lg border border-gray-200 p-3 text-center">
+                                        <div class="text-2xl font-bold text-teal-600">${data.task_score ?? 0}</div>
+                                        <div class="text-xs text-gray-500 mt-1">Task Score</div>
+                                    </div>
+                                </div>
+                                <div class="mt-3 pt-3 border-t border-gray-200">
+                                    <p class="text-xs text-gray-400">Formula: <span class="font-medium text-gray-500">Performance Score = (KPI × 50%) + (Task Score × 50%)</span></p>
                                 </div>
                             </div>
                         </div>

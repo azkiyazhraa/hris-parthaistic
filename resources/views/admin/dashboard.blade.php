@@ -129,9 +129,16 @@
                         @endphp
 
                         <div class="space-y-3">
-                            @if ($item->gambar)
-                                <img src="{{ asset('storage/' . $item->gambar) }}" alt="{{ $item->judul }}"
-                                    class="object-cover w-full rounded-lg">
+                            @if ($item->lampiran && preg_match('/\.(jpg|jpeg|png|gif|webp)$/i', $item->lampiran))
+                                <div class="w-full aspect-video overflow-hidden rounded-xl border border-gray-200">
+                                    <img src="{{ asset('storage/' . $item->lampiran) }}" alt="Lampiran"
+                                        class="w-full h-full object-cover">
+                                </div>
+                            @elseif ($item->lampiran)
+                                <a href="{{ asset('storage/' . $item->lampiran) }}" target="_blank"
+                                    class="inline-flex items-center gap-2 px-3 py-1.5 text-xs text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-50">
+                                    View Attachment
+                                </a>
                             @endif
 
                             <div>
@@ -151,38 +158,16 @@
                                     {{ \Illuminate\Support\Str::limit($contentText, 100, '...') }}
                                 </div>
 
-                                @if (strlen($contentText) > 10)
-                                    <div class="mt-4 text-right">
-                                        <a href="javascript:void(0)" onclick="showDetail({{ $item->id }})"
-                                            class="text-xs text-cyan-500 hover:underline">
-                                            Read More
-                                        </a>
-                                    </div>
-                                @endif
-
-                                @if ($item->lampiran)
-                                    <div class="mt-4 space-y-3">
-                                        <h5 class="text-sm font-semibold text-gray-700">
-                                            Attachment
-                                        </h5>
-
-                                        @if (preg_match('/\.(jpg|jpeg|png|gif|webp)$/i', $item->lampiran))
-                                            <img src="{{ asset('storage/' . $item->lampiran) }}" alt="Lampiran"
-                                                class="w-full border border-gray-200 rounded-xl">
-                                        @elseif (preg_match('/\.pdf$/i', $item->lampiran))
-                                            <iframe src="{{ asset('storage/' . $item->lampiran) }}"
-                                                class="w-full h-[600px] rounded-xl border border-gray-200">
-                                            </iframe>
-                                        @else
-                                            <div class="p-4 border border-blue-100 bg-blue-50 rounded-2xl">
-                                                <a href="{{ asset('storage/' . $item->lampiran) }}" target="_blank"
-                                                    class="inline-flex items-center gap-2 px-4 py-2 text-sm text-white bg-blue-600 rounded-xl hover:bg-blue-700">
-                                                    Download Attachment
-                                                </a>
-                                            </div>
-                                        @endif
-                                    </div>
-                                @endif
+                                <div class="mt-4 flex items-center justify-between">
+                                    <a href="javascript:void(0)" onclick="showDetail({{ $item->id }})"
+                                        class="text-xs text-cyan-500 hover:underline">
+                                        Read More
+                                    </a>
+                                    <a href="{{ route('admin.pengumuman.index') }}"
+                                        class="text-xs text-cyan-500 hover:underline">
+                                        Manage →
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     @endif

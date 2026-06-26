@@ -23,6 +23,8 @@ class Performa extends Model
         'bulan',
         'tahun',
         'attendance_rate',
+        'task_done',
+        'task_score',
         'quality',
         'productivity',
         'teamwork',
@@ -36,6 +38,8 @@ class Performa extends Model
     protected $casts = [
         'join_date' => 'date',
         'attendance_rate' => 'integer',
+        'task_done' => 'integer',
+        'task_score' => 'integer',
         'quality' => 'integer',
         'productivity' => 'integer',
         'teamwork' => 'integer',
@@ -212,10 +216,10 @@ class Performa extends Model
         return $kpiScore;
     }
 
-    // Calculate performance score: (KPI Score + Attendance Rate) / 2
-    public static function calculatePerformanceScore($attendance_rate, $quality, $productivity, $teamwork, $discipline, $kpi_score)
+    // Calculate performance score: (KPI Score × 50%) + (Task Score × 50%)
+    public static function calculatePerformanceScore($kpi_score, $task_score)
     {
-        return round(($kpi_score + $attendance_rate) / 2);
+        return round(($kpi_score * 0.5) + ($task_score * 0.5));
     }
 
     // Get rating based on performance score

@@ -14,7 +14,9 @@
     <div class="bg-white rounded-2xl shadow-lg p-6" style="border: 2px solid #e0eaff;">
         <div class="mb-4 bg-blue-50 border-l-4 border-blue-500 p-4">
             <p class="text-blue-700 text-sm">
-                <strong>Information :</strong> KPI Score, Attendance Rate, and Performance will be calculated automatically.
+                <strong>Information :</strong> KPI Score and Task Score are calculated automatically.
+                <strong>Performance Score = (KPI Score × 50%) + (Task Score × 50%)</strong>.
+                Task Score = (Tasks Done ÷ Target) × 100. Default target is 20 tasks/month.
             </p>
         </div>
 
@@ -49,7 +51,16 @@
                             <th class="py-3 px-2 text-center">Productivity</th>
                             <th class="py-3 px-2 text-center">Teamwork</th>
                             <th class="py-3 px-2 text-center">Discipline</th>
+                            <th class="py-3 px-2 text-center">
+                                <span class="flex items-center justify-center gap-1">
+                                    Task Done
+                                    <svg class="w-3 h-3 text-[#0052CC] opacity-60" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M21 0H3C1.343 0 0 1.343 0 3v18c0 1.656 1.343 3 3 3h18c1.656 0 3-1.344 3-3V3c0-1.657-1.344-3-3-3zM10.44 18.18c0 .795-.645 1.44-1.44 1.44H4.56c-.795 0-1.44-.645-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44H9c.795 0 1.44.645 1.44 1.44v12.36zm10.44-7.08c0 .794-.645 1.44-1.44 1.44H15c-.795 0-1.44-.646-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44h4.44c.795 0 1.44.645 1.44 1.44v5.28z"/>
+                                    </svg>
+                                </span>
+                            </th>
                             <th class="py-3 px-2 text-center">KPI</th>
+                            <th class="py-3 px-2 text-center">Task Score</th>
                             <th class="py-3 px-2 text-center">Total</th>
                         </tr>
                     </thead>
@@ -73,7 +84,14 @@
                                     <input type="number" name="performas[{{ $index }}][discipline]" class="discipline w-16 border rounded text-center py-1" min="0" max="100" value="0" onchange="calcRow(this)" onkeyup="calcRow(this)">
                                 </td>
                                 <td class="py-2 px-2 text-center">
+                                    <input type="number" name="performas[{{ $index }}][task_done]" class="task-done w-16 border rounded text-center py-1" min="0" value="0" onchange="calcRow(this)" onkeyup="calcRow(this)">
+                                    <input type="hidden" name="performas[{{ $index }}][task_target]" value="20">
+                                </td>
+                                <td class="py-2 px-2 text-center">
                                     <span class="kpi-display font-semibold text-blue-600">0</span>
+                                </td>
+                                <td class="py-2 px-2 text-center">
+                                    <span class="task-score-display font-semibold text-teal-600">0</span>
                                 </td>
                                 <td class="py-2 px-2 text-center">
                                     <span class="total-display font-bold text-purple-600">0</span>
@@ -95,14 +113,20 @@
 <script>
 function calcRow(el) {
     const row = el.closest('tr');
-    const q = parseInt(row.querySelector('.quality').value) || 0;
+    const q = parseInt(row.querySelector('.quality').value)      || 0;
     const p = parseInt(row.querySelector('.productivity').value) || 0;
-    const t = parseInt(row.querySelector('.teamwork').value) || 0;
-    const d = parseInt(row.querySelector('.discipline').value) || 0;
-    const kpi = Math.round((q + p + t + d) / 4);
-    const total = Math.round((kpi * 0.15) + (q * 0.20) + (p * 0.20) + (t * 0.15) + (d * 0.15) + (kpi * 0.15));
-    row.querySelector('.kpi-display').innerText = kpi;
-    row.querySelector('.total-display').innerText = total;
+    const t = parseInt(row.querySelector('.teamwork').value)     || 0;
+    const d = parseInt(row.querySelector('.discipline').value)   || 0;
+    const taskDone   = parseInt(row.querySelector('.task-done').value) || 0;
+    const taskTarget = 20;
+
+    const kpi       = Math.round((q + p + t + d) / 4);
+    const taskScore = Math.min(100, Math.round((taskDone / taskTarget) * 100));
+    const total     = Math.round((kpi * 0.5) + (taskScore * 0.5));
+
+    row.querySelector('.kpi-display').innerText        = kpi;
+    row.querySelector('.task-score-display').innerText = taskScore;
+    row.querySelector('.total-display').innerText      = total;
 }
 </script>
 @endsection

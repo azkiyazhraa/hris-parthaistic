@@ -109,6 +109,33 @@
             </a>
         </div>
 
+        {{-- TRELLO INTEGRATION STATUS --}}
+        <div class="bg-white rounded-2xl shadow p-4 border border-dashed border-blue-200 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+            <div class="flex items-center gap-3 flex-1 min-w-0">
+                <div class="w-9 h-9 bg-[#0052CC] rounded-lg flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M21 0H3C1.343 0 0 1.343 0 3v18c0 1.656 1.343 3 3 3h18c1.656 0 3-1.344 3-3V3c0-1.657-1.344-3-3-3zM10.44 18.18c0 .795-.645 1.44-1.44 1.44H4.56c-.795 0-1.44-.645-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44H9c.795 0 1.44.645 1.44 1.44v12.36zm10.44-7.08c0 .794-.645 1.44-1.44 1.44H15c-.795 0-1.44-.646-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44h4.44c.795 0 1.44.645 1.44 1.44v5.28z"/>
+                    </svg>
+                </div>
+                <div class="min-w-0">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <p class="font-semibold text-gray-700 text-sm">Trello Integration</p>
+                        <span class="px-2 py-0.5 bg-yellow-100 text-yellow-700 text-xs rounded-full font-medium">Not Connected</span>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-0.5">Connect Trello to automatically sync employee task completion data for performance evaluation.</p>
+                </div>
+            </div>
+            <button type="button" disabled
+                title="Trello API configuration will be available in the next update"
+                class="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-gray-400 text-xs font-medium rounded-lg cursor-not-allowed flex-shrink-0 border border-gray-200">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                Configure
+            </button>
+        </div>
+
         {{-- TABLE --}}
         <div class="bg-white rounded-2xl shadow-lg w-full p-6" style="border: 2px solid #e0eaff;">
             <div class="overflow-x-auto">
@@ -154,7 +181,16 @@
                                     @endphp
                                     {{ $monthNames[$item->bulan] ?? '-' }} {{ $item->tahun }}
                                 </td>
-                                <td class="py-3 text-gray-700">{{ $item->task_done }}</td>
+                                <td class="py-3">
+                                    <div class="flex items-center gap-1.5">
+                                        <svg class="w-3.5 h-3.5 text-[#0052CC] opacity-40 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M21 0H3C1.343 0 0 1.343 0 3v18c0 1.656 1.343 3 3 3h18c1.656 0 3-1.344 3-3V3c0-1.657-1.344-3-3-3zM10.44 18.18c0 .795-.645 1.44-1.44 1.44H4.56c-.795 0-1.44-.645-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44H9c.795 0 1.44.645 1.44 1.44v12.36zm10.44-7.08c0 .794-.645 1.44-1.44 1.44H15c-.795 0-1.44-.646-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44h4.44c.795 0 1.44.645 1.44 1.44v5.28z"/>
+                                        </svg>
+                                        <span class="font-medium text-gray-700">{{ $item->task_done }}</span>
+                                        <span class="text-gray-400 text-xs">tasks</span>
+                                    </div>
+                                    <span class="text-[10px] bg-gray-100 text-gray-400 px-1.5 py-0.5 rounded mt-0.5 inline-block">preview</span>
+                                </td>
                                 <td class="py-3 text-gray-700">{{ $item->attendance_summary->attendance_rate }}%</td>
                                 <td class="py-3 text-gray-700 font-semibold">{{ $item->kpi->kpi_score }}</td>
                                 <td class="py-3">
@@ -297,6 +333,11 @@
 
                     document.getElementById('modalEmployeeName').innerText = data.info.name;
 
+                    if (document.getElementById('modalTaskDone')) {
+                        document.getElementById('modalTaskDone').innerText = data.task_done ?? '--';
+                        document.getElementById('modalTaskScore').innerText = (data.task_score !== undefined && data.task_score !== null) ? data.task_score : '--';
+                    }
+
                     // Build photo HTML
                     let photoHtml = '';
                     if (data.info.foto_profil) {
@@ -375,6 +416,38 @@
                                 <div class="grid grid-cols-2 px-5 py-4 font-bold bg-blue-50"><div>KPI Score</div><div class="text-blue-600">${data.kpi.kpi_score}</div></div>
                                 <div class="grid grid-cols-2 px-5 py-4 font-bold bg-purple-50"><div>Total Performance Score</div><div class="text-lg text-purple-600">${data.performance_score}</div></div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-6">
+                    <h2 class="text-lg font-bold text-blue-900 mb-3 flex items-center gap-2">
+                        Task Summary
+                        <svg class="w-4 h-4 text-[#0052CC]" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M21 0H3C1.343 0 0 1.343 0 3v18c0 1.656 1.343 3 3 3h18c1.656 0 3-1.344 3-3V3c0-1.657-1.344-3-3-3zM10.44 18.18c0 .795-.645 1.44-1.44 1.44H4.56c-.795 0-1.44-.645-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44H9c.795 0 1.44.645 1.44 1.44v12.36zm10.44-7.08c0 .794-.645 1.44-1.44 1.44H15c-.795 0-1.44-.646-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44h4.44c.795 0 1.44.645 1.44 1.44v5.28z"/>
+                        </svg>
+                        <span class="text-sm font-normal text-[#0052CC]">via Trello</span>
+                    </h2>
+                    <div class="rounded-xl border border-dashed border-gray-200 bg-gray-50 p-4">
+                        <div class="flex items-center gap-2 mb-4">
+                            <span class="inline-block w-2 h-2 rounded-full bg-yellow-400 flex-shrink-0"></span>
+                            <span class="text-xs text-gray-500">Trello API not connected — data below is a preview placeholder</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-3">
+                            <div class="bg-white rounded-lg border border-gray-200 p-3 text-center">
+                                <div class="text-2xl font-bold text-[#0052CC]" id="modalTaskDone">--</div>
+                                <div class="text-xs text-gray-500 mt-1">Tasks Done</div>
+                            </div>
+                            <div class="bg-white rounded-lg border border-gray-200 p-3 text-center">
+                                <div class="text-2xl font-bold text-gray-500">20</div>
+                                <div class="text-xs text-gray-500 mt-1">Monthly Target</div>
+                            </div>
+                            <div class="bg-white rounded-lg border border-gray-200 p-3 text-center">
+                                <div class="text-2xl font-bold text-teal-600" id="modalTaskScore">--</div>
+                                <div class="text-xs text-gray-500 mt-1">Task Score</div>
+                            </div>
+                        </div>
+                        <div class="mt-3 pt-3 border-t border-gray-200">
+                            <p class="text-xs text-gray-400">Formula: <span class="font-medium text-gray-500">Performance Score = (KPI × 50%) + (Task Score × 50%)</span></p>
                         </div>
                     </div>
                 </div>

@@ -22,9 +22,18 @@
                 <p class="text-blue-700 text-sm">
                     <strong>Auto Calculation Information :</strong><br>
                     - KPI Score = Average of (Quality + Productivity + Teamwork + Discipline)<br>
-                    - Attendance Rate = Saved from real attendance data at time of creation<br>
-                    - Performance Score = (KPI Score + Attendance Rate) / 2
+                    - Task Score = (Tasks Completed ÷ Monthly Target) × 100<br>
+                    - <strong>Performance Score = (KPI Score × 50%) + (Task Score × 50%)</strong><br>
+                    - Attendance Rate is recorded for reference but not used in scoring
                 </p>
+                <div class="mt-2 pt-2 border-t border-blue-200">
+                    <p class="text-xs text-blue-600 flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5 text-[#0052CC] flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M21 0H3C1.343 0 0 1.343 0 3v18c0 1.656 1.343 3 3 3h18c1.656 0 3-1.344 3-3V3c0-1.657-1.344-3-3-3zM10.44 18.18c0 .795-.645 1.44-1.44 1.44H4.56c-.795 0-1.44-.645-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44H9c.795 0 1.44.645 1.44 1.44v12.36zm10.44-7.08c0 .794-.645 1.44-1.44 1.44H15c-.795 0-1.44-.646-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44h4.44c.795 0 1.44.645 1.44 1.44v5.28z"/>
+                        </svg>
+                        Task Done will be auto-synced from Trello when the integration is configured.
+                    </p>
+                </div>
             </div>
 
             <form method="POST" action="{{ route('admin.performa.update', $performa->id) }}" id="performaForm">
@@ -85,22 +94,76 @@
                     </div>
                 </div>
 
+                {{-- TASK COMPLETION SECTION --}}
+                <div class="border-t pt-6 mb-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">Task Completion</h3>
+                        <div class="flex items-center gap-2">
+                            <div class="w-5 h-5 bg-[#0052CC] rounded flex items-center justify-center">
+                                <svg class="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M21 0H3C1.343 0 0 1.343 0 3v18c0 1.656 1.343 3 3 3h18c1.656 0 3-1.344 3-3V3c0-1.657-1.344-3-3-3zM10.44 18.18c0 .795-.645 1.44-1.44 1.44H4.56c-.795 0-1.44-.645-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44H9c.795 0 1.44.645 1.44 1.44v12.36zm10.44-7.08c0 .794-.645 1.44-1.44 1.44H15c-.795 0-1.44-.646-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44h4.44c.795 0 1.44.645 1.44 1.44v5.28z"/>
+                                </svg>
+                            </div>
+                            <span class="text-xs text-yellow-700 bg-yellow-100 px-2 py-0.5 rounded-full font-medium">Trello — Not Connected</span>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 border border-dashed border-gray-300 rounded-xl p-4">
+                        <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+                            <div>
+                                <label class="block mb-2 text-sm font-bold text-gray-700">Tasks Completed</label>
+                                <input type="number" id="task_done" name="task_done"
+                                    value="{{ old('task_done', $performa->task_done) }}" min="0"
+                                    class="w-full px-3 py-2 border rounded-lg bg-white"
+                                    onchange="calculateAll()" onkeyup="calculateAll()">
+                                <p class="text-xs text-gray-400 mt-1">Will auto-sync from Trello when connected</p>
+                            </div>
+                            <div>
+                                <label class="block mb-2 text-sm font-bold text-gray-700">Monthly Target</label>
+                                <input type="number" id="task_target" name="task_target" value="20" min="1"
+                                    class="w-full px-3 py-2 border rounded-lg bg-white"
+                                    onchange="calculateAll()" onkeyup="calculateAll()">
+                                <p class="text-xs text-gray-400 mt-1">Default: 20 tasks/month</p>
+                            </div>
+                            <div>
+                                <label class="block mb-2 text-sm font-bold text-gray-700">Task Score (auto)</label>
+                                <div class="p-3 bg-white rounded-lg border border-gray-200">
+                                    <div class="text-3xl font-bold text-teal-600" id="task_score_display">{{ $performa->task_score }}</div>
+                                    <input type="hidden" id="task_score" name="task_score" value="{{ $performa->task_score }}">
+                                    <div class="w-full h-2 mt-2 bg-gray-200 rounded-full">
+                                        <div id="task_bar" class="h-2 bg-teal-500 rounded-full transition-all" style="width: {{ $performa->task_score }}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex flex-col sm:flex-row items-start sm:items-center gap-3 pt-3 border-t border-gray-200">
+                            <button type="button" disabled
+                                title="Configure Trello API first to enable auto-sync"
+                                class="flex items-center gap-2 px-3 py-2 bg-white text-gray-400 rounded-lg text-xs font-medium cursor-not-allowed border border-gray-200">
+                                <svg class="w-4 h-4 text-[#0052CC] opacity-40" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M21 0H3C1.343 0 0 1.343 0 3v18c0 1.656 1.343 3 3 3h18c1.656 0 3-1.344 3-3V3c0-1.657-1.344-3-3-3zM10.44 18.18c0 .795-.645 1.44-1.44 1.44H4.56c-.795 0-1.44-.645-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44H9c.795 0 1.44.645 1.44 1.44v12.36zm10.44-7.08c0 .794-.645 1.44-1.44 1.44H15c-.795 0-1.44-.646-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44h4.44c.795 0 1.44.645 1.44 1.44v5.28z"/>
+                                </svg>
+                                Sync from Trello
+                            </button>
+                            <p class="text-xs text-gray-400">Enter task count manually — will be auto-synced from Trello when connected.</p>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="border-t pt-6 mb-6">
                     <h3 class="text-lg font-semibold text-gray-800 mb-4">Auto Calculation Result</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="bg-blue-50 rounded-lg p-4">
                             <label class="block text-gray-700 text-sm font-bold mb-2">KPI Score</label>
-                            <div class="text-3xl font-bold text-blue-600" id="kpi_score_display">{{ $performa->kpi_score }}
-                            </div>
+                            <div class="text-3xl font-bold text-blue-600" id="kpi_score_display">{{ $performa->kpi_score }}</div>
                             <input type="hidden" id="kpi_score" name="kpi_score" value="{{ $performa->kpi_score }}">
                         </div>
-                        <div class="bg-green-50 rounded-lg p-4">
-                            <label class="block text-gray-700 text-sm font-bold mb-2">Attendance Rate</label>
-                            <div class="text-3xl font-bold text-green-600" id="attendance_rate_display">
+                        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Attendance Rate <span class="font-normal text-gray-400 text-xs">(reference only)</span></label>
+                            <div class="text-3xl font-bold text-gray-400" id="attendance_rate_display">
                                 {{ $performa->attendance_rate }}
                             </div>
-                            <input type="hidden" id="attendance_rate" name="attendance_rate"
-                                value="{{ $performa->attendance_rate }}">
+                            <input type="hidden" id="attendance_rate" name="attendance_rate" value="{{ $performa->attendance_rate }}">
+                            <p class="text-xs text-gray-400 mt-1">Not included in performance score formula</p>
                         </div>
                     </div>
                 </div>
@@ -145,8 +208,6 @@
     </div>
 
     <script>
-        const savedAttendanceRate = {{ $performa->attendance_rate ?? 0 }};
-
         function calculateAll() {
             const quality      = parseInt(document.getElementById('quality').value)      || 0;
             const productivity = parseInt(document.getElementById('productivity').value) || 0;
@@ -158,14 +219,19 @@
             });
 
             const kpiScore = Math.round((quality + productivity + teamwork + discipline) / 4);
-            document.getElementById('kpi_score').value          = kpiScore;
+            document.getElementById('kpi_score').value             = kpiScore;
             document.getElementById('kpi_score_display').innerText = kpiScore;
 
-            // Attendance rate stays as saved — not recalculated from KPI
-            const attendanceRate = savedAttendanceRate;
+            const taskDone   = parseInt(document.getElementById('task_done').value)   || 0;
+            const taskTarget = Math.max(1, parseInt(document.getElementById('task_target').value) || 20);
+            const taskScore  = Math.min(100, Math.round((taskDone / taskTarget) * 100));
+            document.getElementById('task_score').value             = taskScore;
+            document.getElementById('task_score_display').innerText = taskScore;
+            document.getElementById('task_bar').style.width         = taskScore + '%';
 
-            const total = Math.round((kpiScore + attendanceRate) / 2);
-            document.getElementById('performance_score').value          = total;
+            // Performance Score = (KPI × 50%) + (Task Score × 50%)
+            const total = Math.round((kpiScore * 0.5) + (taskScore * 0.5));
+            document.getElementById('performance_score').value             = total;
             document.getElementById('performance_score_display').innerText = total;
 
             let rating = '', ratingColor = '';

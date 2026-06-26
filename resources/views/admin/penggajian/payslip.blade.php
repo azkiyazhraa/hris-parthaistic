@@ -343,6 +343,40 @@
             </table>
         </div>
 
+        {{-- WORK ATTENDANCE --}}
+        @php
+            $attendancePct = $totalHariKerja > 0
+                ? round(($totalMasuk / $totalHariKerja) * 100)
+                : 0;
+        @endphp
+        <div style="margin-top:10px; margin-bottom:15px; padding:10px 16px; background-color:#f0f9ff; border:1px solid #bae6fd; border-radius:6px;">
+            <table style="border:none; width:100%;">
+                <tr>
+                    <td style="border:none; font-size:11px; color:#374151; vertical-align:middle;">
+                        <strong>Work Attendance</strong>
+                        <span style="font-size:10px; color:#6b7280; margin-left:6px;">
+                            ({{ $penggajian->bulan_text }} {{ $penggajian->tahun }}, Mon–Sat excl. holidays)
+                        </span>
+                    </td>
+                    <td style="border:none; text-align:right; vertical-align:middle;">
+                        <span style="font-size:16px; font-weight:bold; color:#0369a1;">
+                            {{ $totalMasuk }} / {{ $totalHariKerja }}
+                        </span>
+                        <span style="font-size:10px; color:#6b7280; margin-left:4px;">days</span>
+                        <span style="
+                            margin-left:8px;
+                            font-size:10px;
+                            font-weight:600;
+                            padding:2px 7px;
+                            border-radius:20px;
+                            background-color:{{ $attendancePct >= 90 ? '#dcfce7' : ($attendancePct >= 75 ? '#fef9c3' : '#fee2e2') }};
+                            color:{{ $attendancePct >= 90 ? '#15803d' : ($attendancePct >= 75 ? '#a16207' : '#b91c1c') }};
+                        ">{{ $attendancePct }}%</span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
         @if ($penggajian->catatan)
             <div style="border: 1px solid #1e40af; border-radius: 6px; padding: 12px 16px;">
                 <h3>Notes</h3>

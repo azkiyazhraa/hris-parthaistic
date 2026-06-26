@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AbsensiKaryawan;
 use App\Models\Karyawan;
 use App\Models\Notifikasi;
 use App\Models\Penggajian;
+use App\Services\FontteService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -377,27 +379,98 @@ class PenggajianController extends Controller
         $penggajian = Penggajian::with('karyawan')->findOrFail($id);
         $karyawan = $penggajian->karyawan;
 
-        if (! $karyawan || ! $karyawan->email) {
-            return redirect()->back()->with('error', 'Employee email not found');
+        if (! $karyawan || ! $karyawan->nomor_telepon) {
+            return redirect()->back()->with('error', 'Employee WhatsApp number not found in database');
         }
 
         try {
-            // Kirim notifikasi sederhana (tanpa PDF untuk sementara)
-            Notifikasi::create([
-                'user_id' => $karyawan->id,
-                'judul' => 'Slip Gaji Tersedia',
-                'pesan' => 'Slip gaji untuk periode ' . $this->getBulanText($penggajian->bulan) . " {$penggajian->tahun} telah tersedia. Silakan login ke sistem untuk melihat detail.",
-                'tipe_notifikasi' => 'penggajian',
-            ]);
+            $message = $this->buildPayslipMessage($penggajian);
+            $fonnte = new FontteService();
+            $result = $fonnte->send($karyawan->nomor_telepon, $message);
 
-            $penggajian->payslip_sent_at = now();
-            $penggajian->payslip_sent_by = Auth::user()->nama_lengkap;
-            $penggajian->save();
+            if ($result['status'] ?? false) {
+                $penggajian->payslip_sent_at = now();
+                $penggajian->payslip_sent_by = Auth::user()->nama_lengkap;
+                $penggajian->save();
 
-            return redirect()->back()->with('success', 'Payslip notification sent successfully');
+                return redirect()->back()->with('success', 'Payslip successfully sent to ' . $karyawan->nama_lengkap . '\'s WhatsApp');
+            }
+
+            return redirect()->back()->with('error', 'Failed to send: ' . ($result['reason'] ?? 'Unknown error'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Failed to send: ' . $e->getMessage());
         }
+    }
+
+    public function bulkSendWhatsapp(Request $request)
+    {
+        $ids = $request->input('ids', []);
+
+        if (empty($ids)) {
+            return response()->json(['success' => 0, 'failed' => 0, 'results' => []]);
+        }
+
+        $fonnte = new FontteService();
+        $results = [];
+        $successCount = 0;
+        $failedCount = 0;
+
+        foreach ($ids as $id) {
+            $penggajian = Penggajian::with('karyawan')->find($id);
+
+            if (! $penggajian) {
+                $results[] = ['name' => 'ID: ' . $id, 'status' => 'failed', 'reason' => 'Data not found'];
+                $failedCount++;
+                continue;
+            }
+
+            $karyawan = $penggajian->karyawan;
+
+            if (! $karyawan || ! $karyawan->nomor_telepon) {
+                $results[] = ['name' => $penggajian->nama_karyawan, 'status' => 'failed', 'reason' => 'WhatsApp number not found'];
+                $failedCount++;
+                continue;
+            }
+
+            $message = $this->buildPayslipMessage($penggajian);
+            $result = $fonnte->send($karyawan->nomor_telepon, $message);
+
+            if ($result['status'] ?? false) {
+                $penggajian->payslip_sent_at = now();
+                $penggajian->payslip_sent_by = Auth::user()->nama_lengkap;
+                $penggajian->save();
+
+                $results[] = ['name' => $karyawan->nama_lengkap, 'status' => 'sent'];
+                $successCount++;
+            } else {
+                $results[] = ['name' => $karyawan->nama_lengkap, 'status' => 'failed', 'reason' => $result['reason'] ?? 'Failed to send'];
+                $failedCount++;
+            }
+        }
+
+        return response()->json(['success' => $successCount, 'failed' => $failedCount, 'results' => $results]);
+    }
+
+    private function buildPayslipMessage(Penggajian $penggajian): string
+    {
+        $nama = $penggajian->karyawan->nama_lengkap ?? $penggajian->nama_karyawan;
+        $periode = $this->getBulanText($penggajian->bulan) . ' ' . $penggajian->tahun;
+        $gajiPokok = 'Rp ' . number_format($penggajian->gaji_pokok, 0, ',', '.');
+        $tunjangan = 'Rp ' . number_format($penggajian->total_earnings - $penggajian->gaji_pokok, 0, ',', '.');
+        $potongan = 'Rp ' . number_format($penggajian->total_deductions, 0, ',', '.');
+        $netSalary = 'Rp ' . number_format($penggajian->net_salary, 0, ',', '.');
+        $downloadUrl = url('/penggajian/' . $penggajian->id . '/download');
+
+        return "Hello *{$nama}* 👋\n\n"
+            . "Your payslip for *{$periode}* is now available.\n\n"
+            . "📋 *Salary Summary:*\n"
+            . "▪ Base Salary: {$gajiPokok}\n"
+            . "▪ Total Allowances: {$tunjangan}\n"
+            . "▪ Total Deductions: {$potongan}\n"
+            . "▪ *Net Salary: {$netSalary}*\n\n"
+            . "📥 *Download Payslip:*\n"
+            . "{$downloadUrl}\n\n"
+            . "_Sent automatically by Parthaistic HR System_";
     }
 
     public function downloadPayslip($id)
@@ -410,9 +483,48 @@ class PenggajianController extends Controller
             abort(403, 'Unauthorized');
         }
 
+        $bulan = $penggajian->bulan;
+        $tahun = $penggajian->tahun;
+
+        // --- Fetch national holidays from API ---
+        // Response: [{"date":"YYYY-MM-DD","name":"...","is_national_holiday":true/false}, ...]
+        $nationalHolidays = [];
+        try {
+            $response = Http::timeout(5)->get('https://libur.deno.dev/api', ['year' => $tahun]);
+            if ($response->successful()) {
+                foreach ($response->json() as $item) {
+                    if (isset($item['date'])) {
+                        $nationalHolidays[] = $item['date'];
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            // Proceed without holidays if API unavailable
+        }
+
+        // --- Count working days in the month (Mon–Sat, excluding national holidays) ---
+        $totalHariKerja = 0;
+        $current = Carbon::create($tahun, $bulan, 1)->startOfDay();
+        $endOfMonth = $current->copy()->endOfMonth()->startOfDay();
+        while ($current <= $endOfMonth) {
+            if ($current->dayOfWeek !== Carbon::SUNDAY && ! in_array($current->format('Y-m-d'), $nationalHolidays)) {
+                $totalHariKerja++;
+            }
+            $current->addDay();
+        }
+
+        // --- Count employee present days from attendance records ---
+        $totalMasuk = AbsensiKaryawan::where('karyawan_id', $penggajian->karyawan_id)
+            ->whereYear('tanggal', $tahun)
+            ->whereMonth('tanggal', $bulan)
+            ->where('status_kehadiran', 'present')
+            ->count();
+
         $pdf = Pdf::loadView('admin.penggajian.payslip', [
-            'penggajian' => $penggajian,
-            'karyawan' => $penggajian->karyawan,
+            'penggajian'     => $penggajian,
+            'karyawan'       => $penggajian->karyawan,
+            'totalHariKerja' => $totalHariKerja,
+            'totalMasuk'     => $totalMasuk,
         ])->setPaper('a4', 'portrait');
 
         $filename = 'Payslip_' .

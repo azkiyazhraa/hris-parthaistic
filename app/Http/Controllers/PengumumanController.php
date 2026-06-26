@@ -24,9 +24,7 @@ class PengumumanController extends Controller
 
     public function create()
     {
-        $karyawans = Karyawan::all();
-
-        return view('admin.pengumuman.create', compact('karyawan'));
+        return view('admin.pengumuman.create');
     }
 
     public function store(Request $request)
@@ -61,7 +59,7 @@ class PengumumanController extends Controller
         // Create notifications for targeted users
         $this->sendNotifications($pengumuman);
 
-        return redirect()->route('admin.dashboard')->with('success', 'Announcement created and notifications sent successfully');
+        return redirect()->route('admin.pengumuman.index')->with('success', 'Announcement created and notifications sent successfully');
     }
 
     public function show($id)
@@ -111,6 +109,8 @@ class PengumumanController extends Controller
         }
 
         $pengumuman->update($data);
+
+        $this->sendNotifications($pengumuman);
 
         return redirect()->route('admin.pengumuman.index')
             ->with('success', 'Announcement updated successfully');
@@ -165,6 +165,10 @@ class PengumumanController extends Controller
             ->where(function ($query) {
                 $query->whereNull('tanggal_berlaku_hingga')
                     ->orWhere('tanggal_berlaku_hingga', '>=', Carbon::today());
+            })
+            ->where(function ($query) {
+                $query->whereNull('tanggal_terbit')
+                    ->orWhere('tanggal_terbit', '<=', Carbon::now());
             })
             ->orderBy('created_at', 'desc')
             ->get();

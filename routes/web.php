@@ -180,6 +180,7 @@ Route::middleware(['auth', 'admin'])
                 Route::put('/{id}/status', [PenggajianController::class, 'adminUpdateStatus'])->name('update-status');
                 Route::get('/{id}/send-payslip', [PenggajianController::class, 'sendPayslip'])->name('send-payslip');
                 Route::get('/{id}/download', [PenggajianController::class, 'downloadPayslip'])->name('download');
+                Route::post('/bulk-whatsapp', [PenggajianController::class, 'bulkSendWhatsapp'])->name('bulk-whatsapp');
             });
 
         // Change Day

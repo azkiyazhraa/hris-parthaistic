@@ -42,11 +42,11 @@
                         <!-- JUDUL -->
                         <div class="md:col-span-2">
                             <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Tittle
+                                Title
                             </label>
 
                             <input type="text" name="judul" value="{{ old('judul') }}" required
-                                placeholder="Enter the tittle of the announcement..."
+                                placeholder="Enter the title of the announcement..."
                                 class="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
 
                             @error('judul')
@@ -60,7 +60,7 @@
                                 Content
                             </label>
 
-                            <textarea name="konten" rows="8" required placeholder="Tulis isi pengumuman..."
+                            <textarea name="konten" rows="8" required placeholder="Write the announcement content here..."
                                 class="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ old('konten') }}</textarea>
 
                             @error('konten')
@@ -139,7 +139,7 @@
                         <!-- TANGGAL TERBIT -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Date off
+                                Publish Date
                             </label>
 
                             <input type="datetime-local" name="tanggal_terbit" value="{{ old('tanggal_terbit') }}"
