@@ -109,6 +109,10 @@ class ProfileController extends Controller
         return view('profile.edit', compact('karyawan', 'attendanceRate', 'presentCount', 'lateCount', 'absentCount', 'recentAttendances', 'annualLeaveUsed', 'sickLeaveUsed', 'emergencyLeaveUsed', 'otherLeaveUsed', 'leaveRequests', 'latestPerformance', 'performanceChange', 'taskCompletionRate', 'todoTasks', 'inProgressTasks', 'doneTasks'));
     }
 
+    /**
+     * Update profile karyawan
+     * BANK: Nama bank selalu BSI, tidak bisa diubah
+     */
     public function update(Request $request)
     {
         $karyawan = auth()->user();
@@ -181,7 +185,8 @@ class ProfileController extends Controller
                 'tahun_lulus' => $validated['tahun_lulus'] ?? $karyawan->tahun_lulus,
                 'nama_kontak_darurat' => $validated['nama_kontak_darurat'] ?? $karyawan->nama_kontak_darurat,
                 'telepon_kontak_darurat' => $validated['telepon_kontak_darurat'] ?? $karyawan->telepon_kontak_darurat,
-                'nama_bank' => $validated['nama_bank'] ?? $karyawan->nama_bank,
+                // BANK: Selalu BSI, tidak bisa diubah oleh employee
+                'nama_bank' => 'BSI',
                 'nomor_rekening' => $validated['nomor_rekening'] ?? $karyawan->nomor_rekening,
             ];
 
@@ -196,9 +201,12 @@ class ProfileController extends Controller
             $karyawan->update($updateData);
 
             if ($request->ajax()) {
-                return response()->json(['success' => true, 'message' => 'Profile updated successfully']);
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Profile updated successfully. Bank: BSI (cannot be changed).'
+                ]);
             }
-            return redirect()->route('profile.edit')->with('success', 'Profile updated successfully');
+            return redirect()->route('profile.edit')->with('success', 'Profile updated successfully. Bank: BSI (cannot be changed).');
         } catch (\Throwable $th) {
             if ($request->ajax()) {
                 return response()->json(['success' => false, 'message' => $th->getMessage()], 422);

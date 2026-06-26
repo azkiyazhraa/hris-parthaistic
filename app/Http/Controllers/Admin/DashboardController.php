@@ -130,6 +130,9 @@ class DashboardController extends Controller
         return view('admin.karyawan.index', compact('karyawans'));
     }
 
+    /**
+     * Store a newly created employee
+     */
     public function storeKaryawan(Request $request)
     {
         try {
@@ -205,7 +208,8 @@ class DashboardController extends Controller
                 'reason_resigned' => $validated['reason_resigned'] ?? null,
                 'pendidikan_terakhir' => $validated['pendidikan_terakhir'] ?? null,
                 'pendidikan_terakhir_new' => $validated['pendidikan_terakhir'] ?? null,
-                'nama_bank' => $validated['nama_bank'] ?? 'BSI',
+                // BANK: Selalu BSI, abaikan input form
+                'nama_bank' => 'BSI',
                 'nomor_rekening' => $validated['nomor_rekening'] ?? null,
                 'foto_profil' => $fotoPath,
                 'nomor_telepon' => $validated['nomor_telepon'] ?? null,
@@ -226,7 +230,7 @@ class DashboardController extends Controller
 
             return redirect()
                 ->route('admin.karyawan')
-                ->with('success', 'Employee added successfully. NIP generated: ' . $newNip);
+                ->with('success', 'Employee added successfully. NIP generated: ' . $newNip . ' | Bank: BSI');
         } catch (\Throwable $th) {
             return redirect()
                 ->back()
@@ -241,6 +245,9 @@ class DashboardController extends Controller
         return response()->json($karyawan);
     }
 
+    /**
+     * Update employee data
+     */
     public function updateKaryawan(Request $request, $id)
     {
         $karyawan = Karyawan::findOrFail($id);
@@ -254,7 +261,7 @@ class DashboardController extends Controller
                 'jabatan' => 'nullable|in:Chief Executive Officer,Chief Operating Officer,Creative Writer,Finance,Business Development,Videographer,Video Editor,Social Media Manager,lainnya',
                 'jabatan_lainnya' => 'nullable|required_if:jabatan,lainnya|string|max:100',
                 'status' => 'required|in:Full-time,Contract,Internship,Resigned,Contract Ended,Internship Completed,Terminated',
-                'pendidikan_terakhir' => 'nullable|in:SMP,SMA/MA,SMK,D1,D2,D3,S1,S2',
+                'pendidikan_terakhir' => 'nullable|in:SMP,SMA/MA,SMK,D1,D2,D3,D4,S1,S2',
                 'nama_bank' => 'nullable|string|max:50',
                 'nomor_rekening' => 'nullable|string|max:30',
                 'kata_sandi' => 'nullable|min:6',
@@ -278,9 +285,13 @@ class DashboardController extends Controller
                 'foto_profil' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             ]);
 
+            // Tanggal bergabung
             $tanggalBergabung = Carbon::parse($validated['tanggal_bergabung'] ?? $karyawan->tanggal_bergabung);
+
+            // Jenis kelamin
             $jenisKelamin = $validated['jenis_kelamin'] ?? ($karyawan->jenis_kelamin ?? '');
 
+            // Cek apakah NIP perlu diupdate
             $oldJoinDate = $karyawan->tanggal_bergabung ? $karyawan->tanggal_bergabung->format('Y-m-d') : null;
             $newJoinDate = $tanggalBergabung->format('Y-m-d');
             $oldGender = $karyawan->jenis_kelamin ?? '';
@@ -290,7 +301,7 @@ class DashboardController extends Controller
             $newNip = $karyawan->nip; // default tetap NIP lama
             if ($nipChanged) {
                 // Ambil NNN (nomor urut) dari NIP lama agar tidak berubah
-                // Format lama NIP baru: X + YY + G + NNN (7 karakter)
+                // Format NIP baru: X + YY + G + NNN (7 karakter)
                 $oldNnn = substr($karyawan->nip, -3); // 3 digit terakhir = nomor urut
 
                 $tahunOps = $this->getOperationalYear($tanggalBergabung);
@@ -313,6 +324,7 @@ class DashboardController extends Controller
                 $newNip = $generatedNip;
             }
 
+            // Data yang akan diupdate
             $updateData = [
                 'nip' => $newNip,
                 'email' => $validated['email'],
@@ -328,7 +340,8 @@ class DashboardController extends Controller
                 'reason_resigned' => $validated['reason_resigned'] ?? null,
                 'pendidikan_terakhir' => $validated['pendidikan_terakhir'] ?? null,
                 'pendidikan_terakhir_new' => $validated['pendidikan_terakhir'] ?? null,
-                'nama_bank' => $validated['nama_bank'] ?? $karyawan->nama_bank,
+                // BANK: Selalu BSI, abaikan input form
+                'nama_bank' => 'BSI',
                 'nomor_rekening' => $validated['nomor_rekening'] ?? $karyawan->nomor_rekening,
                 'nomor_telepon' => $validated['nomor_telepon'] ?? $karyawan->nomor_telepon,
                 'alamat' => $validated['alamat'] ?? $karyawan->alamat,
@@ -346,10 +359,12 @@ class DashboardController extends Controller
                 'telepon_kontak_darurat' => $validated['telepon_kontak_darurat'] ?? $karyawan->telepon_kontak_darurat,
             ];
 
+            // Update password jika diisi
             if ($request->filled('kata_sandi')) {
                 $updateData['kata_sandi'] = Hash::make($validated['kata_sandi']);
             }
 
+            // Update foto profil jika ada
             if ($request->hasFile('foto_profil')) {
                 if (!empty($karyawan->foto_profil) && Storage::disk('public')->exists($karyawan->foto_profil)) {
                     Storage::disk('public')->delete($karyawan->foto_profil);
@@ -362,7 +377,7 @@ class DashboardController extends Controller
             $nipMsg = $nipChanged ? ' NIP updated to: ' . $newNip : '';
             return redirect()
                 ->route('admin.karyawan')
-                ->with('success', 'Employee updated successfully.' . $nipMsg);
+                ->with('success', 'Employee updated successfully. Bank: BSI (cannot be changed).' . $nipMsg);
         } catch (\Throwable $th) {
             return redirect()
                 ->back()

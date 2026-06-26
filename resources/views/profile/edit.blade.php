@@ -260,9 +260,9 @@
 
                                         <div>
                                             <label class="text-gray-400 block mb-1">Bank Name</label>
-                                            <input type="text" name="nama_bank"
-                                                value="{{ old('nama_bank', $karyawan->nama_bank ?? 'BSI') }}"
-                                                class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500">
+                                            <input type="text" name="nama_bank" value="BSI" readonly
+                                                class="w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-700 cursor-not-allowed focus:outline-none">
+                                            <p class="text-xs text-gray-500 mt-1">Default bank: BSI</p>
                                         </div>
 
                                         <div>

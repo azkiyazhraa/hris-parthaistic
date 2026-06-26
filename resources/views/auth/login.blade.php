@@ -4,9 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>HRIS Management System - Login</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
@@ -66,10 +68,48 @@
                 transform: translateY(-20px);
             }
         }
+
+        /* Loading overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
     </style>
 </head>
 
 <body class="min-h-screen bg-slate-100 overflow-x-hidden">
+
+    <!-- LOADING OVERLAY (Hidden by default) -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="loading-spinner"></div>
+    </div>
 
     <!-- BACKGROUND -->
     <div class="fixed inset-0 overflow-hidden pointer-events-none">
@@ -135,7 +175,7 @@
                             </p>
 
                             <p class="text-sm text-blue-100">
-                                Manage employee data digitally 
+                                Manage employee data digitally
                             </p>
                         </div>
                     </div>
@@ -215,8 +255,17 @@
 
                     </div>
 
+                    <!-- ERROR MESSAGES -->
+                    @if ($errors->any())
+                        <div class="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl">
+                            @foreach ($errors->all() as $error)
+                                <p class="text-sm">{{ $error }}</p>
+                            @endforeach
+                        </div>
+                    @endif
+
                     <!-- FORM -->
-                    <form action="{{ route('login') }}" method="POST" class="space-y-5">
+                    <form id="loginForm" action="{{ route('login') }}" method="POST" class="space-y-5">
                         @csrf
 
                         <!-- EMAIL -->
@@ -232,18 +281,12 @@
                                     <i class="fas fa-envelope"></i>
                                 </span>
 
-                                <input type="email" name="email" value="{{ old('email') }}" required
+                                <input type="email" name="email" id="email" value="{{ old('email') }}" required
                                     autocomplete="email" placeholder="nama@company.com"
                                     class="w-full pl-12 pr-4 py-3.5 rounded-2xl border border-slate-200 bg-slate-50
                                     focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition">
 
                             </div>
-
-                            @error('email')
-                                <p class="text-red-500 text-sm mt-2">
-                                    {{ $message }}
-                                </p>
-                            @enderror
 
                         </div>
 
@@ -274,12 +317,6 @@
 
                             </div>
 
-                            @error('password')
-                                <p class="text-red-500 text-sm mt-2">
-                                    {{ $message }}
-                                </p>
-                            @enderror
-
                         </div>
 
                         <!-- OPTIONS -->
@@ -305,7 +342,7 @@
                         </div>
 
                         <!-- BUTTON -->
-                        <button type="submit"
+                        <button type="submit" id="submitButton"
                             class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold
                             py-3.5 rounded-2xl transition duration-300 shadow-lg shadow-blue-600/20">
 
@@ -360,6 +397,137 @@
 
             }
         }
+
+        // =====================================================
+        // SUSPENDED ACCOUNT CHECK BEFORE LOGIN
+        // =====================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('loginForm');
+            const emailInput = document.getElementById('email');
+            const submitButton = document.getElementById('submitButton');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+
+            // Store original email untuk mendeteksi perubahan
+            let lastCheckedEmail = '';
+
+            loginForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                const email = emailInput.value.trim();
+
+                // Validasi email tidak kosong
+                if (!email) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Email Required',
+                        text: 'Please enter your email address.',
+                        confirmButtonColor: '#2563eb',
+                        confirmButtonText: 'OK'
+                    });
+                    return;
+                }
+
+                // Tampilkan loading
+                showLoading();
+
+                try {
+                    // Cek status karyawan sebelum submit
+                    const response = await fetch('/check-employee-status', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector(
+                                'meta[name="csrf-token"]').getAttribute('content'),
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            email: email
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.suspended) {
+                        // Sembunyikan loading
+                        hideLoading();
+
+                        // Tampilkan SweetAlert untuk akun yang di-suspend
+                        Swal.fire({
+                            icon: 'error',
+                            title: '🔒 Account Suspended',
+                            html: `
+                                <div class="text-left">
+                                    <p class="text-lg font-semibold text-red-600 mb-3">${data.message}</p>
+                                    <div class="bg-gray-50 rounded-lg p-4 mt-3">
+                                        <p class="text-sm font-medium text-gray-700 mb-2">📋 <strong>Status:</strong> ${data.status}</p>
+                                        <p class="text-sm text-gray-600 mb-2">Your account has been suspended and you <strong>cannot login</strong>.</p>
+                                        <hr class="my-3">
+                                        <p class="text-sm font-medium text-gray-700 mb-2">📞 <strong>Contact HR Department:</strong></p>
+                                        <p class="text-sm text-gray-600">📧 hr@parthaistic.com</p>
+                                        <p class="text-sm text-gray-600">📱 +62 812-3456-7890</p>
+                                    </div>
+                                </div>
+                            `,
+                            confirmButtonColor: '#dc2626',
+                            confirmButtonText: 'I Understand',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            customClass: {
+                                popup: 'rounded-2xl',
+                                title: 'text-xl font-bold'
+                            }
+                        });
+
+                        // Reset password field
+                        document.getElementById('password').value = '';
+
+                        return false;
+                    }
+
+                    // Jika tidak suspended, lanjutkan submit form
+                    hideLoading();
+                    loginForm.submit();
+
+                } catch (error) {
+                    console.error('Error checking status:', error);
+                    hideLoading();
+
+                    // Jika error pada pengecekan (misal network error), tetap izinkan login
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Connection Issue',
+                        text: 'Unable to verify account status. Do you want to continue?',
+                        showCancelButton: true,
+                        confirmButtonColor: '#2563eb',
+                        cancelButtonColor: '#6b7280',
+                        confirmButtonText: 'Yes, Continue',
+                        cancelButtonText: 'Cancel'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            loginForm.submit();
+                        }
+                    });
+                }
+            });
+
+            // Reset last checked email saat email berubah
+            emailInput.addEventListener('input', function() {
+                lastCheckedEmail = '';
+            });
+
+            function showLoading() {
+                loadingOverlay.classList.remove('hidden');
+                submitButton.disabled = true;
+                submitButton.innerHTML =
+                    '<i class="fas fa-spinner fa-spin mr-2"></i> Checking...';
+            }
+
+            function hideLoading() {
+                loadingOverlay.classList.add('hidden');
+                submitButton.disabled = false;
+                submitButton.innerHTML = 'Sign In';
+            }
+        });
     </script>
 
 </body>

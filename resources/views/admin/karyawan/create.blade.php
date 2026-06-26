@@ -20,7 +20,8 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">NIK</label>
                         <input type="text" name="nik"
-                            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                            required>
                     </div>
 
                     <div>
@@ -53,7 +54,7 @@
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Profile Photo</label>
-                        <input type="file" name="foto_profil" class="w-full border rounded-lg px-3 py-2">
+                        <input type="file" name="foto_profil" class="w-full border rounded-lg px-3 py-2" required>
                     </div>
                 </div>
             </div>
@@ -75,7 +76,7 @@
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Position</label>
-                        <select name="jabatan" id="jabatanSelect" onchange="toggleJabatanLainnya()"
+                        <select name="jabatan" id="jabatanSelect" onchange="toggleJabatanLainnya()" required
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                             <option value="">Select Position</option>
                             <option value="Chief Executive Officer">Chief Executive Officer</option>
@@ -93,7 +94,7 @@
                     <div id="jabatanLainnyaField" style="display:none;">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Custom Position <span
                                 class="text-red-500">*</span></label>
-                        <input type="text" name="jabatan_lainnya"
+                        <input type="text" name="jabatan_lainnya" required
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                             placeholder="Enter custom position">
                     </div>
@@ -120,20 +121,20 @@
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Join Date</label>
-                        <input type="date" name="tanggal_bergabung" id="tanggal_bergabung"
+                        <input type="date" name="tanggal_bergabung" id="tanggal_bergabung" required
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
 
                     <div id="endDateField" style="display:none;">
                         <label class="block text-sm font-medium text-gray-700 mb-1">End Date <span
                                 class="text-red-500">*</span></label>
-                        <input type="date" name="end_date" id="end_date"
+                        <input type="date" name="end_date" id="end_date" required
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
 
                     <div id="reasonResignedField" style="display:none;">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Reason</label>
-                        <textarea name="reason_resigned" rows="2"
+                        <textarea name="reason_resigned" rows="2" required
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                             placeholder="Reason for leaving..."></textarea>
                     </div>
@@ -146,12 +147,13 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Bank Name</label>
-                        <input type="text" name="nama_bank" value="BSI"
-                            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <input type="text" name="nama_bank" value="BSI" readonly
+                            class="w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-700 cursor-not-allowed focus:outline-none">
+                        <p class="text-xs text-gray-500 mt-1">Default bank: BSI (cannot be changed)</p>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Account Number</label>
-                        <input type="text" name="nomor_rekening"
+                        <input type="text" name="nomor_rekening" required
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                 </div>
@@ -163,17 +165,17 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                        <input type="text" name="nomor_telepon"
+                        <input type="text" name="nomor_telepon" required
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">NPWP</label>
-                        <input type="text" name="npwp"
+                        <input type="text" name="npwp" required
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
-                        <textarea name="alamat" rows="3"
+                        <textarea name="alamat" rows="3" required
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
                     </div>
                 </div>
@@ -185,15 +187,17 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Place of Birth</label>
-                        <input type="text" name="tempat_lahir" class="w-full border rounded-lg px-3 py-2">
+                        <input type="text" name="tempat_lahir" class="w-full border rounded-lg px-3 py-2"
+                            required>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
-                        <input type="date" name="tanggal_lahir" class="w-full border rounded-lg px-3 py-2">
+                        <input type="date" name="tanggal_lahir" class="w-full border rounded-lg px-3 py-2"
+                            required>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
-                        <select name="jenis_kelamin" class="w-full border rounded-lg px-3 py-2">
+                        <select name="jenis_kelamin" class="w-full border rounded-lg px-3 py-2" required>
                             <option value="">Select</option>
                             <option value="L">Male</option>
                             <option value="P">Female</option>
@@ -201,11 +205,12 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Religion</label>
-                        <input type="text" name="agama" class="w-full border rounded-lg px-3 py-2">
+                        <input type="text" name="agama" class="w-full border rounded-lg px-3 py-2" required>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Marital Status</label>
-                        <input type="text" name="status_pernikahan" class="w-full border rounded-lg px-3 py-2">
+                        <input type="text" name="status_pernikahan" class="w-full border rounded-lg px-3 py-2"
+                            required>
                     </div>
                 </div>
             </div>
@@ -218,7 +223,8 @@
                         <label class="block text-sm font-medium text-gray-700 mb-1">Last Education <span
                                 class="text-red-500">*</span></label>
                         <select name="pendidikan_terakhir"
-                            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                            required>
                             <option value="">Select Education</option>
                             <option value="SMP">SMP</option>
                             <option value="SMA/MA">SMA/MA</option>
@@ -232,17 +238,17 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">University</label>
-                        <input type="text" name="universitas" class="w-full border rounded-lg px-3 py-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">University/School</label>
+                        <input type="text" name="universitas" class="w-full border rounded-lg px-3 py-2" required>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Major</label>
-                        <input type="text" name="jurusan" class="w-full border rounded-lg px-3 py-2">
+                        <input type="text" name="jurusan" class="w-full border rounded-lg px-3 py-2" required>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Graduation Year</label>
                         <input type="number" name="tahun_lulus" class="w-full border rounded-lg px-3 py-2"
-                            min="1900" max="2099" step="1">
+                            min="1900" max="2099" step="1" required>
                     </div>
                 </div>
             </div>
@@ -253,12 +259,13 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Emergency Contact Name</label>
-                        <input type="text" name="nama_kontak_darurat" class="w-full border rounded-lg px-3 py-2">
+                        <input type="text" name="nama_kontak_darurat" class="w-full border rounded-lg px-3 py-2"
+                            required>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Emergency Contact Phone</label>
                         <input type="text" name="telepon_kontak_darurat"
-                            class="w-full border rounded-lg px-3 py-2">
+                            class="w-full border rounded-lg px-3 py-2" required>
                     </div>
                 </div>
             </div>
