@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AbsensiController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\ChangedayController;
 use App\Http\Controllers\Karyawan\DashboardController as KaryawanDashboardController;
@@ -18,6 +19,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return redirect()->route('login');
 });
+
+Route::post('/check-employee-status', [LoginController::class, 'checkEmployeeStatus'])->name('check.employee.status');
+
 
 // Default dashboard route for authenticated users
 Route::middleware('auth')->group(function () {
@@ -144,7 +148,6 @@ Route::middleware(['auth', 'admin'])
         Route::put('/karyawan/{id}', [AdminDashboardController::class, 'updateKaryawan'])->name('karyawan.update');
         Route::get('/karyawan/{id}/show-password', [AdminDashboardController::class, 'showPassword'])->name('karyawan.show-password');
         Route::get('/karyawan/{id}/employee-detail', [AdminDashboardController::class, 'getEmployeeDetail'])->name('karyawan.employee-detail');
-
         Route::get('/karyawan/detail/{id}', [AdminDashboardController::class, 'karyawanDetail'])->name('karyawan.detail');
 
         // Absensi Management for Admin/HR
