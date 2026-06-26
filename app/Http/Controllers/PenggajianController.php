@@ -106,14 +106,18 @@ class PenggajianController extends Controller
     {
         $karyawan = Karyawan::find($request->karyawan_id);
 
+        $tahunSekarang = Carbon::now()->year;
+
         $exists = Penggajian::where('karyawan_id', $request->karyawan_id)
             ->where('bulan', $request->bulan)
-            ->where('tahun', $request->tahun)
+            ->where('tahun', $tahunSekarang)
             ->exists();
 
         if ($exists) {
+            $monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+            $monthName  = $monthNames[(int)$request->bulan - 1] ?? $request->bulan;
             return redirect()->back()
-                ->with('error', 'A payroll entry for this employee in that period already exists')
+                ->with('error', "Payroll for {$karyawan->nama_lengkap} in {$monthName} {$tahunSekarang} already exists.")
                 ->withInput();
         }
 
@@ -121,7 +125,7 @@ class PenggajianController extends Controller
         $penggajian->karyawan_id = $request->karyawan_id;
         $penggajian->nama_karyawan = $karyawan->nama_lengkap;
         $penggajian->bulan = $request->bulan;
-        $penggajian->tahun = Carbon::now()->year;
+        $penggajian->tahun = $tahunSekarang;
         $penggajian->gaji_pokok = (float) str_replace('.', '', $request->gaji_pokok);
         $penggajian->transport_allowance = (float) str_replace('.', '', $request->transport_allowance);
         $penggajian->meal_allowance = (float) str_replace('.', '', $request->meal_allowance);
@@ -151,7 +155,13 @@ class PenggajianController extends Controller
             'created_at' => now(),
         ]);
 
-        $penggajian->save();
+        try {
+            $penggajian->save();
+        } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
+            return redirect()->back()
+                ->with('error', "Payroll for {$karyawan->nama_lengkap} in that period already exists.")
+                ->withInput();
+        }
 
         if (in_array($request->status, ['approved', 'paid'])) {
             Notifikasi::create([

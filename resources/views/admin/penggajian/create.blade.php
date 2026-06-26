@@ -33,7 +33,8 @@
                             <option value="">Search Employee</option>
                             @foreach ($karyawans as $karyawan)
                                 <option value="{{ $karyawan->id }}" data-nip="{{ $karyawan->nip }}"
-                                    data-email="{{ $karyawan->email }}" data-role="{{ $karyawan->role }}">
+                                    data-email="{{ $karyawan->email }}" data-role="{{ $karyawan->role }}"
+                                    {{ old('karyawan_id') == $karyawan->id ? 'selected' : '' }}>
                                     {{ $karyawan->nama_lengkap }} ({{ $karyawan->nip }})
                                 </option>
                             @endforeach
