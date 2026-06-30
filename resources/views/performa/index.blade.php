@@ -1,12 +1,12 @@
 @extends('layouts.app')
 @section('content')
-    <div class="container mx-auto py-4 space-y-4">
+    <div class="container py-4 mx-auto space-y-4">
 
         {{-- CARD HEADER --}}
-        <div class="bg-gradient-to-r from-blue-200 to-cyan-400 rounded-2xl p-6 shadow-lg flex items-center justify-between">
+        <div class="flex items-center justify-between p-6 shadow-lg bg-gradient-to-r from-blue-200 to-cyan-400 rounded-2xl">
             <div>
-                <h1 class="text-2xl font-bold text-blue-900 mb-1">My Performance</h1>
-                <p class="text-gray-700/80 text-sm">Monitor your performance and productivity.</p>
+                <h1 class="mb-1 text-2xl font-bold text-blue-900">My Performance</h1>
+                <p class="text-sm text-gray-700/80">Monitor your performance and productivity.</p>
             </div>
             <div class="hidden md:block">
                 <img src="https://illustrations.popsy.co/blue/work-from-home.svg" alt="illustration" class="w-20">
@@ -14,11 +14,11 @@
         </div>
 
         {{-- SUMMARY CARDS --}}
-        <div class="bg-white rounded-2xl shadow-md">
-            <div class="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-gray-200">
+        <div class="bg-white shadow-md rounded-2xl">
+            <div class="grid grid-cols-1 divide-y divide-gray-200 sm:grid-cols-3 sm:divide-y-0 sm:divide-x">
                 {{-- Average Score --}}
                 <div class="flex flex-col justify-center px-5 py-4">
-                    <p class="text-gray-400 text-sm font-medium">Average Score (All Time)</p>
+                    <p class="text-sm font-medium text-gray-400">Average Score (All Time)</p>
                     <div class="flex items-end gap-2 mt-1">
                         <h2 class="text-xl font-semibold text-[#0B0F6D] leading-none">
                             {{ round($averageScore ?? 0) }}
@@ -28,7 +28,7 @@
 
                 {{-- Latest Score --}}
                 <div class="flex flex-col justify-center px-5 py-4">
-                    <p class="text-gray-400 text-sm font-medium">Latest Score</p>
+                    <p class="text-sm font-medium text-gray-400">Latest Score</p>
                     <div class="flex items-end gap-2 mt-1">
                         <h2 class="text-xl font-semibold text-[#0B0F6D] leading-none">
                             {{ $latestPerforma->performance_score ?? 0 }}
@@ -42,7 +42,7 @@
 
                 {{-- Latest Rating --}}
                 <div class="flex flex-col justify-center px-5 py-4">
-                    <p class="text-gray-400 text-sm font-medium">Latest Rating</p>
+                    <p class="text-sm font-medium text-gray-400">Latest Rating</p>
                     <div class="mt-1">
                         @if ($latestPerforma)
                             <span
@@ -64,50 +64,51 @@
         </div>
 
         {{-- PERFORMANCE CHART --}}
-        <div class="bg-white rounded-2xl shadow-lg p-6" style="border: 2px solid #e0eaff;">
-            <h3 class="text-lg font-semibold text-blue-900 mb-4"> Quarterly Performance Chart ({{ date('Y') }})</h3>
+        <div class="p-6 bg-white shadow-lg rounded-2xl" style="border: 2px solid #e0eaff;">
+            <h3 class="mb-4 text-lg font-semibold text-blue-900"> Quarterly Performance Chart ({{ date('Y') }})</h3>
             <div class="h-64">
                 <canvas id="performanceChart"></canvas>
             </div>
         </div>
 
         {{-- TABLE --}}
-        <div class="bg-white rounded-2xl shadow-lg w-full p-6" style="border: 2px solid #e0eaff;">
+        <div class="w-full p-6 bg-white shadow-lg rounded-2xl" style="border: 2px solid #e0eaff;">
             <div class="overflow-x-auto">
                 <table class="w-full min-w-[800px] md:min-w-full text-sm text-left">
                     <thead>
-                        <tr class="text-gray-400 font-medium text-xs uppercase tracking-wide border-b">
-                            <th class="text-left pb-3 whitespace-nowrap">Period</th>
-                            <th class="text-left pb-3 whitespace-nowrap">Quarter</th>
-                            <th class="text-left pb-3 whitespace-nowrap">Quality</th>
-                            <th class="text-left pb-3 whitespace-nowrap">Productivity</th>
-                            <th class="text-left pb-3 whitespace-nowrap">Teamwork</th>
-                            <th class="text-left pb-3 whitespace-nowrap">Discipline</th>
-                            <th class="text-left pb-3 whitespace-nowrap">KPI Score</th>
-                            <th class="text-left pb-3 whitespace-nowrap">
+                        <tr class="text-xs font-medium tracking-wide text-gray-400 uppercase border-b">
+                            <th class="pb-3 text-left whitespace-nowrap">Period</th>
+                            <th class="pb-3 text-left whitespace-nowrap">Quarter</th>
+                            <th class="pb-3 text-left whitespace-nowrap">Quality</th>
+                            <th class="pb-3 text-left whitespace-nowrap">Productivity</th>
+                            <th class="pb-3 text-left whitespace-nowrap">Teamwork</th>
+                            <th class="pb-3 text-left whitespace-nowrap">Discipline</th>
+                            <th class="pb-3 text-left whitespace-nowrap">KPI Score</th>
+                            <th class="pb-3 text-left whitespace-nowrap">
                                 <span class="flex items-center gap-1">
-                                    Task Done
+                                    Task Completed
                                     <svg class="w-3 h-3 text-[#0052CC] opacity-50" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M21 0H3C1.343 0 0 1.343 0 3v18c0 1.656 1.343 3 3 3h18c1.656 0 3-1.344 3-3V3c0-1.657-1.344-3-3-3zM10.44 18.18c0 .795-.645 1.44-1.44 1.44H4.56c-.795 0-1.44-.645-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44H9c.795 0 1.44.645 1.44 1.44v12.36zm10.44-7.08c0 .794-.645 1.44-1.44 1.44H15c-.795 0-1.44-.646-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44h4.44c.795 0 1.44.645 1.44 1.44v5.28z"/>
+                                        <path
+                                            d="M21 0H3C1.343 0 0 1.343 0 3v18c0 1.656 1.343 3 3 3h18c1.656 0 3-1.344 3-3V3c0-1.657-1.344-3-3-3zM10.44 18.18c0 .795-.645 1.44-1.44 1.44H4.56c-.795 0-1.44-.645-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44H9c.795 0 1.44.645 1.44 1.44v12.36zm10.44-7.08c0 .794-.645 1.44-1.44 1.44H15c-.795 0-1.44-.646-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44h4.44c.795 0 1.44.645 1.44 1.44v5.28z" />
                                     </svg>
                                 </span>
                             </th>
-                            <th class="text-left pb-3 whitespace-nowrap">Attendance</th>
-                            <th class="text-left pb-3 whitespace-nowrap">Total Score</th>
-                            <th class="text-left pb-3 whitespace-nowrap">Status</th>
-                            <th class="text-left pb-3 whitespace-nowrap">Action</th>
+                            <th class="pb-3 text-left whitespace-nowrap">Attendance</th>
+                            <th class="pb-3 text-left whitespace-nowrap">Total Score</th>
+                            <th class="pb-3 text-left whitespace-nowrap">Status</th>
+                            <th class="pb-3 text-left whitespace-nowrap">Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($performas as $item)
-                            <tr class="border-t border-gray-100 hover:bg-blue-50/40 transition">
+                            <tr class="transition border-t border-gray-100 hover:bg-blue-50/40">
                                 <td class="py-3 pl-2">
                                     <span class="font-medium text-gray-800">{{ $item->bulan_text }}
                                         {{ $item->tahun }}</span>
                                 </td>
                                 <td class="py-3">
                                     <span
-                                        class="bg-gray-200 text-gray-700 px-2 py-1 rounded text-xs">{{ $item->quarter }}</span>
+                                        class="px-2 py-1 text-xs text-gray-700 bg-gray-200 rounded">{{ $item->quarter }}</span>
                                 </td>
                                 <td class="py-3">
                                     <div class="w-16 bg-gray-200 rounded-full h-1.5">
@@ -140,8 +141,10 @@
                                 <td class="py-3 font-semibold text-blue-600">{{ $item->kpi_score }}%</td>
                                 <td class="py-3">
                                     <div class="flex items-center gap-1">
-                                        <svg class="w-3 h-3 text-[#0052CC] opacity-40" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M21 0H3C1.343 0 0 1.343 0 3v18c0 1.656 1.343 3 3 3h18c1.656 0 3-1.344 3-3V3c0-1.657-1.344-3-3-3zM10.44 18.18c0 .795-.645 1.44-1.44 1.44H4.56c-.795 0-1.44-.645-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44H9c.795 0 1.44.645 1.44 1.44v12.36zm10.44-7.08c0 .794-.645 1.44-1.44 1.44H15c-.795 0-1.44-.646-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44h4.44c.795 0 1.44.645 1.44 1.44v5.28z"/>
+                                        <svg class="w-3 h-3 text-[#0052CC] opacity-40" fill="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path
+                                                d="M21 0H3C1.343 0 0 1.343 0 3v18c0 1.656 1.343 3 3 3h18c1.656 0 3-1.344 3-3V3c0-1.657-1.344-3-3-3zM10.44 18.18c0 .795-.645 1.44-1.44 1.44H4.56c-.795 0-1.44-.645-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44H9c.795 0 1.44.645 1.44 1.44v12.36zm10.44-7.08c0 .794-.645 1.44-1.44 1.44H15c-.795 0-1.44-.646-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44h4.44c.795 0 1.44.645 1.44 1.44v5.28z" />
                                         </svg>
                                         <span class="font-medium text-gray-700">{{ $item->task_done }}</span>
                                     </div>
@@ -154,7 +157,7 @@
                                     </div>
                                     <span class="text-xs text-gray-500">{{ $item->attendance_rate }}%</span>
                                 </td>
-                                <td class="py-3 font-bold text-lg text-purple-600">{{ $item->performance_score }}</td>
+                                <td class="py-3 text-lg font-bold text-purple-600">{{ $item->performance_score }}</td>
                                 <td class="py-3">
                                     <span
                                         class="px-3 py-1 rounded-full text-xs font-semibold
@@ -181,7 +184,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="11" class="text-center py-12">
+                                <td colspan="11" class="py-12 text-center">
                                     <div class="flex flex-col items-center gap-3">
                                         <svg class="w-16 h-16 text-gray-300" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
@@ -189,7 +192,7 @@
                                                 d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941" />
                                         </svg>
                                         <h3 class="text-lg font-semibold text-gray-500">No Performance Data Yet</h3>
-                                        <p class="text-gray-400 text-sm">Your performance assessments will appear here once
+                                        <p class="text-sm text-gray-400">Your performance assessments will appear here once
                                             available.</p>
                                     </div>
                                 </td>
@@ -209,21 +212,21 @@
     </div>
 
     {{-- DETAIL MODAL --}}
-    <div id="detailModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div id="detailModal" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black/50">
         <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             {{-- Modal Header --}}
-            <div class="sticky top-0 bg-white z-10 flex justify-between items-center border-b p-6">
+            <div class="sticky top-0 z-10 flex items-center justify-between p-6 bg-white border-b">
                 <h3 class="text-lg font-semibold text-blue-900">
                     Detail Performance - <span id="modalPeriod"></span>
                 </h3>
                 <button onclick="closeDetailModal()"
-                    class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100">&times;</button>
+                    class="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100">&times;</button>
             </div>
 
             {{-- Modal Content --}}
             <div class="p-6" id="modalContent">
                 <div class="flex justify-center py-8">
-                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                    <div class="w-8 h-8 border-b-2 border-blue-600 rounded-full animate-spin"></div>
                 </div>
             </div>
         </div>
@@ -298,7 +301,7 @@
             document.getElementById('detailModal').classList.add('show');
             document.getElementById('modalContent').innerHTML = `
                 <div class="flex justify-center py-8">
-                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                    <div class="w-8 h-8 border-b-2 border-blue-600 rounded-full animate-spin"></div>
                 </div>`;
 
             fetch(`/performa/${performaId}`, {
@@ -314,7 +317,7 @@
                 .then(data => {
                     if (data.error) {
                         document.getElementById('modalContent').innerHTML =
-                            `<p class="text-center text-red-500 py-8">${data.error}</p>`;
+                            `<p class="py-8 text-center text-red-500">${data.error}</p>`;
                         return;
                     }
 
@@ -327,11 +330,11 @@
                         photoHtml = `
                             <img src="/storage/${data.foto_profil}"
                                  alt="Profile"
-                                 class="w-32 h-32 rounded-full border-4 border-blue-900 object-cover">`;
+                                 class="object-cover w-32 h-32 border-4 border-blue-900 rounded-full">`;
                     } else {
                         const initial = (data.nama_karyawan || '?').charAt(0).toUpperCase();
                         photoHtml = `
-                            <div class="w-32 h-32 rounded-full border-4 border-blue-900 flex items-center justify-center bg-blue-100">
+                            <div class="flex items-center justify-center w-32 h-32 bg-blue-100 border-4 border-blue-900 rounded-full">
                                 <span class="text-3xl font-bold text-blue-900">${initial}</span>
                             </div>`;
                     }
@@ -341,9 +344,9 @@
                     if (data.catatan && data.catatan.trim() !== '') {
                         catatanHtml = `
                             <div class="mt-6">
-                                <h3 class="text-lg font-semibold text-gray-800 mb-2">Admin Notes</h3>
-                                <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded">
-                                    <p class="text-gray-700 text-sm">${data.catatan}</p>
+                                <h3 class="mb-2 text-lg font-semibold text-gray-800">Admin Notes</h3>
+                                <div class="p-4 border-l-4 border-yellow-500 rounded bg-yellow-50">
+                                    <p class="text-sm text-gray-700">${data.catatan}</p>
                                 </div>
                             </div>`;
                     }
@@ -357,29 +360,29 @@
                     const absentCount = data.attendance_summary ? data.attendance_summary.absent : 0;
 
                     const html = `
-                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
                             <div class="lg:col-span-2">
-                                <h2 class="text-lg font-bold text-blue-900 mb-4">Employee's Info</h2>
+                                <h2 class="mb-4 text-lg font-bold text-blue-900">Employee's Info</h2>
                                 <div class="grid grid-cols-2 gap-y-3 gap-x-6">
-                                    <div><label class="block text-xs font-semibold text-blue-900">Name</label><p class="text-gray-600 text-sm">${data.nama_karyawan || '-'}</p></div>
-                                    <div><label class="block text-xs font-semibold text-blue-900">Email</label><p class="text-gray-600 text-sm">${data.email || '-'}</p></div>
-                                    <div><label class="block text-xs font-semibold text-blue-900">Phone</label><p class="text-gray-600 text-sm">${data.phone || '-'}</p></div>
-                                    <div><label class="block text-xs font-semibold text-blue-900">Role</label><p class="text-gray-600 text-sm capitalize">${data.role || '-'}</p></div>
-                                    <div><label class="block text-xs font-semibold text-blue-900">Join Date</label><p class="text-gray-600 text-sm">${data.join_date_formatted || '-'}</p></div>
+                                    <div><label class="block text-xs font-semibold text-blue-900">Name</label><p class="text-sm text-gray-600">${data.nama_karyawan || '-'}</p></div>
+                                    <div><label class="block text-xs font-semibold text-blue-900">Email</label><p class="text-sm text-gray-600">${data.email || '-'}</p></div>
+                                    <div><label class="block text-xs font-semibold text-blue-900">Phone</label><p class="text-sm text-gray-600">${data.phone || '-'}</p></div>
+                                    <div><label class="block text-xs font-semibold text-blue-900">Role</label><p class="text-sm text-gray-600 capitalize">${data.role || '-'}</p></div>
+                                    <div><label class="block text-xs font-semibold text-blue-900">Join Date</label><p class="text-sm text-gray-600">${data.join_date_formatted || '-'}</p></div>
                                 </div>
                             </div>
-                            <div class="flex justify-center items-start">
+                            <div class="flex items-start justify-center">
                                 ${photoHtml}
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+                        <div class="grid grid-cols-1 gap-6 mt-6 lg:grid-cols-3">
                             <div>
-                                <h2 class="text-lg font-bold text-blue-900 mb-4">Attendance Summary</h2>
+                                <h2 class="mb-4 text-lg font-bold text-blue-900">Attendance Summary</h2>
                                 <div class="space-y-2">
                                     <div>
                                         <p class="font-semibold text-blue-900">Attendance Rate</p>
-                                        <p class="text-sky-500 font-semibold">${data.attendance_rate || 0}%</p>
+                                        <p class="font-semibold text-sky-500">${data.attendance_rate || 0}%</p>
                                     </div>
                                     <div>
                                         <p class="font-semibold text-blue-900">Present</p>
@@ -392,7 +395,7 @@
                                 </div>
 
                                 <div class="mt-8">
-                                    <h2 class="text-lg font-bold text-blue-900 mb-3">Performance Score</h2>
+                                    <h2 class="mb-3 text-lg font-bold text-blue-900">Performance Score</h2>
                                     <h3 class="text-2xl font-semibold ${statusColor}">${statusLabel}</h3>
                                     <div class="flex items-end gap-2 mt-2">
                                         <span class="text-2xl font-bold text-blue-900">${data.performance_score || 0}</span>
@@ -402,12 +405,12 @@
                             </div>
 
                             <div class="md:col-span-2">
-                                <h2 class="text-lg font-bold text-blue-900 mb-4">KPI Breakdown</h2>
-                                <div class="rounded-xl border border-gray-200 overflow-hidden">
-                                    <div class="grid grid-cols-2 bg-gray-100 text-gray-500 text-sm font-medium px-5 py-3">
+                                <h2 class="mb-4 text-lg font-bold text-blue-900">KPI Breakdown</h2>
+                                <div class="overflow-hidden border border-gray-200 rounded-xl">
+                                    <div class="grid grid-cols-2 px-5 py-3 text-sm font-medium text-gray-500 bg-gray-100">
                                         <div>KPI</div><div>Score</div>
                                     </div>
-                                    <div class="divide-y divide-gray-200 text-blue-900 text-sm">
+                                    <div class="text-sm text-blue-900 divide-y divide-gray-200">
                                         <div class="grid grid-cols-2 px-5 py-3"><div>Quality</div><div class="font-semibold">${data.quality || 0}</div></div>
                                         <div class="grid grid-cols-2 px-5 py-3"><div>Productivity</div><div class="font-semibold">${data.productivity || 0}</div></div>
                                         <div class="grid grid-cols-2 px-5 py-3"><div>Teamwork</div><div class="font-semibold">${data.teamwork || 0}</div></div>
@@ -420,33 +423,33 @@
                         </div>
 
                         <div class="mt-6">
-                            <h2 class="text-lg font-bold text-blue-900 mb-3 flex items-center gap-2">
+                            <h2 class="flex items-center gap-2 mb-3 text-lg font-bold text-blue-900">
                                 Task Summary
                                 <svg class="w-4 h-4 text-[#0052CC]" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M21 0H3C1.343 0 0 1.343 0 3v18c0 1.656 1.343 3 3 3h18c1.656 0 3-1.344 3-3V3c0-1.657-1.344-3-3-3zM10.44 18.18c0 .795-.645 1.44-1.44 1.44H4.56c-.795 0-1.44-.645-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44H9c.795 0 1.44.645 1.44 1.44v12.36zm10.44-7.08c0 .794-.645 1.44-1.44 1.44H15c-.795 0-1.44-.646-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44h4.44c.795 0 1.44.645 1.44 1.44v5.28z"/>
                                 </svg>
                                 <span class="text-sm font-normal text-[#0052CC]">via Trello</span>
                             </h2>
-                            <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
+                            <div class="p-4 border border-gray-200 rounded-xl bg-gray-50">
                                 <div class="flex items-center gap-2 mb-3">
-                                    <span class="inline-block w-2 h-2 rounded-full bg-yellow-400 flex-shrink-0"></span>
+                                    <span class="flex-shrink-0 inline-block w-2 h-2 bg-yellow-400 rounded-full"></span>
                                     <span class="text-xs text-gray-500">Trello API not connected — entered manually by admin</span>
                                 </div>
                                 <div class="grid grid-cols-3 gap-3">
-                                    <div class="bg-white rounded-lg border border-gray-200 p-3 text-center">
+                                    <div class="p-3 text-center bg-white border border-gray-200 rounded-lg">
                                         <div class="text-2xl font-bold text-[#0052CC]">${data.task_done ?? 0}</div>
-                                        <div class="text-xs text-gray-500 mt-1">Tasks Done</div>
+                                        <div class="mt-1 text-xs text-gray-500">Tasks Done</div>
                                     </div>
-                                    <div class="bg-white rounded-lg border border-gray-200 p-3 text-center">
+                                    <div class="p-3 text-center bg-white border border-gray-200 rounded-lg">
                                         <div class="text-2xl font-bold text-gray-500">20</div>
-                                        <div class="text-xs text-gray-500 mt-1">Monthly Target</div>
+                                        <div class="mt-1 text-xs text-gray-500">Monthly Target</div>
                                     </div>
-                                    <div class="bg-white rounded-lg border border-gray-200 p-3 text-center">
+                                    <div class="p-3 text-center bg-white border border-gray-200 rounded-lg">
                                         <div class="text-2xl font-bold text-teal-600">${data.task_score ?? 0}</div>
-                                        <div class="text-xs text-gray-500 mt-1">Task Score</div>
+                                        <div class="mt-1 text-xs text-gray-500">Task Score</div>
                                     </div>
                                 </div>
-                                <div class="mt-3 pt-3 border-t border-gray-200">
+                                <div class="pt-3 mt-3 border-t border-gray-200">
                                     <p class="text-xs text-gray-400">Formula: <span class="font-medium text-gray-500">Performance Score = (KPI × 50%) + (Task Score × 50%)</span></p>
                                 </div>
                             </div>
@@ -460,7 +463,7 @@
                 .catch(error => {
                     console.error('Error:', error);
                     document.getElementById('modalContent').innerHTML =
-                        `<p class="text-center text-red-500 py-8">Failed to load data. Please try again.</p>`;
+                        `<p class="py-8 text-center text-red-500">Failed to load data. Please try again.</p>`;
                 });
         }
 

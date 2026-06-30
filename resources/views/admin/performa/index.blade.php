@@ -1,14 +1,14 @@
 @extends('layouts.app')
 @section('content')
-    <div class="container mx-auto py-4 space-y-4">
+    <div class="container py-4 mx-auto space-y-4">
 
         {{-- CARD HEADER --}}
-        <div class="bg-gradient-to-r from-blue-200 to-cyan-400 rounded-2xl p-6 shadow-lg flex items-center justify-between">
+        <div class="flex items-center justify-between p-6 shadow-lg bg-gradient-to-r from-blue-200 to-cyan-400 rounded-2xl">
             <div>
-                <h1 class="text-2xl font-bold text-blue-900 mb-1">
+                <h1 class="mb-1 text-2xl font-bold text-blue-900">
                     Performance
                 </h1>
-                <p class="text-gray-700/80 text-sm">
+                <p class="text-sm text-gray-700/80">
                     Monitor employee productivity and task performance.
                 </p>
             </div>
@@ -18,24 +18,24 @@
         </div>
 
         @if (session('success'))
-            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg">
+            <div class="px-4 py-3 text-green-700 bg-green-100 border border-green-400 rounded-lg">
                 {{ session('success') }}
             </div>
         @endif
 
         @if (session('error'))
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
+            <div class="px-4 py-3 text-red-700 bg-red-100 border border-red-400 rounded-lg">
                 {{ session('error') }}
             </div>
         @endif
 
         {{-- CARD SUMMARY --}}
-        <div class="bg-white rounded-2xl shadow-md">
-            <div class="grid grid-cols-1 sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-gray-200">
+        <div class="bg-white shadow-md rounded-2xl">
+            <div class="grid grid-cols-1 divide-y divide-gray-200 sm:grid-cols-4 sm:divide-y-0 sm:divide-x">
 
                 <!-- ITEM 1 - Average Score -->
                 <div class="flex flex-col justify-center px-5 py-4">
-                    <p class="text-gray-400 text-sm font-medium">Average Score (All Time)</p>
+                    <p class="text-sm font-medium text-gray-400">Average Score (All Time)</p>
                     <div class="flex items-end gap-2 mt-1">
                         <h2 class="text-xl font-semibold text-[#0B0F6D] leading-none">
                             {{ $averageScore }}
@@ -45,7 +45,7 @@
 
                 <!-- ITEM 2 - Total Employees -->
                 <div class="flex flex-col justify-center px-5 py-4">
-                    <p class="text-gray-400 text-sm font-medium">Total Employees</p>
+                    <p class="text-sm font-medium text-gray-400">Total Employees</p>
                     <div class="flex items-end gap-2 mt-1">
                         <h2 class="text-xl font-semibold text-[#0B0F6D] leading-none">
                             {{ $karyawans->count() }}
@@ -55,7 +55,7 @@
 
                 <!-- ITEM 3 - Average Attendance -->
                 <div class="flex flex-col justify-center px-5 py-4">
-                    <p class="text-gray-400 text-sm font-medium">Average Attendance</p>
+                    <p class="text-sm font-medium text-gray-400">Average Attendance</p>
                     <div class="flex items-end gap-2 mt-1">
                         <h2 class="text-xl font-semibold text-[#0B0F6D] leading-none">
                             {{ $averageScore }}%
@@ -73,13 +73,13 @@
                             class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center border-2 border-[#0B0F6D]">
                             @if ($topPerformer->foto_profil)
                                 <img src="{{ Storage::url($topPerformer->foto_profil) }}" alt="profile"
-                                    class="w-12 h-12 rounded-full object-cover">
+                                    class="object-cover w-12 h-12 rounded-full">
                             @else
                                 <span class="text-lg font-bold text-[#0B0F6D]">{{ strtoupper($initial) }}</span>
                             @endif
                         </div>
                         <div class="flex-1">
-                            <p class="text-gray-400 text-sm font-medium">Top Performer</p>
+                            <p class="text-sm font-medium text-gray-400">Top Performer</p>
                             <h3 class="text-[#0B0F6D] font-semibold leading-tight">{{ $topPerformer->nama_lengkap }}</h3>
                             <p class="text-xs text-gray-400">Score: {{ $topScore }}</p>
                         </div>
@@ -89,7 +89,7 @@
                         </svg>
                     @else
                         <div class="flex-1">
-                            <p class="text-gray-400 text-sm font-medium">Top Performer</p>
+                            <p class="text-sm font-medium text-gray-400">Top Performer</p>
                             <h3 class="text-[#0B0F6D] font-semibold leading-tight">-</h3>
                         </div>
                     @endif
@@ -100,69 +100,74 @@
         {{-- ACTION BUTTONS --}}
         <div class="flex gap-2">
             <a href="{{ route('admin.performa.create') }}"
-                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition">
+                class="px-4 py-2 text-sm text-white transition bg-blue-600 rounded-lg hover:bg-blue-700">
                 + Add Assessment
             </a>
             <a href="{{ route('admin.performa.bulk') }}"
-                class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm transition">
+                class="px-4 py-2 text-sm text-white transition bg-green-600 rounded-lg hover:bg-green-700">
                 Bulk Assessment
             </a>
         </div>
 
         {{-- TRELLO INTEGRATION STATUS --}}
-        <div class="bg-white rounded-2xl shadow p-4 border border-dashed border-blue-200 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
-            <div class="flex items-center gap-3 flex-1 min-w-0">
+        <div
+            class="flex flex-col items-start gap-3 p-4 bg-white border border-blue-200 border-dashed shadow rounded-2xl sm:flex-row sm:items-center sm:gap-4">
+            <div class="flex items-center flex-1 min-w-0 gap-3">
                 <div class="w-9 h-9 bg-[#0052CC] rounded-lg flex items-center justify-center flex-shrink-0">
                     <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M21 0H3C1.343 0 0 1.343 0 3v18c0 1.656 1.343 3 3 3h18c1.656 0 3-1.344 3-3V3c0-1.657-1.344-3-3-3zM10.44 18.18c0 .795-.645 1.44-1.44 1.44H4.56c-.795 0-1.44-.645-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44H9c.795 0 1.44.645 1.44 1.44v12.36zm10.44-7.08c0 .794-.645 1.44-1.44 1.44H15c-.795 0-1.44-.646-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44h4.44c.795 0 1.44.645 1.44 1.44v5.28z"/>
+                        <path
+                            d="M21 0H3C1.343 0 0 1.343 0 3v18c0 1.656 1.343 3 3 3h18c1.656 0 3-1.344 3-3V3c0-1.657-1.344-3-3-3zM10.44 18.18c0 .795-.645 1.44-1.44 1.44H4.56c-.795 0-1.44-.645-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44H9c.795 0 1.44.645 1.44 1.44v12.36zm10.44-7.08c0 .794-.645 1.44-1.44 1.44H15c-.795 0-1.44-.646-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44h4.44c.795 0 1.44.645 1.44 1.44v5.28z" />
                     </svg>
                 </div>
                 <div class="min-w-0">
-                    <div class="flex items-center gap-2 flex-wrap">
-                        <p class="font-semibold text-gray-700 text-sm">Trello Integration</p>
-                        <span class="px-2 py-0.5 bg-yellow-100 text-yellow-700 text-xs rounded-full font-medium">Not Connected</span>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <p class="text-sm font-semibold text-gray-700">Trello Integration</p>
+                        <span class="px-2 py-0.5 bg-yellow-100 text-yellow-700 text-xs rounded-full font-medium">Not
+                            Connected</span>
                     </div>
-                    <p class="text-xs text-gray-400 mt-0.5">Connect Trello to automatically sync employee task completion data for performance evaluation.</p>
+                    <p class="text-xs text-gray-400 mt-0.5">Connect Trello to automatically sync employee task completion
+                        data for performance evaluation.</p>
                 </div>
             </div>
-            <button type="button" disabled
-                title="Trello API configuration will be available in the next update"
+            <button type="button" disabled title="Trello API configuration will be available in the next update"
                 class="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-gray-400 text-xs font-medium rounded-lg cursor-not-allowed flex-shrink-0 border border-gray-200">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
                 Configure
             </button>
         </div>
 
         {{-- TABLE --}}
-        <div class="bg-white rounded-2xl shadow-lg w-full p-6" style="border: 2px solid #e0eaff;">
+        <div class="w-full p-6 bg-white shadow-lg rounded-2xl" style="border: 2px solid #e0eaff;">
             <div class="overflow-x-auto">
                 <table class="w-full text-sm">
                     <thead>
-                        <tr class="text-gray-400 font-medium text-xs uppercase tracking-wide border-b">
-                            <th class="text-left pb-3 pl-2">Name</th>
-                            <th class="text-left pb-3">Month</th>
-                            <th class="text-left pb-3">Task Done</th>
-                            <th class="text-left pb-3">Attendance Rate</th>
-                            <th class="text-left pb-3">KPI Score</th>
-                            <th class="text-left pb-3">Final Score</th>
-                            <th class="text-left pb-3">Status</th>
-                            <th class="text-left pb-3">Action</th>
+                        <tr class="text-xs font-medium tracking-wide text-gray-400 uppercase border-b">
+                            <th class="pb-3 pl-2 text-left">Name</th>
+                            <th class="pb-3 text-left">Month</th>
+                            <th class="pb-3 text-left">Task Completed</th>
+                            <th class="pb-3 text-left">Attendance Rate</th>
+                            <th class="pb-3 text-left">KPI Score</th>
+                            <th class="pb-3 text-left">Final Score</th>
+                            <th class="pb-3 text-left">Status</th>
+                            <th class="pb-3 text-left">Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($performances as $item)
-                            <tr class="border-t border-gray-100 hover:bg-blue-50/40 transition">
+                            <tr class="transition border-t border-gray-100 hover:bg-blue-50/40">
                                 <td class="py-3 pl-2">
                                     <div class="flex items-center gap-3">
                                         @php $initial = substr($item->info->name, 0, 1); @endphp
                                         <div
-                                            class="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center border-2 border-blue-300 overflow-hidden">
+                                            class="flex items-center justify-center overflow-hidden bg-blue-100 border-2 border-blue-300 rounded-full w-9 h-9">
                                             @if (isset($item->info->foto_profil) && $item->info->foto_profil)
                                                 <img src="{{ Storage::url($item->info->foto_profil) }}" alt="profile"
-                                                    class="w-9 h-9 rounded-full object-cover">
+                                                    class="object-cover rounded-full w-9 h-9">
                                             @else
                                                 <span
                                                     class="text-sm font-bold text-blue-500">{{ strtoupper($initial) }}</span>
@@ -177,25 +182,42 @@
                                 </td>
                                 <td class="py-3 text-gray-600 whitespace-nowrap">
                                     @php
-                                        $monthNames = [1=>'Jan',2=>'Feb',3=>'Mar',4=>'Apr',5=>'May',6=>'Jun',7=>'Jul',8=>'Aug',9=>'Sep',10=>'Oct',11=>'Nov',12=>'Dec'];
+                                        $monthNames = [
+                                            1 => 'Jan',
+                                            2 => 'Feb',
+                                            3 => 'Mar',
+                                            4 => 'Apr',
+                                            5 => 'May',
+                                            6 => 'Jun',
+                                            7 => 'Jul',
+                                            8 => 'Aug',
+                                            9 => 'Sep',
+                                            10 => 'Oct',
+                                            11 => 'Nov',
+                                            12 => 'Dec',
+                                        ];
                                     @endphp
                                     {{ $monthNames[$item->bulan] ?? '-' }} {{ $item->tahun }}
                                 </td>
                                 <td class="py-3">
                                     <div class="flex items-center gap-1.5">
-                                        <svg class="w-3.5 h-3.5 text-[#0052CC] opacity-40 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M21 0H3C1.343 0 0 1.343 0 3v18c0 1.656 1.343 3 3 3h18c1.656 0 3-1.344 3-3V3c0-1.657-1.344-3-3-3zM10.44 18.18c0 .795-.645 1.44-1.44 1.44H4.56c-.795 0-1.44-.645-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44H9c.795 0 1.44.645 1.44 1.44v12.36zm10.44-7.08c0 .794-.645 1.44-1.44 1.44H15c-.795 0-1.44-.646-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44h4.44c.795 0 1.44.645 1.44 1.44v5.28z"/>
+                                        <svg class="w-3.5 h-3.5 text-[#0052CC] opacity-40 flex-shrink-0" fill="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path
+                                                d="M21 0H3C1.343 0 0 1.343 0 3v18c0 1.656 1.343 3 3 3h18c1.656 0 3-1.344 3-3V3c0-1.657-1.344-3-3-3zM10.44 18.18c0 .795-.645 1.44-1.44 1.44H4.56c-.795 0-1.44-.645-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44H9c.795 0 1.44.645 1.44 1.44v12.36zm10.44-7.08c0 .794-.645 1.44-1.44 1.44H15c-.795 0-1.44-.646-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44h4.44c.795 0 1.44.645 1.44 1.44v5.28z" />
                                         </svg>
                                         <span class="font-medium text-gray-700">{{ $item->task_done }}</span>
-                                        <span class="text-gray-400 text-xs">tasks</span>
+                                        <span class="text-xs text-gray-400">tasks</span>
                                     </div>
-                                    <span class="text-[10px] bg-gray-100 text-gray-400 px-1.5 py-0.5 rounded mt-0.5 inline-block">preview</span>
+                                    <span
+                                        class="text-[10px] bg-gray-100 text-gray-400 px-1.5 py-0.5 rounded mt-0.5 inline-block">preview</span>
                                 </td>
                                 <td class="py-3 text-gray-700">{{ $item->attendance_summary->attendance_rate }}%</td>
-                                <td class="py-3 text-gray-700 font-semibold">{{ $item->kpi->kpi_score }}</td>
+                                <td class="py-3 font-semibold text-gray-700">{{ $item->kpi->kpi_score }}</td>
                                 <td class="py-3">
-                                    <span class="font-bold text-purple-700 text-base">{{ $item->performance_score }}</span>
-                                    <span class="text-gray-400 text-xs">/ 100</span>
+                                    <span
+                                        class="text-base font-bold text-purple-700">{{ $item->performance_score }}</span>
+                                    <span class="text-xs text-gray-400">/ 100</span>
                                 </td>
                                 <td class="py-3">
                                     <span
@@ -231,8 +253,9 @@
                                                         d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                                 </svg>
                                             </a>
-                                            <form action="{{ route('admin.performa.destroy', $item->id) }}" method="POST"
-                                                class="inline" onsubmit="return confirm('Hapus penilaian ini?')">
+                                            <form action="{{ route('admin.performa.destroy', $item->id) }}"
+                                                method="POST" class="inline"
+                                                onsubmit="return confirm('Hapus penilaian ini?')">
                                                 @csrf @method('DELETE')
                                                 <button type="submit" class="text-red-500 hover:text-red-700"
                                                     title="Delete">
@@ -245,14 +268,14 @@
                                                 </button>
                                             </form>
                                         @else
-                                            <span class="text-gray-400 text-xs">No data</span>
+                                            <span class="text-xs text-gray-400">No data</span>
                                         @endif
                                     </div>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="text-center py-12">
+                                <td colspan="8" class="py-12 text-center">
                                     <div class="flex flex-col items-center gap-3">
                                         <svg class="w-16 h-16 text-gray-300" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
@@ -260,14 +283,14 @@
                                                 d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941" />
                                         </svg>
                                         <h3 class="text-lg font-semibold text-gray-500">No Performance Data Yet</h3>
-                                        <p class="text-gray-400 text-sm">Start by adding your first employee performance
+                                        <p class="text-sm text-gray-400">Start by adding your first employee performance
                                             assessment.</p>
                                         <div class="flex gap-2 mt-2">
                                             <a href="{{ route('admin.performa.create') }}"
-                                                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition">+
+                                                class="px-4 py-2 text-sm text-white transition bg-blue-600 rounded-lg hover:bg-blue-700">+
                                                 Add Assessment</a>
                                             <a href="{{ route('admin.performa.bulk') }}"
-                                                class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm transition">Bulk
+                                                class="px-4 py-2 text-sm text-white transition bg-green-600 rounded-lg hover:bg-green-700">Bulk
                                                 Assessment</a>
                                         </div>
                                     </div>
@@ -281,14 +304,14 @@
     </div>
 
     {{-- DETAIL MODAL --}}
-    <div id="detailModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div id="detailModal" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black/50">
         <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div class="sticky top-0 bg-white z-10 flex justify-between items-center border-b p-6">
+            <div class="sticky top-0 z-10 flex items-center justify-between p-6 bg-white border-b">
                 <h3 class="text-lg font-semibold text-blue-900">
                     Detail Performance - <span id="modalEmployeeName"></span>
                 </h3>
                 <button onclick="closeDetailModal()"
-                    class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100">&times;</button>
+                    class="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100">&times;</button>
             </div>
             <div class="p-6" id="modalContent">
                 <!-- Content loaded via AJAX -->
@@ -311,7 +334,7 @@
             document.getElementById('detailModal').classList.add('show');
             document.getElementById('modalContent').innerHTML = `
         <div class="flex justify-center py-8">
-            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <div class="w-8 h-8 border-b-2 border-blue-600 rounded-full animate-spin"></div>
         </div>`;
 
             fetch(`/admin/performa/${karyawanId}`, {
@@ -327,7 +350,7 @@
                 .then(data => {
                     if (data.error) {
                         document.getElementById('modalContent').innerHTML =
-                            `<p class="text-center text-red-500 py-8">${data.error}</p>`;
+                            `<p class="py-8 text-center text-red-500">${data.error}</p>`;
                         return;
                     }
 
@@ -335,20 +358,21 @@
 
                     if (document.getElementById('modalTaskDone')) {
                         document.getElementById('modalTaskDone').innerText = data.task_done ?? '--';
-                        document.getElementById('modalTaskScore').innerText = (data.task_score !== undefined && data.task_score !== null) ? data.task_score : '--';
+                        document.getElementById('modalTaskScore').innerText = (data.task_score !== undefined && data
+                            .task_score !== null) ? data.task_score : '--';
                     }
 
                     // Build photo HTML
                     let photoHtml = '';
                     if (data.info.foto_profil) {
                         photoHtml = `
-                    <img src="/storage/${data.info.foto_profil}" 
-                         alt="Profile" 
-                         class="w-32 h-32 rounded-full border-4 border-blue-900 object-cover">`;
+                    <img src="/storage/${data.info.foto_profil}"
+                         alt="Profile"
+                         class="object-cover w-32 h-32 border-4 border-blue-900 rounded-full">`;
                     } else {
                         const initial = (data.info.name || '?').charAt(0).toUpperCase();
                         photoHtml = `
-                    <div class="w-32 h-32 rounded-full border-4 border-blue-900 flex items-center justify-center bg-blue-100">
+                    <div class="flex items-center justify-center w-32 h-32 bg-blue-100 border-4 border-blue-900 rounded-full">
                         <span class="text-3xl font-bold text-blue-900">${initial}</span>
                     </div>`;
                     }
@@ -358,9 +382,9 @@
                     if (data.catatan && data.catatan.trim() !== '') {
                         catatanHtml = `
                     <div class="mt-6">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Admin Notes</h3>
-                        <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded">
-                            <p class="text-gray-700 text-sm">${data.catatan}</p>
+                        <h3 class="mb-2 text-lg font-semibold text-gray-800">Admin Notes</h3>
+                        <div class="p-4 border-l-4 border-yellow-500 rounded bg-yellow-50">
+                            <p class="text-sm text-gray-700">${data.catatan}</p>
                         </div>
                     </div>`;
                     }
@@ -370,31 +394,31 @@
                         data.status_performance == 'Average' ? 'text-yellow-400' : 'text-red-400';
 
                     let html = `
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
                     <div class="lg:col-span-2">
-                        <h2 class="text-lg font-bold text-blue-900 mb-4">Employee's Info</h2>
+                        <h2 class="mb-4 text-lg font-bold text-blue-900">Employee's Info</h2>
                         <div class="grid grid-cols-2 gap-y-3 gap-x-6">
-                            <div><label class="block text-xs font-semibold text-blue-900">Name</label><p class="text-gray-600 text-sm">${data.info.name}</p></div>
-                            <div><label class="block text-xs font-semibold text-blue-900">Email</label><p class="text-gray-600 text-sm">${data.info.email}</p></div>
-                            <div><label class="block text-xs font-semibold text-blue-900">Phone</label><p class="text-gray-600 text-sm">${data.info.phone || '-'}</p></div>
-                            <div><label class="block text-xs font-semibold text-blue-900">Role</label><p class="text-gray-600 text-sm capitalize">${data.info.role || '-'}</p></div>
-                            <div><label class="block text-xs font-semibold text-blue-900">Join Date</label><p class="text-gray-600 text-sm">${data.info.join_date || '-'}</p></div>
+                            <div><label class="block text-xs font-semibold text-blue-900">Name</label><p class="text-sm text-gray-600">${data.info.name}</p></div>
+                            <div><label class="block text-xs font-semibold text-blue-900">Email</label><p class="text-sm text-gray-600">${data.info.email}</p></div>
+                            <div><label class="block text-xs font-semibold text-blue-900">Phone</label><p class="text-sm text-gray-600">${data.info.phone || '-'}</p></div>
+                            <div><label class="block text-xs font-semibold text-blue-900">Role</label><p class="text-sm text-gray-600 capitalize">${data.info.role || '-'}</p></div>
+                            <div><label class="block text-xs font-semibold text-blue-900">Join Date</label><p class="text-sm text-gray-600">${data.info.join_date || '-'}</p></div>
                         </div>
                     </div>
                     <div class="flex justify-center">
                         ${photoHtml}
                     </div>
                 </div>
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+                <div class="grid grid-cols-1 gap-6 mt-6 lg:grid-cols-3">
                     <div>
-                        <h2 class="text-lg font-bold text-blue-900 mb-4">Attendance Summary</h2>
+                        <h2 class="mb-4 text-lg font-bold text-blue-900">Attendance Summary</h2>
                         <div class="space-y-2">
-                            <div><p class="font-semibold text-blue-900">Attendance Rate</p><p class="text-sky-500 font-semibold">${data.attendance_summary.attendance_rate}%</p></div>
+                            <div><p class="font-semibold text-blue-900">Attendance Rate</p><p class="font-semibold text-sky-500">${data.attendance_summary.attendance_rate}%</p></div>
                             <div><p class="font-semibold text-blue-900">Present</p><p class="text-emerald-500">${data.attendance_summary.present} Days</p></div>
                             <div><p class="font-semibold text-blue-900">Absent</p><p class="text-red-500">${data.attendance_summary.absent} Days</p></div>
                         </div>
                         <div class="mt-8">
-                            <h2 class="text-lg font-bold text-blue-900 mb-3">Performance Score</h2>
+                            <h2 class="mb-3 text-lg font-bold text-blue-900">Performance Score</h2>
                             <h3 class="text-2xl font-semibold ${statusColor}">${data.status_performance}</h3>
                             <div class="flex items-end gap-2 mt-2">
                                 <span class="text-2xl font-bold text-blue-900">${data.performance_score}</span>
@@ -403,12 +427,12 @@
                         </div>
                     </div>
                     <div class="md:col-span-2">
-                        <h2 class="text-lg font-bold text-blue-900 mb-4">KPI Breakdown</h2>
-                        <div class="rounded-xl border border-gray-200 overflow-hidden">
-                            <div class="grid grid-cols-2 bg-gray-100 text-gray-500 text-sm font-medium px-5 py-3">
+                        <h2 class="mb-4 text-lg font-bold text-blue-900">KPI Breakdown</h2>
+                        <div class="overflow-hidden border border-gray-200 rounded-xl">
+                            <div class="grid grid-cols-2 px-5 py-3 text-sm font-medium text-gray-500 bg-gray-100">
                                 <div>KPI</div><div>Score</div>
                             </div>
-                            <div class="divide-y divide-gray-200 text-blue-900 text-sm">
+                            <div class="text-sm text-blue-900 divide-y divide-gray-200">
                                 <div class="grid grid-cols-2 px-5 py-4"><div>Quality</div><div>${data.kpi.quality}</div></div>
                                 <div class="grid grid-cols-2 px-5 py-4"><div>Productivity</div><div>${data.kpi.productivity}</div></div>
                                 <div class="grid grid-cols-2 px-5 py-4"><div>Teamwork</div><div>${data.kpi.teamwork}</div></div>
@@ -420,33 +444,33 @@
                     </div>
                 </div>
                 <div class="mt-6">
-                    <h2 class="text-lg font-bold text-blue-900 mb-3 flex items-center gap-2">
+                    <h2 class="flex items-center gap-2 mb-3 text-lg font-bold text-blue-900">
                         Task Summary
                         <svg class="w-4 h-4 text-[#0052CC]" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M21 0H3C1.343 0 0 1.343 0 3v18c0 1.656 1.343 3 3 3h18c1.656 0 3-1.344 3-3V3c0-1.657-1.344-3-3-3zM10.44 18.18c0 .795-.645 1.44-1.44 1.44H4.56c-.795 0-1.44-.645-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44H9c.795 0 1.44.645 1.44 1.44v12.36zm10.44-7.08c0 .794-.645 1.44-1.44 1.44H15c-.795 0-1.44-.646-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44h4.44c.795 0 1.44.645 1.44 1.44v5.28z"/>
                         </svg>
                         <span class="text-sm font-normal text-[#0052CC]">via Trello</span>
                     </h2>
-                    <div class="rounded-xl border border-dashed border-gray-200 bg-gray-50 p-4">
+                    <div class="p-4 border border-gray-200 border-dashed rounded-xl bg-gray-50">
                         <div class="flex items-center gap-2 mb-4">
-                            <span class="inline-block w-2 h-2 rounded-full bg-yellow-400 flex-shrink-0"></span>
+                            <span class="flex-shrink-0 inline-block w-2 h-2 bg-yellow-400 rounded-full"></span>
                             <span class="text-xs text-gray-500">Trello API not connected — data below is a preview placeholder</span>
                         </div>
                         <div class="grid grid-cols-3 gap-3">
-                            <div class="bg-white rounded-lg border border-gray-200 p-3 text-center">
+                            <div class="p-3 text-center bg-white border border-gray-200 rounded-lg">
                                 <div class="text-2xl font-bold text-[#0052CC]" id="modalTaskDone">--</div>
-                                <div class="text-xs text-gray-500 mt-1">Tasks Done</div>
+                                <div class="mt-1 text-xs text-gray-500">Tasks Done</div>
                             </div>
-                            <div class="bg-white rounded-lg border border-gray-200 p-3 text-center">
+                            <div class="p-3 text-center bg-white border border-gray-200 rounded-lg">
                                 <div class="text-2xl font-bold text-gray-500">20</div>
-                                <div class="text-xs text-gray-500 mt-1">Monthly Target</div>
+                                <div class="mt-1 text-xs text-gray-500">Monthly Target</div>
                             </div>
-                            <div class="bg-white rounded-lg border border-gray-200 p-3 text-center">
+                            <div class="p-3 text-center bg-white border border-gray-200 rounded-lg">
                                 <div class="text-2xl font-bold text-teal-600" id="modalTaskScore">--</div>
-                                <div class="text-xs text-gray-500 mt-1">Task Score</div>
+                                <div class="mt-1 text-xs text-gray-500">Task Score</div>
                             </div>
                         </div>
-                        <div class="mt-3 pt-3 border-t border-gray-200">
+                        <div class="pt-3 mt-3 border-t border-gray-200">
                             <p class="text-xs text-gray-400">Formula: <span class="font-medium text-gray-500">Performance Score = (KPI × 50%) + (Task Score × 50%)</span></p>
                         </div>
                     </div>
@@ -459,7 +483,7 @@
                 .catch(error => {
                     console.error('Error:', error);
                     document.getElementById('modalContent').innerHTML =
-                        `<p class="text-center text-red-500 py-8">Failed to load data. Please try again.</p>`;
+                        `<p class="py-8 text-center text-red-500">Failed to load data. Please try again.</p>`;
                 });
         }
 

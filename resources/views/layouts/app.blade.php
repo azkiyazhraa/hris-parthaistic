@@ -53,12 +53,46 @@
                         <div class="flex items-center gap-2">
                             <!-- Check in - Check out -->
                             @if ($absensiToday && !$absensiToday->jam_pulang)
-                                <button
+                                <button id="checkout-btn"
                                     data-modal-target="absence-modal-checkout-{{ $type }}-{{ optional($absensiToday)->id }}"
                                     data-modal-toggle="absence-modal-checkout-{{ $type }}-{{ optional($absensiToday)->id }}"
-                                    class="px-2 py-1 text-xs font-bold text-white bg-red-500 rounded-lg hover:bg-red-600">
+                                    class="px-2 py-1 text-xs font-bold text-white bg-gray-400 rounded-lg cursor-not-allowed"
+                                    disabled>
                                     Check-Out
                                 </button>
+
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', function() {
+
+                                        const checkIn = new Date(
+                                            "{{ date('Y-m-d', strtotime($absensiToday->tanggal)) }}T{{ $absensiToday->jam_masuk }}"
+                                        );
+
+                                        const btn = document.getElementById('checkout-btn');
+
+                                        function updateTimer() {
+                                            const now = new Date();
+                                            const diff = now - checkIn;
+
+                                            if (diff < 0) return;
+
+                                            const totalSeconds = Math.floor(diff / 1000);
+
+                                            if (totalSeconds >= 7 * 3600) {
+                                                btn.disabled = false;
+                                                btn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+                                                btn.classList.add('bg-red-500', 'hover:bg-red-600');
+                                            } else {
+                                                btn.disabled = true;
+                                                btn.classList.add('bg-gray-400', 'cursor-not-allowed');
+                                                btn.classList.remove('bg-red-500', 'hover:bg-red-600');
+                                            }
+                                        }
+
+                                        updateTimer();
+                                        setInterval(updateTimer, 1000);
+                                    });
+                                </script>
 
                                 @include('absensi.checkout')
                             @elseif (!$absensiToday)

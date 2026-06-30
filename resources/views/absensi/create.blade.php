@@ -26,18 +26,7 @@
                     @csrf
 
                     <!-- Attendance Type -->
-                    <div>
-                        <label class="block mb-2 text-sm font-semibold text-gray-700">
-                            Attendance Type <span class="text-red-500">*</span>
-                        </label>
-                        <select name="jenis_absensi" id="jenis_absensi" required
-                            class="w-full px-4 py-3 text-gray-700 transition bg-white border border-gray-300 shadow-sm appearance-none rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none jenis-absensi">
-                            <option value="">Select Type</option>
-                            <option value="checkin">Present</option>
-                            <option value="permit">Leave</option>
-                            <option value="sick">Sick</option>
-                        </select>
-                    </div>
+                    <input type="hidden" name="jenis_absensi" value="checkin">
 
                     <!-- Check-in Time & Location -->
                     <div class="grid grid-cols-1 gap-5 md:grid-cols-2 attendance-fields">
@@ -58,35 +47,6 @@
                         </div>
                     </div>
 
-                    <!-- Description -->
-                    <div class="description-fields">
-                        <label class="block mb-2 text-sm font-semibold text-gray-700">
-                            Description
-                        </label>
-                        <textarea name="keterangan" rows="3" placeholder="Alasan izin/sakit atau keterangan tambahan..."
-                            class="w-full px-4 py-3 text-gray-700 transition border border-gray-300 shadow-sm resize-none rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none">{{ old('keterangan') }}</textarea>
-                    </div>
-
-                    <!-- Attachment -->
-                    <div class="attachment-fields">
-                        <label class="block mb-2 text-sm font-semibold text-gray-700">
-                            Attachment (Photo / Document)
-                        </label>
-                        <div
-                            class="p-5 transition border-2 border-gray-300 border-dashed rounded-2xl hover:border-blue-400">
-                            <input type="file" name="attachment" accept="image/jpeg,image/png,image/jpg"
-                                class="w-full text-sm text-gray-600
-                                    file:mr-4 file:py-2.5 file:px-4
-                                    file:rounded-lg file:border-0
-                                    file:text-sm file:font-medium
-                                    file:bg-blue-50 file:text-blue-700
-                                    hover:file:bg-blue-100">
-                        </div>
-                        <p class="mt-2 text-xs text-gray-500">
-                            Upload image / photo as proof. Maximum 2 MB (JPG, JPEG, PNG)
-                        </p>
-                    </div>
-
                     <!-- Footer -->
                     <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
                         <button type="button" data-modal-hide="absence-modal-{{ $type }}"
@@ -105,39 +65,3 @@
         </div>
     </div>
 </div>
-
-@push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('SCRIPT JALAN');
-        });
-
-        document.addEventListener('DOMContentLoaded', function() {
-
-            document.querySelectorAll('.jenis-absensi').forEach(select => {
-
-                const form = select.closest('form');
-
-                const attendanceFields = form.querySelector('.attendance-fields');
-                const descriptionFields = form.querySelector('.description-fields');
-                const attachmentFields = form.querySelector('.attachment-fields');
-
-                function toggleFields() {
-                    if (select.value === 'checkin') {
-                        attendanceFields.classList.remove('hidden');
-                        descriptionFields.classList.add('hidden');
-                        attachmentFields.classList.add('hidden');
-                    } else {
-                        attendanceFields.classList.add('hidden');
-                        descriptionFields.classList.remove('hidden');
-                        attachmentFields.classList.remove('hidden');
-                    }
-                }
-
-                toggleFields();
-                select.addEventListener('change', toggleFields);
-            });
-
-        });
-    </script>
-@endpush
