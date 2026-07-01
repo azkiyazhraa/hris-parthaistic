@@ -24,7 +24,7 @@ class ProfileController extends Controller
 
         // Attendance rate
         $allAttendances = AbsensiKaryawan::where('karyawan_id', $karyawan->id)
-            ->whereIn('status_kehadiran', ['present', 'pending', 'permit', 'sick'])
+            ->whereIn('status_kehadiran', ['present', 'pending', 'change_day', 'leave'])
             ->where('is_change_day', false)
             ->count();
 
@@ -52,23 +52,24 @@ class ProfileController extends Controller
         // Recent attendances
         $recentAttendances = AbsensiKaryawan::where('karyawan_id', $karyawan->id)->where('is_change_day', false)->orderBy('tanggal', 'desc')->limit(5)->get();
 
-        // Leave usage
-        $annualLeaveUsed = PengajuanCuti::where('karyawan_id', $karyawan->id)
-            ->where('jenis_cuti', 'tahunan')
+        // Leave usage & quotas
+        $leaveUsed = fn(string $jenis) => (int) PengajuanCuti::where('karyawan_id', $karyawan->id)
+            ->where('jenis_cuti', $jenis)
             ->whereIn('status', ['disetujui', 'approved'])
             ->sum('total_hari');
-        $sickLeaveUsed = PengajuanCuti::where('karyawan_id', $karyawan->id)
-            ->where('jenis_cuti', 'sakit')
-            ->whereIn('status', ['disetujui', 'approved'])
-            ->sum('total_hari');
-        $emergencyLeaveUsed = PengajuanCuti::where('karyawan_id', $karyawan->id)
-            ->where('jenis_cuti', 'penting')
-            ->whereIn('status', ['disetujui', 'approved'])
-            ->sum('total_hari');
-        $otherLeaveUsed = PengajuanCuti::where('karyawan_id', $karyawan->id)
-            ->where('jenis_cuti', 'lainnya')
-            ->whereIn('status', ['disetujui', 'approved'])
-            ->sum('total_hari');
+
+        $annualLeaveUsed      = $leaveUsed('tahunan');
+        $annualLeaveQuota     = 12;
+
+        $maternityLeaveUsed   = $leaveUsed('melahirkan');
+        $maternityLeaveQuota  = $karyawan->jenis_kelamin === 'P' ? 90 : 3;
+        $maternityLeaveLabel  = $karyawan->jenis_kelamin === 'P' ? 'Maternity Leave' : 'Paternity Leave';
+
+        $marriageLeaveUsed    = $leaveUsed('menikah');
+        $marriageLeaveQuota   = 3;
+
+        $bereavementLeaveUsed  = $leaveUsed('duka');
+        $bereavementLeaveQuota = 2;
 
         $leaveRequests = PengajuanCuti::where('karyawan_id', $karyawan->id)->orderBy('created_at', 'desc')->limit(5)->get()->map(
             fn($l) => [
@@ -106,7 +107,14 @@ class ProfileController extends Controller
         $inProgressTasks = 0;
         $doneTasks = 0;
 
-        return view('profile.edit', compact('karyawan', 'attendanceRate', 'presentCount', 'lateCount', 'absentCount', 'recentAttendances', 'annualLeaveUsed', 'sickLeaveUsed', 'emergencyLeaveUsed', 'otherLeaveUsed', 'leaveRequests', 'latestPerformance', 'performanceChange', 'taskCompletionRate', 'todoTasks', 'inProgressTasks', 'doneTasks'));
+        return view('profile.edit', compact(
+            'karyawan', 'attendanceRate', 'presentCount', 'lateCount', 'absentCount', 'recentAttendances',
+            'annualLeaveUsed', 'annualLeaveQuota',
+            'maternityLeaveUsed', 'maternityLeaveQuota', 'maternityLeaveLabel',
+            'marriageLeaveUsed', 'marriageLeaveQuota',
+            'bereavementLeaveUsed', 'bereavementLeaveQuota',
+            'leaveRequests', 'latestPerformance', 'performanceChange', 'taskCompletionRate', 'todoTasks', 'inProgressTasks', 'doneTasks'
+        ));
     }
 
     /**

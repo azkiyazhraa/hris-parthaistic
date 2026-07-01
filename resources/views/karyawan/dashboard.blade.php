@@ -30,17 +30,20 @@
 
                     <h2 class="text-xl md:text-2xl font-semibold
                         @if (!$absensi) text-gray-400
-                        @elseif ($isOnBreak)
-                            text-blue-500
-                        @elseif ($absensi->jam_pulang)
-                            text-green-600
-                        @else
-                            text-yellow-600 @endif
-                    "
+                        @elseif ($absensi->status_kehadiran === 'change_day') text-indigo-600
+                        @elseif ($absensi->status_kehadiran === 'leave') text-purple-600
+                        @elseif ($isOnBreak) text-blue-500
+                        @elseif ($absensi->jam_pulang) text-green-600
+                        @else text-yellow-600
+                        @endif"
                         id="statusText">
 
                         @if (!$absensi)
                             Not Checked In
+                        @elseif ($absensi->status_kehadiran === 'change_day')
+                            Change Day Off
+                        @elseif ($absensi->status_kehadiran === 'leave')
+                            On Leave
                         @elseif ($isOnBreak)
                             On Break
                         @elseif ($absensi->jam_pulang)
@@ -56,7 +59,13 @@
                     <span class="text-xl font-semibold text-blue-900">Check-In Time</span>
                     <h2 class="text-xl md:text-2xl font-semibold {{ $absensi && $absensi->jam_masuk ? 'text-green-600' : 'text-gray-400' }}"
                         id="time">
-                        {{ $absensi ? \Carbon\Carbon::parse($absensi->jam_masuk)->format('H:i:s') : 'Not Checked In' }}
+                        @if ($absensi && $absensi->jam_masuk)
+                            {{ \Carbon\Carbon::parse($absensi->jam_masuk)->format('H:i:s') }}
+                        @elseif ($absensi && in_array($absensi->status_kehadiran, ['change_day', 'leave']))
+                            —
+                        @else
+                            Not Checked In
+                        @endif
                     </h2>
                 </div>
 
@@ -87,70 +96,65 @@
                 <div class="p-5 bg-white shadow rounded-2xl">
                     <p class="mb-2 text-sm text-gray-500">Leave Record</p>
 
-                    <h2 class="text-4xl font-bold text-blue-900">{{ $cutiTerpakai }} / {{ $totalCuti }}</h2>
+                    <h2 class="text-4xl font-bold text-blue-900">{{ $cutiTerpakai }} / {{ $totalCutiKuota }}</h2>
                     <p class="mb-4 text-sm text-gray-500">Days Used</p>
 
                     <!-- PROGRESS -->
                     <div class="space-y-2 text-xs">
-                        <div>
-                            <div class="flex justify-between mb-1">
-                                <span>Annual Leave</span>
-                                <span>{{ $totalCuti > 0 ? round(($terpakaiTahunan / $kuotaCutiTahunan) * 100) : 0 }}%</span>
-                            </div>
-                            <div class="w-full h-2 bg-gray-200 rounded-full">
-                                <div class="h-2 bg-blue-500 rounded-full"
-                                    style="width: {{ $totalCuti > 0 ? round(($terpakaiTahunan / $kuotaCutiTahunan) * 100) : 0 }}%">
-                                </div>
-                            </div>
-                            <small class="text-gray-400">{{ $terpakaiTahunan }} / {{ $kuotaCutiTahunan }}</small>
-                        </div>
+                        @php
+                            $leaveItems = [
+                                ['label' => 'Annual Leave',   'terpakai' => $terpakaiTahunan,    'kuota' => $kuotaCutiTahunan,    'color' => 'bg-blue-500'],
+                                ['label' => $maternityLabel,  'terpakai' => $terpakaiMelahirkan,  'kuota' => $kuotaCutiMelahirkan,  'color' => 'bg-pink-400'],
+                                ['label' => 'Marriage Leave', 'terpakai' => $terpakaiMenikah,     'kuota' => $kuotaCutiMenikah,     'color' => 'bg-yellow-400'],
+                                ['label' => 'Bereavement',    'terpakai' => $terpakaiDuka,        'kuota' => $kuotaCutiDuka,        'color' => 'bg-purple-400'],
+                            ];
+                        @endphp
 
-                        <div>
-                            <div class="flex justify-between mb-1">
-                                <span>Sick Leave</span>
-                                <span>{{ $totalCuti > 0 ? round(($terpakaiSakit / $kuotaCutiSakit) * 100) : 0 }}%</span>
-                            </div>
-                            <div class="w-full h-2 bg-gray-200 rounded-full">
-                                <div class="h-2 bg-blue-400 rounded-full"
-                                    style="width: {{ $totalCuti > 0 ? round(($terpakaiSakit / $kuotaCutiSakit) * 100) : 0 }}%">
+                        @foreach ($leaveItems as $item)
+                            @php $pct = $item['kuota'] > 0 ? min(100, round(($item['terpakai'] / $item['kuota']) * 100)) : 0; @endphp
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span>{{ $item['label'] }}</span>
+                                    <span>{{ $pct }}%</span>
                                 </div>
-                            </div>
-                            <small class="text-gray-400">{{ $terpakaiSakit }} / {{ $kuotaCutiSakit }}</small>
-                        </div>
-
-                        <div>
-                            <div class="flex justify-between mb-1">
-                                <span>Emergency Leave</span>
-                                <span>{{ $totalCuti > 0 ? round(($terpakaiKepentingan / $kuotaCutiKepentingan) * 100) : 0 }}%</span>
-                            </div>
-                            <div class="w-full h-2 bg-gray-200 rounded-full">
-                                <div class="h-2 bg-blue-400 rounded-full"
-                                    style="width: {{ $totalCuti > 0 ? round(($terpakaiKepentingan / $kuotaCutiKepentingan) * 100) : 0 }}%">
+                                <div class="w-full h-2 bg-gray-200 rounded-full">
+                                    <div class="h-2 rounded-full {{ $item['color'] }}" style="width: {{ $pct }}%"></div>
                                 </div>
+                                <small class="text-gray-400">{{ $item['terpakai'] }} / {{ $item['kuota'] }} days</small>
                             </div>
-                            <small class="text-gray-400">{{ $terpakaiKepentingan }} / {{ $kuotaCutiKepentingan }}</small>
-                        </div>
-
-                        <div>
-                            <div class="flex justify-between mb-1">
-                                <span>Other Leave (Melahirkan)</span>
-                                <span>{{ $totalCuti > 0 ? round(($terpakaiMelahirkan / $kuotaCutiMelahirkan) * 100) : 0 }}%</span>
-                            </div>
-                            <div class="w-full h-2 bg-gray-200 rounded-full">
-                                <div class="h-2 bg-blue-400 rounded-full"
-                                    style="width: {{ $totalCuti > 0 ? round(($terpakaiMelahirkan / $kuotaCutiMelahirkan) * 100) : 0 }}%">
-                                </div>
-                            </div>
-                            <small class="text-gray-400">{{ $terpakaiMelahirkan }} / {{ $kuotaCutiMelahirkan }}</small>
-                        </div>
+                        @endforeach
                     </div>
                 </div>
 
 
                 <!-- CARD 2 (DONUT) -->
-                <div class="flex flex-col items-center justify-center p-5 bg-white shadow rounded-2xl">
-                    <p class="mb-4 text-sm text-gray-500">My Task Record</p>
-                    <div id="donutChart"></div>
+                <div class="flex flex-col p-5 bg-white shadow rounded-2xl">
+                    <div class="flex items-center justify-between mb-3">
+                        <p class="text-sm text-gray-500">My Task Record</p>
+                        <span class="inline-flex items-center gap-1 text-xs text-yellow-700 bg-yellow-100 px-2 py-0.5 rounded-full font-medium">
+                            <span class="w-1.5 h-1.5 rounded-full bg-yellow-400 inline-block"></span>
+                            Trello: Not Connected
+                        </span>
+                    </div>
+                    @if ($taskTarget > 0)
+                        <div id="donutChart" class="self-center w-full"></div>
+                        <div class="mt-1 text-center">
+                            <p class="text-sm font-semibold text-gray-700">{{ $taskDone }} / {{ $taskTarget }} tasks completed</p>
+                            @if ($taskPeriod)
+                                <p class="text-xs text-gray-400">Based on: {{ $taskPeriod }}</p>
+                            @endif
+                        </div>
+                    @else
+                        <div class="flex flex-col items-center justify-center flex-1 py-6 gap-2">
+                            <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
+                                <svg class="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                </svg>
+                            </div>
+                            <p class="text-sm text-gray-400">No task data yet</p>
+                            <p class="text-xs text-gray-300">Your performance data will appear here</p>
+                        </div>
+                    @endif
                 </div>
 
 
@@ -269,22 +273,22 @@
                             </div>
 
                             <div class="flex items-end justify-center">
-                                <p id="permissionCount" class="text-2xl font-bold leading-none text-blue-900">
+                                <p id="changeDayCount" class="text-2xl font-bold leading-none text-blue-900">
                                     0
                                 </p>
 
                                 <p class="text-xs text-gray-500">
-                                    Permission
+                                    Change Day
                                 </p>
                             </div>
 
                             <div class="flex items-end justify-center">
-                                <p id="sickCount" class="text-2xl font-bold leading-none text-blue-900">
+                                <p id="leaveCount" class="text-2xl font-bold leading-none text-blue-900">
                                     0
                                 </p>
 
                                 <p class="text-xs text-gray-500">
-                                    Sick
+                                    Leave
                                 </p>
                             </div>
 
@@ -408,21 +412,15 @@
 
 @push('scripts')
     {{-- DONUT CHART --}}
+    @if ($taskTarget > 0)
     <script>
         var options = {
-            chart: {
-                type: 'donut',
-                height: 250
-            },
-            series: [80, 10, 10],
-            labels: ['Done', 'In Progress', 'To-Do'],
-            colors: ['#06b6d4', '#4ade80', '#f43f5e'],
-            legend: {
-                position: 'bottom'
-            },
-            dataLabels: {
-                enabled: false
-            },
+            chart: { type: 'donut', height: 220 },
+            series: [{{ $taskDone }}, {{ $taskRemaining }}],
+            labels: ['Completed', 'Remaining'],
+            colors: ['#06b6d4', '#e5e7eb'],
+            legend: { position: 'bottom' },
+            dataLabels: { enabled: false },
             plotOptions: {
                 pie: {
                     donut: {
@@ -432,19 +430,16 @@
                             total: {
                                 show: true,
                                 label: 'Progress',
-                                formatter: function() {
-                                    return '80%'
-                                }
+                                formatter: function () { return '{{ $taskPercent }}%'; }
                             }
                         }
                     }
                 }
             }
         };
-
-        var chart = new ApexCharts(document.querySelector("#donutChart"), options);
-        chart.render();
+        new ApexCharts(document.querySelector('#donutChart'), options).render();
     </script>
+    @endif
 
     {{-- CALENDAR COMPONENT --}}
     <script>
@@ -454,6 +449,7 @@
                 this.currentDate = new Date();
                 this.selectedDate = null;
                 this.events = [];
+                this.holidays = {};
                 this.onDateClick = options.onDateClick || null;
                 this.onEventClick = options.onEventClick || null;
 
@@ -465,6 +461,7 @@
             init() {
                 this.render();
                 this.loadEvents();
+                this.loadHolidays();
             }
 
             async loadEvents() {
@@ -532,12 +529,14 @@
                 for (let day = 1; day <= lastDate; day++) {
                     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                     const isToday = this.isToday(year, month, day);
+                    const isSunday = new Date(year, month, day).getDay() === 0;
                     const dayEvents = this.getEventsForDate(dateStr);
+                    const numColor = isToday ? 'text-blue-600' : isSunday ? 'text-red-500' : 'text-gray-700';
 
                     html += `
                         <div class="calendar-day aspect-square p-1 ${isToday ? 'ring-2 ring-blue-500 rounded-lg' : ''}" data-date="${dateStr}">
                             <button class="flex flex-col items-center justify-start w-full h-full p-1 transition rounded-lg day-btn hover:bg-gray-50">
-                                <span class="text-sm font-medium ${isToday ? 'text-blue-600' : 'text-gray-700'}">${day}</span>
+                                <span class="day-number text-sm font-medium ${numColor}">${day}</span>
                                 <div class="event-indicators mt-1 flex flex-wrap gap-0.5 justify-center">
                                     ${this.getEventIndicators(dayEvents)}
                                 </div>
@@ -611,6 +610,7 @@
                         this.currentDate.setMonth(this.currentDate.getMonth() - 1);
                         this.render();
                         this.loadEvents();
+                        this.loadHolidays();
                     });
                 }
 
@@ -621,6 +621,7 @@
                         this.currentDate.setMonth(this.currentDate.getMonth() + 1);
                         this.render();
                         this.loadEvents();
+                        this.loadHolidays();
                     });
                 }
 
@@ -637,30 +638,41 @@
             }
 
             showDateEvents(date, events) {
-                if (events.length === 0) {
+                const holiday = this.getHoliday(date);
+
+                if (events.length === 0 && !holiday) {
                     Swal.fire({
                         title: `No Events`,
                         text: `No events scheduled on ${date}`,
                         icon: 'info',
                         confirmButtonText: 'Close',
-                        customClass: {
-                            popup: 'rounded-2xl'
-                        }
+                        customClass: { popup: 'rounded-2xl' }
                     });
                     return;
                 }
 
+                const colorBg = {
+                    'blue': 'bg-blue-100', 'green': 'bg-green-100',
+                    'yellow': 'bg-yellow-100', 'red': 'bg-red-100', 'purple': 'bg-purple-100'
+                };
+
                 let eventListHtml = '<div class="space-y-2 overflow-y-auto max-h-96">';
 
-                events.forEach(event => {
-                    const colorBg = {
-                        'blue': 'bg-blue-100',
-                        'green': 'bg-green-100',
-                        'yellow': 'bg-yellow-100',
-                        'red': 'bg-red-100',
-                        'purple': 'bg-purple-100'
-                    };
+                if (holiday) {
+                    eventListHtml += `
+                        <div class="p-3 border border-red-100 bg-red-50 rounded-xl">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-lg">🎌</div>
+                                <div>
+                                    <p class="text-sm font-medium text-red-700">National Holiday</p>
+                                    <p class="text-xs text-red-500">${this.escapeHtml(holiday)}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
 
+                events.forEach(event => {
                     eventListHtml += `
                         <div class="p-3 transition border border-gray-100 cursor-pointer rounded-xl hover:bg-gray-50"
                              onclick="openEventDetailModal('${event.id}', '${event.type}'); Swal.close();">
@@ -686,6 +698,59 @@
                     customClass: {
                         popup: 'rounded-2xl',
                         confirmButton: 'bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg'
+                    }
+                });
+            }
+
+            async loadHolidays() {
+                const year = this.currentDate.getFullYear();
+                if (this.holidays[year] !== undefined) {
+                    this.renderHolidays();
+                    return;
+                }
+                try {
+                    const res = await fetch(`https://libur.deno.dev/api?year=${year}`);
+                    const data = await res.json();
+                    this.holidays[year] = {};
+                    data.forEach(h => { this.holidays[year][h.date] = h.name; });
+                } catch (e) {
+                    this.holidays[year] = {};
+                    console.warn('Failed to load holidays:', e);
+                }
+                this.renderHolidays();
+            }
+
+            getHoliday(dateStr) {
+                const year = dateStr.slice(0, 4);
+                return (this.holidays[year] || {})[dateStr] || null;
+            }
+
+            renderHolidays() {
+                const today = new Date();
+                const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+
+                this.container.querySelectorAll('.calendar-day').forEach(dayEl => {
+                    const date = dayEl.getAttribute('data-date');
+                    if (!date) return;
+                    const holiday = this.getHoliday(date);
+                    if (!holiday) return;
+
+                    // Turn date number red (unless it's today, which stays blue)
+                    if (date !== todayStr) {
+                        const numEl = dayEl.querySelector('.day-number');
+                        if (numEl) {
+                            numEl.classList.remove('text-gray-700', 'text-red-500');
+                            numEl.classList.add('text-red-500');
+                        }
+                    }
+
+                    // Add red dot indicator (once only)
+                    const indicatorsEl = dayEl.querySelector('.event-indicators');
+                    if (indicatorsEl && !dayEl.querySelector('.holiday-dot')) {
+                        const dot = document.createElement('div');
+                        dot.className = 'holiday-dot w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0';
+                        dot.title = holiday;
+                        indicatorsEl.prepend(dot);
                     }
                 });
             }
@@ -883,8 +948,8 @@
             function statusBadge(status) {
                 const badges = {
                     present: `<span class="px-3 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-full">Present</span>`,
-                    permissions: `<span class="px-3 py-1 text-xs font-medium text-blue-700 bg-blue-100 rounded-full">Permission</span>`,
-                    sick: `<span class="px-3 py-1 text-xs font-medium text-red-700 bg-red-100 rounded-full">Sick</span>`,
+                    change_day: `<span class="px-3 py-1 text-xs font-medium text-blue-700 bg-blue-100 rounded-full">Change Day</span>`,
+                    leave: `<span class="px-3 py-1 text-xs font-medium text-purple-700 bg-purple-100 rounded-full">Leave</span>`,
                     pending: `<span class="px-3 py-1 text-xs font-medium text-yellow-700 bg-yellow-100 rounded-full">Pending</span>`
                 };
                 return badges[status] ?? badges['pending'];
@@ -904,8 +969,8 @@
                     },
                     success: function(response) {
                         $('#presentCount').text(response.summary.present);
-                        $('#permissionCount').text(response.summary.permission);
-                        $('#sickCount').text(response.summary.sick);
+                        $('#changeDayCount').text(response.summary.change_day);
+                        $('#leaveCount').text(response.summary.leave);
                         $('#pendingCount').text(response.summary.pending);
 
                         let rows = '';

@@ -58,55 +58,111 @@
                     <p class="text-sm font-medium text-gray-400">Average Attendance</p>
                     <div class="flex items-end gap-2 mt-1">
                         <h2 class="text-xl font-semibold text-[#0B0F6D] leading-none">
-                            {{ $averageScore }}%
+                            {{ $averageAttendance }}%
                         </h2>
                     </div>
                 </div>
 
                 <!-- ITEM 4 - Top Performer -->
-                <div class="flex items-center gap-3 px-5 py-4">
+                @php
+                    $bulanNamaTop = [
+                        1 => 'Jan', 2 => 'Feb', 3 => 'Mar', 4 => 'Apr',
+                        5 => 'May', 6 => 'Jun', 7 => 'Jul', 8 => 'Aug',
+                        9 => 'Sep', 10 => 'Oct', 11 => 'Nov', 12 => 'Dec',
+                    ];
+                @endphp
+                <div class="flex flex-col justify-center px-5 py-4">
                     @if ($topPerformer)
-                        @php
-                            $initial = substr($topPerformer->nama_lengkap, 0, 1);
-                        @endphp
-                        <div
-                            class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center border-2 border-[#0B0F6D]">
-                            @if ($topPerformer->foto_profil)
-                                <img src="{{ Storage::url($topPerformer->foto_profil) }}" alt="profile"
-                                    class="object-cover w-12 h-12 rounded-full">
-                            @else
-                                <span class="text-lg font-bold text-[#0B0F6D]">{{ strtoupper($initial) }}</span>
-                            @endif
+                        @php $initial = substr($topPerformer->nama_lengkap, 0, 1); @endphp
+
+                        <p class="text-xs font-semibold tracking-wider text-gray-400 uppercase mb-2">
+                            &#9733; Top Performer
+                            <span class="ml-1 font-normal normal-case text-blue-400">
+                                {{ $bulanNamaTop[$topPerformerBulan] ?? '' }} {{ $topPerformerTahun }}
+                            </span>
+                        </p>
+
+                        <div class="flex items-center gap-3">
+                            <div class="relative flex-shrink-0">
+                                <div class="w-11 h-11 rounded-full bg-gradient-to-br from-blue-100 to-cyan-100 flex items-center justify-center border-2 border-[#0B0F6D]">
+                                    @if ($topPerformer->foto_profil)
+                                        <img src="{{ Storage::url($topPerformer->foto_profil) }}" alt="profile"
+                                            class="object-cover w-11 h-11 rounded-full">
+                                    @else
+                                        <span class="text-base font-bold text-[#0B0F6D]">{{ strtoupper($initial) }}</span>
+                                    @endif
+                                </div>
+                                <span class="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center">
+                                    <svg class="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 .587l3.668 7.431L24 9.75l-6 5.847 1.416 8.253L12 19.771l-7.416 4.079L6 15.597 0 9.75l8.332-1.732z"/>
+                                    </svg>
+                                </span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h3 class="font-semibold text-[#0B0F6D] leading-tight truncate">{{ $topPerformer->nama_lengkap }}</h3>
+                                <p class="text-xs text-gray-400 capitalize">{{ $topPerformer->role ?? '-' }}</p>
+                            </div>
+                            <div class="flex-shrink-0 text-right">
+                                <span class="text-xl font-bold text-[#0B0F6D]">{{ $topScore }}</span>
+                                <p class="text-[10px] text-gray-400 leading-none">/ 100</p>
+                            </div>
                         </div>
-                        <div class="flex-1">
-                            <p class="text-sm font-medium text-gray-400">Top Performer</p>
-                            <h3 class="text-[#0B0F6D] font-semibold leading-tight">{{ $topPerformer->nama_lengkap }}</h3>
-                            <p class="text-xs text-gray-400">Score: {{ $topScore }}</p>
-                        </div>
-                        <svg class="w-6 h-6 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
-                            <path
-                                d="M12 .587l3.668 7.431L24 9.75l-6 5.847 1.416 8.253L12 19.771l-7.416 4.079L6 15.597 0 9.75l8.332-1.732z" />
-                        </svg>
                     @else
-                        <div class="flex-1">
-                            <p class="text-sm font-medium text-gray-400">Top Performer</p>
-                            <h3 class="text-[#0B0F6D] font-semibold leading-tight">-</h3>
-                        </div>
+                        <p class="text-xs font-semibold tracking-wider text-gray-400 uppercase mb-2">&#9733; Top Performer</p>
+                        <p class="text-sm text-gray-400">No data yet</p>
                     @endif
                 </div>
             </div>
         </div>
 
-        {{-- ACTION BUTTONS --}}
-        <div class="flex gap-2">
-            <a href="{{ route('admin.performa.create') }}"
-                class="px-4 py-2 text-sm text-white transition bg-blue-600 rounded-lg hover:bg-blue-700">
-                + Add Assessment
-            </a>
-            <a href="{{ route('admin.performa.bulk') }}"
-                class="px-4 py-2 text-sm text-white transition bg-green-600 rounded-lg hover:bg-green-700">
-                Bulk Assessment
-            </a>
+        {{-- ACTION BUTTONS + FILTER --}}
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="flex gap-2">
+                <a href="{{ route('admin.performa.create') }}"
+                    class="px-4 py-2 text-sm text-white transition bg-blue-600 rounded-lg hover:bg-blue-700">
+                    + Add Assessment
+                </a>
+                <a href="{{ route('admin.performa.bulk') }}"
+                    class="px-4 py-2 text-sm text-white transition bg-green-600 rounded-lg hover:bg-green-700">
+                    Bulk Assessment
+                </a>
+            </div>
+
+            {{-- FILTER FORM --}}
+            <form id="filterForm" method="GET" action="{{ route('admin.performa.index') }}" class="flex flex-wrap items-center gap-2">
+                @php
+                    $bulanNamaFilter = [
+                        1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
+                        5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August',
+                        9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December',
+                    ];
+                @endphp
+                <input type="hidden" name="per_page" id="filterPerPage" value="{{ $perPage }}">
+                <select name="filter_bulan"
+                    class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">All Months</option>
+                    @foreach ($bulanNamaFilter as $num => $name)
+                        <option value="{{ $num }}" {{ $filterBulan == $num ? 'selected' : '' }}>{{ $name }}</option>
+                    @endforeach
+                </select>
+                <select name="filter_tahun"
+                    class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">All Years</option>
+                    @for ($y = 2023; $y <= date('Y') + 1; $y++)
+                        <option value="{{ $y }}" {{ $filterTahun == $y ? 'selected' : '' }}>{{ $y }}</option>
+                    @endfor
+                </select>
+                <button type="submit"
+                    class="px-4 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition">
+                    Filter
+                </button>
+                @if ($filterBulan || $filterTahun)
+                    <a href="{{ route('admin.performa.index') }}"
+                        class="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition">
+                        Clear
+                    </a>
+                @endif
+            </form>
         </div>
 
         {{-- TRELLO INTEGRATION STATUS --}}
@@ -157,148 +213,26 @@
                             <th class="pb-3 text-left">Action</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        @forelse($performances as $item)
-                            <tr class="transition border-t border-gray-100 hover:bg-blue-50/40">
-                                <td class="py-3 pl-2">
-                                    <div class="flex items-center gap-3">
-                                        @php $initial = substr($item->info->name, 0, 1); @endphp
-                                        <div
-                                            class="flex items-center justify-center overflow-hidden bg-blue-100 border-2 border-blue-300 rounded-full w-9 h-9">
-                                            @if (isset($item->info->foto_profil) && $item->info->foto_profil)
-                                                <img src="{{ Storage::url($item->info->foto_profil) }}" alt="profile"
-                                                    class="object-cover rounded-full w-9 h-9">
-                                            @else
-                                                <span
-                                                    class="text-sm font-bold text-blue-500">{{ strtoupper($initial) }}</span>
-                                            @endif
-                                        </div>
-                                        <div>
-                                            <span class="font-medium text-gray-800">{{ $item->info->name }}</span>
-                                            <br>
-                                            <small class="text-gray-400 capitalize">{{ $item->info->role ?? '-' }}</small>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="py-3 text-gray-600 whitespace-nowrap">
-                                    @php
-                                        $monthNames = [
-                                            1 => 'Jan',
-                                            2 => 'Feb',
-                                            3 => 'Mar',
-                                            4 => 'Apr',
-                                            5 => 'May',
-                                            6 => 'Jun',
-                                            7 => 'Jul',
-                                            8 => 'Aug',
-                                            9 => 'Sep',
-                                            10 => 'Oct',
-                                            11 => 'Nov',
-                                            12 => 'Dec',
-                                        ];
-                                    @endphp
-                                    {{ $monthNames[$item->bulan] ?? '-' }} {{ $item->tahun }}
-                                </td>
-                                <td class="py-3">
-                                    <div class="flex items-center gap-1.5">
-                                        <svg class="w-3.5 h-3.5 text-[#0052CC] opacity-40 flex-shrink-0" fill="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path
-                                                d="M21 0H3C1.343 0 0 1.343 0 3v18c0 1.656 1.343 3 3 3h18c1.656 0 3-1.344 3-3V3c0-1.657-1.344-3-3-3zM10.44 18.18c0 .795-.645 1.44-1.44 1.44H4.56c-.795 0-1.44-.645-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44H9c.795 0 1.44.645 1.44 1.44v12.36zm10.44-7.08c0 .794-.645 1.44-1.44 1.44H15c-.795 0-1.44-.646-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44h4.44c.795 0 1.44.645 1.44 1.44v5.28z" />
-                                        </svg>
-                                        <span class="font-medium text-gray-700">{{ $item->task_done }}</span>
-                                        <span class="text-xs text-gray-400">tasks</span>
-                                    </div>
-                                    <span
-                                        class="text-[10px] bg-gray-100 text-gray-400 px-1.5 py-0.5 rounded mt-0.5 inline-block">preview</span>
-                                </td>
-                                <td class="py-3 text-gray-700">{{ $item->attendance_summary->attendance_rate }}%</td>
-                                <td class="py-3 font-semibold text-gray-700">{{ $item->kpi->kpi_score }}</td>
-                                <td class="py-3">
-                                    <span
-                                        class="text-base font-bold text-purple-700">{{ $item->performance_score }}</span>
-                                    <span class="text-xs text-gray-400">/ 100</span>
-                                </td>
-                                <td class="py-3">
-                                    <span
-                                        class="px-3 py-1 rounded-full text-xs font-semibold
-                                        @if ($item->status_performance == 'Excellent') bg-green-100 text-green-700
-                                        @elseif($item->status_performance == 'Good') bg-blue-100 text-blue-700
-                                        @elseif($item->status_performance == 'Average') bg-yellow-100 text-yellow-700
-                                        @elseif($item->status_performance == 'Poor') bg-orange-100 text-orange-700
-                                        @elseif($item->status_performance == 'Very Poor') bg-red-100 text-red-700
-                                        @else bg-gray-100 text-gray-700 @endif
-                                    ">
-                                        {{ $item->status_performance }}
-                                    </span>
-                                </td>
-                                <td class="py-3">
-                                    <div class="flex items-center gap-2">
-                                        @if ($item->id)
-                                            <button onclick="openDetailModal({{ $item->karyawan_id }})"
-                                                class="text-blue-500 hover:text-blue-700" title="Detail">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                </svg>
-                                            </button>
-                                            <a href="{{ route('admin.performa.edit', $item->id) }}"
-                                                class="text-yellow-500 hover:text-yellow-700" title="Edit">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                                </svg>
-                                            </a>
-                                            <form action="{{ route('admin.performa.destroy', $item->id) }}"
-                                                method="POST" class="inline"
-                                                onsubmit="return confirm('Hapus penilaian ini?')">
-                                                @csrf @method('DELETE')
-                                                <button type="submit" class="text-red-500 hover:text-red-700"
-                                                    title="Delete">
-                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor"
-                                                        viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                    </svg>
-                                                </button>
-                                            </form>
-                                        @else
-                                            <span class="text-xs text-gray-400">No data</span>
-                                        @endif
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="8" class="py-12 text-center">
-                                    <div class="flex flex-col items-center gap-3">
-                                        <svg class="w-16 h-16 text-gray-300" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                                d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941" />
-                                        </svg>
-                                        <h3 class="text-lg font-semibold text-gray-500">No Performance Data Yet</h3>
-                                        <p class="text-sm text-gray-400">Start by adding your first employee performance
-                                            assessment.</p>
-                                        <div class="flex gap-2 mt-2">
-                                            <a href="{{ route('admin.performa.create') }}"
-                                                class="px-4 py-2 text-sm text-white transition bg-blue-600 rounded-lg hover:bg-blue-700">+
-                                                Add Assessment</a>
-                                            <a href="{{ route('admin.performa.bulk') }}"
-                                                class="px-4 py-2 text-sm text-white transition bg-green-600 rounded-lg hover:bg-green-700">Bulk
-                                                Assessment</a>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforelse
+                    <tbody id="performaTableBody">
+                        @include('admin.performa._rows')
                     </tbody>
                 </table>
+            </div>
+
+            <div class="flex items-center justify-between gap-3 pt-4 mt-2 border-t border-gray-100">
+                {{-- PER PAGE --}}
+                <select id="perPageSelect"
+                    class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    @foreach ([10, 15, 20, 50, 100] as $opt)
+                        <option value="{{ $opt }}" {{ $perPage == $opt ? 'selected' : '' }}>{{ $opt }} / page</option>
+                    @endforeach
+                </select>
+
+                <div id="performaPagination">
+                    @if ($paginator && $paginator->hasPages())
+                        {{ $paginator->appends(request()->query())->links('vendor.pagination.simple-blue') }}
+                    @endif
+                </div>
             </div>
         </div>
     </div>
@@ -330,6 +264,46 @@
     </style>
 
     <script>
+        const tableBody     = document.getElementById('performaTableBody');
+        const paginationEl  = document.getElementById('performaPagination');
+        const perPageSelect = document.getElementById('perPageSelect');
+        const filterPerPage = document.getElementById('filterPerPage');
+
+        function loadTable(url) {
+            tableBody.style.opacity = '0.4';
+            fetch(url, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+            })
+            .then(r => r.json())
+            .then(data => {
+                tableBody.innerHTML = data.rows;
+                paginationEl.innerHTML = data.pagination;
+                tableBody.style.opacity = '1';
+                bindPaginationLinks();
+                history.pushState(null, '', url);
+            })
+            .catch(() => { tableBody.style.opacity = '1'; });
+        }
+
+        function bindPaginationLinks() {
+            paginationEl.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    loadTable(this.href);
+                });
+            });
+        }
+
+        perPageSelect.addEventListener('change', function () {
+            filterPerPage.value = this.value;
+            const url = new URL(window.location.href);
+            url.searchParams.set('per_page', this.value);
+            url.searchParams.delete('page');
+            loadTable(url.toString());
+        });
+
+        bindPaginationLinks();
+
         function openDetailModal(karyawanId) {
             document.getElementById('detailModal').classList.add('show');
             document.getElementById('modalContent').innerHTML = `
@@ -355,12 +329,6 @@
                     }
 
                     document.getElementById('modalEmployeeName').innerText = data.info.name;
-
-                    if (document.getElementById('modalTaskDone')) {
-                        document.getElementById('modalTaskDone').innerText = data.task_done ?? '--';
-                        document.getElementById('modalTaskScore').innerText = (data.task_score !== undefined && data
-                            .task_score !== null) ? data.task_score : '--';
-                    }
 
                     // Build photo HTML
                     let photoHtml = '';
@@ -446,27 +414,25 @@
                 <div class="mt-6">
                     <h2 class="flex items-center gap-2 mb-3 text-lg font-bold text-blue-900">
                         Task Summary
-                        <svg class="w-4 h-4 text-[#0052CC]" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M21 0H3C1.343 0 0 1.343 0 3v18c0 1.656 1.343 3 3 3h18c1.656 0 3-1.344 3-3V3c0-1.657-1.344-3-3-3zM10.44 18.18c0 .795-.645 1.44-1.44 1.44H4.56c-.795 0-1.44-.645-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44H9c.795 0 1.44.645 1.44 1.44v12.36zm10.44-7.08c0 .794-.645 1.44-1.44 1.44H15c-.795 0-1.44-.646-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44h4.44c.795 0 1.44.645 1.44 1.44v5.28z"/>
-                        </svg>
-                        <span class="text-sm font-normal text-[#0052CC]">via Trello</span>
+                        ${data.task_source === 'trello'
+                            ? `<span class="inline-flex items-center gap-1 text-sm font-normal text-[#0052CC]">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M21 0H3C1.343 0 0 1.343 0 3v18c0 1.656 1.343 3 3 3h18c1.656 0 3-1.344 3-3V3c0-1.657-1.344-3-3-3zM10.44 18.18c0 .795-.645 1.44-1.44 1.44H4.56c-.795 0-1.44-.645-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44H9c.795 0 1.44.645 1.44 1.44v12.36zm10.44-7.08c0 .794-.645 1.44-1.44 1.44H15c-.795 0-1.44-.646-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44h4.44c.795 0 1.44.645 1.44 1.44v5.28z"/></svg>
+                                Via Trello</span>`
+                            : `<span class="text-sm font-normal text-gray-400">Manual Input</span>`
+                        }
                     </h2>
-                    <div class="p-4 border border-gray-200 border-dashed rounded-xl bg-gray-50">
-                        <div class="flex items-center gap-2 mb-4">
-                            <span class="flex-shrink-0 inline-block w-2 h-2 bg-yellow-400 rounded-full"></span>
-                            <span class="text-xs text-gray-500">Trello API not connected — data below is a preview placeholder</span>
-                        </div>
+                    <div class="p-4 border border-gray-200 rounded-xl bg-gray-50">
                         <div class="grid grid-cols-3 gap-3">
                             <div class="p-3 text-center bg-white border border-gray-200 rounded-lg">
-                                <div class="text-2xl font-bold text-[#0052CC]" id="modalTaskDone">--</div>
+                                <div class="text-2xl font-bold text-[#0052CC]">${data.task_done ?? 0}</div>
                                 <div class="mt-1 text-xs text-gray-500">Tasks Done</div>
                             </div>
                             <div class="p-3 text-center bg-white border border-gray-200 rounded-lg">
-                                <div class="text-2xl font-bold text-gray-500">20</div>
+                                <div class="text-2xl font-bold text-gray-500">${data.task_target ?? 1}</div>
                                 <div class="mt-1 text-xs text-gray-500">Monthly Target</div>
                             </div>
                             <div class="p-3 text-center bg-white border border-gray-200 rounded-lg">
-                                <div class="text-2xl font-bold text-teal-600" id="modalTaskScore">--</div>
+                                <div class="text-2xl font-bold text-teal-600">${data.task_score ?? 0}</div>
                                 <div class="mt-1 text-xs text-gray-500">Task Score</div>
                             </div>
                         </div>

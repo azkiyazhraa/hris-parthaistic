@@ -102,10 +102,10 @@ class DashboardController extends Controller
             'COUNT(*) as total,
              SUM(status_kehadiran = ?) as pending,
              SUM(status_kehadiran = ?) as present,
-             SUM(status_kehadiran = ?) as permit,
-             SUM(status_kehadiran = ?) as sick,
+             SUM(status_kehadiran = ?) as change_day,
+             SUM(status_kehadiran = ?) as `leave`,
              SUM(status_kehadiran = ?) as absent',
-            [AbsensiKaryawan::STATUS_PENDING, AbsensiKaryawan::STATUS_PRESENT, AbsensiKaryawan::STATUS_PERMIT, AbsensiKaryawan::STATUS_SICK, AbsensiKaryawan::STATUS_ABSENT],
+            [AbsensiKaryawan::STATUS_PENDING, AbsensiKaryawan::STATUS_PRESENT, AbsensiKaryawan::STATUS_CHANGE_DAY, AbsensiKaryawan::STATUS_LEAVE, AbsensiKaryawan::STATUS_ABSENT],
         )
             ->where('is_change_day', false)
             ->whereDate('tanggal', today())
@@ -114,13 +114,40 @@ class DashboardController extends Controller
         $statistics = [
             'total' => (int) ($attendanceCounts->total ?? 0),
             'pending' => (int) ($attendanceCounts->pending ?? 0),
-            'present' => (int) ($attendanceCounts->present ?? 0),
-            'permit' => (int) ($attendanceCounts->permit ?? 0),
-            'sick' => (int) ($attendanceCounts->sick ?? 0),
-            'absent' => (int) ($attendanceCounts->absent ?? 0),
+            'present'    => (int) ($attendanceCounts->present    ?? 0),
+            'change_day' => (int) ($attendanceCounts->change_day ?? 0),
+            'leave'      => (int) ($attendanceCounts->leave      ?? 0),
+            'absent'     => (int) ($attendanceCounts->absent     ?? 0),
         ];
 
-        return view('admin.dashboard', compact('totalKaryawan', 'fulltime', 'contract', 'internship', 'fulltimePercent', 'contractPercent', 'internshipPercent', 'resignedEmployees', 'attachment', 'absensi', 'statistics'));
+        // Task aggregate dari latest performa tiap karyawan aktif
+        $activeKaryawanIds = Karyawan::whereIn('status', ['Full-time', 'Contract', 'Internship'])
+            ->where('role', '!=', 'admin')
+            ->where('role', '!=', 'hr')
+            ->pluck('id');
+
+        $latestPerformaIds = Performa::whereIn('karyawan_id', $activeKaryawanIds)
+            ->selectRaw('MAX(id) as id')
+            ->groupBy('karyawan_id')
+            ->pluck('id');
+
+        $taskAggregate = Performa::whereIn('id', $latestPerformaIds)
+            ->selectRaw('COALESCE(SUM(task_done), 0) as total_done, COALESCE(SUM(task_target), 0) as total_target, COUNT(*) as employee_count')
+            ->first();
+
+        $adminTaskDone          = (int) ($taskAggregate->total_done     ?? 0);
+        $adminTaskTarget        = (int) ($taskAggregate->total_target   ?? 0);
+        $adminTaskRemaining     = max(0, $adminTaskTarget - $adminTaskDone);
+        $adminTaskPercent       = $adminTaskTarget > 0 ? round(($adminTaskDone / $adminTaskTarget) * 100) : 0;
+        $adminTaskEmployeeCount = (int) ($taskAggregate->employee_count ?? 0);
+
+        return view('admin.dashboard', compact(
+            'totalKaryawan', 'fulltime', 'contract', 'internship',
+            'fulltimePercent', 'contractPercent', 'internshipPercent',
+            'resignedEmployees', 'attachment', 'absensi', 'statistics',
+            'adminTaskDone', 'adminTaskTarget', 'adminTaskRemaining',
+            'adminTaskPercent', 'adminTaskEmployeeCount',
+        ));
     }
 
     public function karyawan()
@@ -399,7 +426,7 @@ class DashboardController extends Controller
 
         // Attendance rate (all-time)
         $allAttendances = AbsensiKaryawan::where('karyawan_id', $id)
-            ->whereIn('status_kehadiran', ['present', 'pending', 'permit', 'sick'])
+            ->whereIn('status_kehadiran', ['present', 'pending', 'change_day', 'leave'])
             ->where('is_change_day', false)
             ->count();
 

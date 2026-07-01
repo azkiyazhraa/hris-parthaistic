@@ -96,12 +96,15 @@ class PengajuanCuti extends Model
     public function getJenisCutiLabelAttribute()
     {
         $jenis = [
-            'tahunan' => 'Cuti Tahunan',
-            'sakit' => 'Sick Leave',
-            'melahirkan' => 'Maternity Leave',
-            'penting' => 'Emergency Leave',
-            'ibadah' => 'Personal Leave',
-            'lainnya' => 'Other',
+            'tahunan'   => 'Annual Leave',
+            'melahirkan'=> $this->karyawan?->jenis_kelamin === 'P' ? 'Maternity Leave' : 'Paternity Leave',
+            'menikah'   => 'Marriage Leave',
+            'duka'      => 'Bereavement Leave',
+            // legacy
+            'sakit'     => 'Sick Leave',
+            'penting'   => 'Emergency Leave',
+            'ibadah'    => 'Religious Leave',
+            'lainnya'   => 'Other Leave',
         ];
 
         return $jenis[$this->jenis_cuti] ?? ucfirst($this->jenis_cuti);

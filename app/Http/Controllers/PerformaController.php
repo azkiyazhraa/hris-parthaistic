@@ -80,6 +80,7 @@ class PerformaController extends Controller
                 'kpi_score' => $performa->kpi_score,
                 'attendance_rate' => $performa->attendance_rate,
                 'task_done' => $performa->task_done,
+                'task_target' => $performa->task_target,
                 'task_score' => $performa->task_score,
                 'performance_score' => $performa->performance_score,
                 'catatan' => $performa->catatan,
@@ -103,84 +104,134 @@ class PerformaController extends Controller
 
     public function adminIndex(Request $request)
     {
+        $filterBulan = $request->filter_bulan ? (int) $request->filter_bulan : null;
+        $filterTahun = $request->filter_tahun ? (int) $request->filter_tahun : null;
+        $perPage = in_array((int) $request->per_page, [10, 15, 20, 50, 100]) ? (int) $request->per_page : 10;
+
         $karyawans = Karyawan::whereIn('status', ['Full-time', 'Contract', 'Internship'])
+            ->whereNotIn('role', ['admin', 'hr'])
             ->orderBy('nama_lengkap')
             ->get();
 
         $performances = collect();
         $averageScore = 0;
+        $averageAttendance = 0;
         $totalTaskCompleted = 0;
         $topPerformer = null;
         $topScore = 0;
+        $topPerformerBulan = null;
+        $topPerformerTahun = null;
         $hasData = Performa::exists();
+        $paginator = null;
 
         if ($hasData) {
-            foreach ($karyawans as $karyawan) {
-                $latestPerforma = Performa::where('karyawan_id', $karyawan->id)
-                    ->orderBy('tahun', 'desc')
-                    ->orderBy('bulan', 'desc')
+            $query = Performa::whereIn('karyawan_id', $karyawans->pluck('id'));
+
+            if ($filterBulan) {
+                $query->where('bulan', $filterBulan);
+            }
+            if ($filterTahun) {
+                $query->where('tahun', $filterTahun);
+            }
+
+            // Summary stats dari semua record (bukan hanya halaman ini)
+            $averageScore = round((clone $query)->avg('performance_score') ?? 0);
+            $averageAttendance = round((clone $query)->avg('attendance_rate') ?? 0);
+            $totalTaskCompleted = (clone $query)->sum('task_done');
+
+            // Top performer: karyawan dgn skor tertinggi di bulan terbaru yg ada datanya
+            $latestEntry = Performa::whereIn('karyawan_id', $karyawans->pluck('id'))
+                ->orderBy('tahun', 'desc')
+                ->orderBy('bulan', 'desc')
+                ->first();
+
+            if ($latestEntry) {
+                $topRecord = Performa::whereIn('karyawan_id', $karyawans->pluck('id'))
+                    ->where('bulan', $latestEntry->bulan)
+                    ->where('tahun', $latestEntry->tahun)
+                    ->orderBy('performance_score', 'desc')
                     ->first();
 
-                if ($latestPerforma) {
-                    if ($latestPerforma->performance_score > $topScore) {
-                        $topScore = $latestPerforma->performance_score;
-                        $topPerformer = $karyawan;
-                    }
-
-                    // AMBIL DATA ABSENSI OTOMATIS DARI AbsensiKaryawan
-                    $presentCount = Performa::calculatePresentCount($karyawan->id, $latestPerforma->bulan, $latestPerforma->tahun);
-                    $lateCount = Performa::calculateLateCount($karyawan->id, $latestPerforma->bulan, $latestPerforma->tahun);
-                    $absentCount = Performa::calculateAbsentCount($karyawan->id, $latestPerforma->bulan, $latestPerforma->tahun);
-
-                    $performances->push((object) [
-                        'id' => $latestPerforma->id,
-                        'karyawan_id' => $karyawan->id,
-                        'info' => (object) [
-                            'name' => $karyawan->nama_lengkap,
-                            'email' => $karyawan->email,
-                            'phone' => $karyawan->nomor_telepon ?? '-',
-                            'role' => $karyawan->role ?? '-',
-                            'join_date' => $karyawan->tanggal_bergabung ? $karyawan->tanggal_bergabung->format('d M Y') : '-',
-                            'foto_profil' => $karyawan->foto_profil,
-                        ],
-                        'attendance_summary' => (object) [
-                            'attendance_rate' => $latestPerforma->attendance_rate,
-                            'present' => $presentCount,    // DATA REAL DARI ABSENSI
-                            'absent' => $absentCount,      // DATA REAL DARI ABSENSI
-                            'late' => $lateCount,          // DATA REAL DARI ABSENSI
-                        ],
-                        'kpi' => (object) [
-                            'quality' => $latestPerforma->quality,
-                            'productivity' => $latestPerforma->productivity,
-                            'teamwork' => $latestPerforma->teamwork,
-                            'discipline' => $latestPerforma->discipline,
-                            'kpi_score' => $latestPerforma->kpi_score,
-                        ],
-                        'performance_score' => $latestPerforma->performance_score,
-                        'task_done' => $latestPerforma->task_done,
-                        'task_score' => $latestPerforma->task_score,
-                        'status_performance' => $this->getStatusPerformance($latestPerforma->performance_score),
-                        'quarter' => $latestPerforma->quarter,
-                        'bulan' => $latestPerforma->bulan,
-                        'tahun' => $latestPerforma->tahun,
-                    ]);
+                if ($topRecord) {
+                    $topScore = $topRecord->performance_score;
+                    $topPerformer = $karyawans->find($topRecord->karyawan_id);
+                    $topPerformerBulan = $latestEntry->bulan;
+                    $topPerformerTahun = $latestEntry->tahun;
                 }
             }
 
-            $totalScores = $performances->sum('performance_score');
-            $count = $performances->count();
-            $averageScore = $count > 0 ? round($totalScores / $count) : 0;
-            $totalTaskCompleted = $performances->sum('task_done');
+            // Paginated records untuk tabel
+            $paginator = (clone $query)->orderBy('tahun', 'desc')->orderBy('bulan', 'desc')->paginate($perPage);
+
+            foreach ($paginator as $record) {
+                $karyawan = $karyawans->find($record->karyawan_id);
+                if (! $karyawan) {
+                    continue;
+                }
+
+                $presentCount = Performa::calculatePresentCount($karyawan->id, $record->bulan, $record->tahun);
+                $lateCount = Performa::calculateLateCount($karyawan->id, $record->bulan, $record->tahun);
+                $absentCount = Performa::calculateAbsentCount($karyawan->id, $record->bulan, $record->tahun);
+
+                $performances->push((object) [
+                    'id' => $record->id,
+                    'karyawan_id' => $karyawan->id,
+                    'info' => (object) [
+                        'name' => $karyawan->nama_lengkap,
+                        'email' => $karyawan->email,
+                        'phone' => $karyawan->nomor_telepon ?? '-',
+                        'role' => $karyawan->role ?? '-',
+                        'join_date' => $karyawan->tanggal_bergabung ? $karyawan->tanggal_bergabung->format('d M Y') : '-',
+                        'foto_profil' => $karyawan->foto_profil,
+                    ],
+                    'attendance_summary' => (object) [
+                        'attendance_rate' => $record->attendance_rate,
+                        'present' => $presentCount,
+                        'absent' => $absentCount,
+                        'late' => $lateCount,
+                    ],
+                    'kpi' => (object) [
+                        'quality' => $record->quality,
+                        'productivity' => $record->productivity,
+                        'teamwork' => $record->teamwork,
+                        'discipline' => $record->discipline,
+                        'kpi_score' => $record->kpi_score,
+                    ],
+                    'performance_score' => $record->performance_score,
+                    'task_done' => $record->task_done,
+                    'task_score' => $record->task_score,
+                    'status_performance' => $this->getStatusPerformance($record->performance_score),
+                    'quarter' => $record->quarter,
+                    'bulan' => $record->bulan,
+                    'tahun' => $record->tahun,
+                ]);
+            }
+        }
+
+        if ($request->ajax()) {
+            return response()->json([
+                'rows' => view('admin.performa._rows', compact('performances'))->render(),
+                'pagination' => ($paginator && $paginator->hasPages())
+                    ? $paginator->appends($request->query())->links('vendor.pagination.simple-blue')->render()
+                    : '',
+            ]);
         }
 
         return view('admin.performa.index', compact(
             'performances',
             'averageScore',
+            'averageAttendance',
             'totalTaskCompleted',
             'karyawans',
             'topPerformer',
             'topScore',
-            'hasData'
+            'topPerformerBulan',
+            'topPerformerTahun',
+            'hasData',
+            'filterBulan',
+            'filterTahun',
+            'paginator',
+            'perPage',
         ));
     }
 
@@ -205,6 +256,7 @@ class PerformaController extends Controller
     public function adminCreate()
     {
         $karyawans = Karyawan::whereIn('status', ['Full-time', 'Contract', 'Internship'])
+            ->whereNotIn('role', ['admin', 'hr'])
             ->orderBy('nama_lengkap')->get();
         $bulan = range(1, 12);
         $tahun = range(2023, date('Y') + 1);
@@ -294,8 +346,9 @@ class PerformaController extends Controller
             $request->tahun
         );
 
-        $taskDone  = (int) ($request->task_done ?? 0);
-        $taskScore = (int) ($request->task_score ?? 0);
+        $taskDone   = (int) ($request->task_done ?? 0);
+        $taskTarget = max(1, (int) ($request->task_target ?? 1));
+        $taskScore  = min(100, (int) round(($taskDone / $taskTarget) * 100));
 
         $performanceScore = Performa::calculatePerformanceScore($kpiScore, $taskScore);
 
@@ -324,6 +377,7 @@ class PerformaController extends Controller
             'tahun'          => $request->tahun,
             'attendance_rate' => $attendanceRate,
             'task_done'      => $taskDone,
+            'task_target'    => $taskTarget,
             'task_score'     => $taskScore,
             'quality'        => $request->quality,
             'productivity'   => $request->productivity,
@@ -350,6 +404,7 @@ class PerformaController extends Controller
     {
         $performa = Performa::findOrFail($id);
         $karyawans = Karyawan::whereIn('status', ['Full-time', 'Contract', 'Internship'])
+            ->whereNotIn('role', ['admin', 'hr'])
             ->orderBy('nama_lengkap')->get();
         $bulan = range(1, 12);
         $tahun = range(2023, date('Y') + 1);
@@ -397,8 +452,9 @@ class PerformaController extends Controller
             $request->tahun
         );
 
-        $taskDone  = (int) ($request->task_done ?? 0);
-        $taskScore = (int) ($request->task_score ?? 0);
+        $taskDone   = (int) ($request->task_done ?? 0);
+        $taskTarget = max(1, (int) ($request->task_target ?? 1));
+        $taskScore  = min(100, (int) round(($taskDone / $taskTarget) * 100));
 
         $performanceScore = Performa::calculatePerformanceScore($kpiScore, $taskScore);
 
@@ -428,6 +484,7 @@ class PerformaController extends Controller
             'tahun'          => $request->tahun,
             'attendance_rate' => $attendanceRate,
             'task_done'      => $taskDone,
+            'task_target'    => $taskTarget,
             'task_score'     => $taskScore,
             'quality'        => $request->quality,
             'productivity'   => $request->productivity,
@@ -501,7 +558,9 @@ class PerformaController extends Controller
                 'kpi_score' => $performa->kpi_score,
             ],
             'task_done' => $performa->task_done,
+            'task_target' => $performa->task_target,
             'task_score' => $performa->task_score,
+            'task_source' => $performa->trello_card_id ? 'trello' : 'manual',
             'performance_score' => $performa->performance_score,
             'status_performance' => $this->getStatusPerformance($performa->performance_score),
             'quarter' => $performa->quarter,
@@ -512,6 +571,7 @@ class PerformaController extends Controller
     public function adminBulkCreate()
     {
         $karyawans = Karyawan::whereIn('status', ['Full-time', 'Contract', 'Internship'])
+            ->whereNotIn('role', ['admin', 'hr'])
             ->orderBy('nama_lengkap')->get();
         $currentMonth = Carbon::now()->month;
         $currentYear = Carbon::now()->year;
@@ -540,6 +600,16 @@ class PerformaController extends Controller
         $errorCount = 0;
 
         foreach ($request->performas as $data) {
+            $quality    = (int) ($data['quality']     ?? 0);
+            $productivity = (int) ($data['productivity'] ?? 0);
+            $teamwork   = (int) ($data['teamwork']    ?? 0);
+            $discipline = (int) ($data['discipline']  ?? 0);
+            $taskDoneRaw = (int) ($data['task_done']  ?? 0);
+
+            if ($quality === 0 && $productivity === 0 && $teamwork === 0 && $discipline === 0 && $taskDoneRaw === 0) {
+                continue;
+            }
+
             $karyawan = Karyawan::find($data['karyawan_id']);
 
             $departemen = '-';
@@ -565,8 +635,8 @@ class PerformaController extends Controller
                 $tahun
             );
 
-            $taskDone  = (int) ($data['task_done'] ?? 0);
-            $taskTarget = max(1, (int) ($data['task_target'] ?? 20));
+            $taskDone   = (int) ($data['task_done'] ?? 0);
+            $taskTarget = max(1, (int) ($data['task_target'] ?? 1));
             $taskScore  = min(100, (int) round(($taskDone / $taskTarget) * 100));
 
             $performanceScore = Performa::calculatePerformanceScore($kpiScore, $taskScore);
@@ -589,6 +659,7 @@ class PerformaController extends Controller
                     'tahun'          => $tahun,
                     'attendance_rate' => $attendanceRate,
                     'task_done'      => $taskDone,
+                    'task_target'    => $taskTarget,
                     'task_score'     => $taskScore,
                     'quality'        => $data['quality'],
                     'productivity'   => $data['productivity'],

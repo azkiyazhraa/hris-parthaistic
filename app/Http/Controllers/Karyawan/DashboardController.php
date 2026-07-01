@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Karyawan;
 
 use App\Http\Controllers\Controller;
 use App\Models\AbsensiKaryawan;
+use App\Models\Performa;
 use App\Models\PengajuanCuti;
 use App\Models\Pengumuman;
 use App\Models\BreakTime;
@@ -72,107 +73,88 @@ class DashboardController extends Controller
         // ✅ kondisi sedang break
         $isOnBreak = $absensi && $break && $break->break_start && !$break->break_end;
 
-        /*
-        |--------------------------------------------------------------------------
-        | CUTI TAHUNAN
-        |--------------------------------------------------------------------------
-        */
-        $kuotaCutiTahunan = 12;
-
-        $terpakaiTahunan = PengajuanCuti::where('karyawan_id', $karyawanId)
-            ->where('tahun_cuti', $tahunSekarang)
-            ->where('jenis_cuti', 'tahunan')
-            ->where('status', 'disetujui')
-            ->sum('total_hari');
-
-        $sisaKuotaTahunan = max(0, $kuotaCutiTahunan - $terpakaiTahunan);
+        $karyawan = auth()->user();
 
         /*
         |--------------------------------------------------------------------------
-        | CUTI SAKIT
+        | KUOTA CUTI
         |--------------------------------------------------------------------------
         */
-        $kuotaCutiSakit = 10;
-
-        $terpakaiSakit = PengajuanCuti::where('karyawan_id', $karyawanId)
+        $used = fn(string $jenis) => (int) PengajuanCuti::where('karyawan_id', $karyawanId)
             ->where('tahun_cuti', $tahunSekarang)
-            ->where('jenis_cuti', 'sakit')
+            ->where('jenis_cuti', $jenis)
             ->where('status', 'disetujui')
             ->sum('total_hari');
 
-        $sisaKuotaSakit = max(0, $kuotaCutiSakit - $terpakaiSakit);
+        $kuotaCutiTahunan    = 12;
+        $kuotaCutiMelahirkan = $karyawan->jenis_kelamin === 'P' ? 90 : 3;
+        $kuotaCutiMenikah    = 3;
+        $kuotaCutiDuka       = 2;
 
-        /*
-        |--------------------------------------------------------------------------
-        | CUTI KEPENTINGAN
-        |--------------------------------------------------------------------------
-        */
-        $kuotaCutiKepentingan = 10;
+        $terpakaiTahunan    = $used('tahunan');
+        $terpakaiMelahirkan = $used('melahirkan');
+        $terpakaiMenikah    = $used('menikah');
+        $terpakaiDuka       = $used('duka');
 
-        $terpakaiKepentingan = PengajuanCuti::where('karyawan_id', $karyawanId)
-            ->where('tahun_cuti', $tahunSekarang)
-            ->where('jenis_cuti', 'penting')
-            ->where('status', 'disetujui')
-            ->sum('total_hari');
-
-        $sisaKuotaKepentingan = max(0, $kuotaCutiKepentingan - $terpakaiKepentingan);
-
-        /*
-        |--------------------------------------------------------------------------
-        | CUTI MELAHIRKAN
-        |--------------------------------------------------------------------------
-        */
-        $kuotaCutiMelahirkan = 90;
-
-        $terpakaiMelahirkan = PengajuanCuti::where('karyawan_id', $karyawanId)
-            ->where('tahun_cuti', $tahunSekarang)
-            ->where('jenis_cuti', 'melahirkan')
-            ->where('status', 'disetujui')
-            ->sum('total_hari');
-
+        $sisaKuotaTahunan    = max(0, $kuotaCutiTahunan    - $terpakaiTahunan);
         $sisaKuotaMelahirkan = max(0, $kuotaCutiMelahirkan - $terpakaiMelahirkan);
+        $sisaKuotaMenikah    = max(0, $kuotaCutiMenikah    - $terpakaiMenikah);
+        $sisaKuotaDuka       = max(0, $kuotaCutiDuka       - $terpakaiDuka);
+
+        $maternityLabel = $karyawan->jenis_kelamin === 'P' ? 'Maternity Leave' : 'Paternity Leave';
+
+        $totalCutiKuota = $kuotaCutiTahunan + $kuotaCutiMelahirkan + $kuotaCutiMenikah + $kuotaCutiDuka;
+        $cutiTerpakai   = $terpakaiTahunan + $terpakaiMelahirkan + $terpakaiMenikah + $terpakaiDuka;
 
         /*
         |--------------------------------------------------------------------------
-        | TOTAL CUTI
+        | TASK RECORD (PHASE 1 — dari tabel performas)
         |--------------------------------------------------------------------------
         */
-        $totalCuti = max(0, (
-            $kuotaCutiTahunan +
-            $kuotaCutiSakit +
-            $kuotaCutiKepentingan +
-            $kuotaCutiMelahirkan
-        ));
+        $latestPerforma = Performa::where('karyawan_id', $karyawanId)
+            ->orderBy('tahun', 'desc')
+            ->orderBy('bulan', 'desc')
+            ->first();
 
-        $cutiTerpakai = 
-            $terpakaiTahunan +
-            $terpakaiSakit +
-            $terpakaiKepentingan +
-            $terpakaiMelahirkan;
+        $taskDone      = (int) ($latestPerforma?->task_done   ?? 0);
+        $taskTarget    = (int) ($latestPerforma?->task_target ?? 0);
+        $taskRemaining = max(0, $taskTarget - $taskDone);
+        $taskPercent   = $taskTarget > 0 ? round(($taskDone / $taskTarget) * 100) : 0;
+        $taskPeriod    = $latestPerforma
+            ? ($months[$latestPerforma->bulan] . ' ' . $latestPerforma->tahun)
+            : null;
 
         return view('karyawan.dashboard', compact(
             'attachment',
             'absensi',
             'isOnBreak',
 
-            'sisaKuotaTahunan',
-            'sisaKuotaSakit',
-            'sisaKuotaKepentingan',
-            'sisaKuotaMelahirkan',
-            'totalCuti',
-            'cutiTerpakai',
-
             'kuotaCutiTahunan',
-            'kuotaCutiSakit',
-            'kuotaCutiKepentingan',
             'kuotaCutiMelahirkan',
+            'kuotaCutiMenikah',
+            'kuotaCutiDuka',
 
             'terpakaiTahunan',
-            'terpakaiSakit',
-            'terpakaiKepentingan',
             'terpakaiMelahirkan',
+            'terpakaiMenikah',
+            'terpakaiDuka',
 
-            'months'
+            'sisaKuotaTahunan',
+            'sisaKuotaMelahirkan',
+            'sisaKuotaMenikah',
+            'sisaKuotaDuka',
+
+            'maternityLabel',
+            'totalCutiKuota',
+            'cutiTerpakai',
+
+            'months',
+
+            'taskDone',
+            'taskTarget',
+            'taskRemaining',
+            'taskPercent',
+            'taskPeriod',
         ));
     }
 
@@ -207,10 +189,10 @@ class DashboardController extends Controller
             ],
 
             'summary' => [
-                'present' => $allAttendance->where('status_kehadiran', 'present')->count(),
-                'permission' => $allAttendance->where('status_kehadiran', 'permit')->count(),
-                'sick' => $allAttendance->where('status_kehadiran', 'sick')->count(),
-                'pending' => $allAttendance->where('status_kehadiran', 'pending')->count(),
+                'present'    => $allAttendance->where('status_kehadiran', 'present')->count(),
+                'change_day' => $allAttendance->where('status_kehadiran', 'change_day')->count(),
+                'leave'      => $allAttendance->where('status_kehadiran', 'leave')->count(),
+                'pending'    => $allAttendance->where('status_kehadiran', 'pending')->count(),
             ],
         ]);
     }

@@ -17,12 +17,47 @@
     @endphp
     @auth
         @if (Auth::user()->role == 'karyawan')
-            @if ($absensiToday && !$absensiToday->jam_pulang)
-                <button data-modal-target="absence-modal-checkout-{{ $type }}-{{ $absensiToday->id }}"
+            @php
+                $todaySpecialStatus = $absensiToday?->status_kehadiran;
+                $isTodayOff = in_array($todaySpecialStatus, ['change_day', 'leave']);
+            @endphp
+
+            @if ($isTodayOff)
+                {{-- Day off (change day / leave) — no check-in or check-out --}}
+                <span class="text-xs font-bold px-2 py-1 rounded-lg
+                    {{ $todaySpecialStatus === 'change_day' ? 'bg-indigo-500 text-white' : 'bg-purple-500 text-white' }}">
+                    {{ $todaySpecialStatus === 'change_day' ? 'Change Day Off' : 'On Leave' }}
+                </span>
+            @elseif ($absensiToday && !$absensiToday->jam_pulang)
+                <button id="checkout-btn-sidebar"
+                    data-modal-target="absence-modal-checkout-{{ $type }}-{{ $absensiToday->id }}"
                     data-modal-toggle="absence-modal-checkout-{{ $type }}-{{ $absensiToday->id }}"
-                    class="text-xs font-bold bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded-lg">
+                    class="text-xs font-bold bg-gray-400 text-white px-2 py-1 rounded-lg cursor-not-allowed"
+                    disabled>
                     Check-Out
                 </button>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        const checkIn = new Date(
+                            "{{ date('Y-m-d', strtotime($absensiToday->tanggal)) }}T{{ $absensiToday->jam_masuk }}"
+                        );
+                        const btn = document.getElementById('checkout-btn-sidebar');
+                        function updateSidebarBtn() {
+                            const elapsed = (new Date() - checkIn) / 1000;
+                            if (elapsed >= 7 * 3600) {
+                                btn.disabled = false;
+                                btn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+                                btn.classList.add('bg-red-500', 'hover:bg-red-600');
+                            } else {
+                                btn.disabled = true;
+                                btn.classList.add('bg-gray-400', 'cursor-not-allowed');
+                                btn.classList.remove('bg-red-500', 'hover:bg-red-600');
+                            }
+                        }
+                        updateSidebarBtn();
+                        setInterval(updateSidebarBtn, 1000);
+                    });
+                </script>
                 @include('absensi.checkout')
             @elseif (!$absensiToday)
                 <button data-modal-target="absence-modal-{{ $type }}"

@@ -144,12 +144,11 @@
 
                                 <td class="px-2 py-3 text-gray-700 whitespace-nowrap">
                                     {{ match ($item->jenis_cuti) {
-                                        'tahunan' => 'Annual Leave',
-                                        'melahirkan' => 'Maternity Leave',
-                                        'sakit' => 'Sick Leave',
-                                        'menikah' => 'Marriage Leave',
-                                        'duka' => 'Bereavement Leave',
-                                        default => 'Other Leave',
+                                        'tahunan'   => 'Annual Leave',
+                                        'melahirkan'=> $item->karyawan?->jenis_kelamin === 'P' ? 'Maternity Leave' : 'Paternity Leave',
+                                        'menikah'   => 'Marriage Leave',
+                                        'duka'      => 'Bereavement Leave',
+                                        default     => ucfirst($item->jenis_cuti) . ' Leave',
                                     } }}
                                 </td>
 
@@ -341,12 +340,10 @@
                         data.status === 'ditolak' ? 'Rejected' : 'Requested';
 
                     const textLeave = {
-                        'tahunan': {
-                            text: 'Annual',
-                        },
-                        'melahirkan': {
-                            text: 'Maternity',
-                        },
+                        'tahunan':    { text: 'Annual Leave' },
+                        'melahirkan': { text: 'Maternity / Paternity Leave' },
+                        'menikah':    { text: 'Marriage Leave' },
+                        'duka':       { text: 'Bereavement Leave' },
                     };
                     const leaveType = textLeave[(data.jenis_cuti || '').toLowerCase()] || {
                         text: data.jenis_cuti || '-',

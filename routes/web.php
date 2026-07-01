@@ -95,6 +95,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/', [ChangedayController::class, 'indexEmployee'])->name('index');
             Route::post('/request', [ChangedayController::class, 'requestChangeDay'])->name('request');
             Route::get('/{id}', [ChangedayController::class, 'show'])->name('show');
+            Route::put('/{id}', [ChangedayController::class, 'updateRequest'])->name('update');
             Route::delete('/{id}', [ChangedayController::class, 'cancelRequest'])->name('cancel');
         });
 });

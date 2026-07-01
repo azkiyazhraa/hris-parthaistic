@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Select-String -Path \"c:\\\\laragon\\\\www\\\\hris-parthaistic\\\\routes\\\\web.php\" -Pattern \"changeday\")",
+      "Bash(Select-Object LineNumber, Line)",
+      "Bash(composer show *)",
+      "PowerShell(head -20)"
+    ]
+  }
+}

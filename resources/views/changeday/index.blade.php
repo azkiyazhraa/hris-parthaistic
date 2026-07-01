@@ -57,25 +57,15 @@
 
         {{-- TABLE --}}
         <div class="bg-white rounded-2xl shadow p-4 md:p-6">
-            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
-                <!-- LEFT -->
-                <div>
-                    <h2 class="text-lg font-semibold text-gray-800">
-                        Change Day Requests
-                    </h2>
+            <div class="flex flex-col gap-4 mb-4 lg:flex-row lg:items-center lg:justify-between">
 
-                    <p class="text-sm text-gray-500">
-                        Manage employee change day submissions
-                    </p>
-                </div>
+                <!-- FILTER -->
+                <div class="flex flex-col w-full gap-3 sm:flex-row lg:w-auto">
 
-                <!-- RIGHT -->
-                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                    <!-- FILTER STATUS -->
-                    <div class="relative w-full sm:w-44">
+                    <!-- STATUS -->
+                    <div class="w-full sm:w-52">
                         <select id="filterStatus"
-                            class="w-full appearance-none border border-gray-300 bg-white rounded-xl px-4 py-2.5 pr-10 text-sm text-gray-700 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-
+                            class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none">
                             <option value="">All Status</option>
                             <option value="pending">Pending</option>
                             <option value="approved">Approved</option>
@@ -83,11 +73,10 @@
                         </select>
                     </div>
 
-                    <!-- FILTER MONTH -->
-                    <div class="relative w-full sm:w-44">
+                    <!-- MONTH -->
+                    <div class="w-full sm:w-52">
                         <select id="filterMonth"
-                            class="w-full appearance-none border border-gray-300 bg-white rounded-xl px-4 py-2.5 pr-10 text-sm text-gray-700 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-
+                            class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none">
                             <option value="">All Month</option>
                             <option value="1">January</option>
                             <option value="2">February</option>
@@ -104,16 +93,19 @@
                         </select>
                     </div>
 
-                    <!-- BUTTON -->
+                </div>
+
+                <!-- BUTTON -->
+                <div class="w-full sm:w-auto">
                     <button data-modal-target="requestChangeDayModal" data-modal-toggle="requestChangeDayModal"
-                        class="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-5 py-2.5 rounded-xl shadow-sm transition focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-5 py-2.5 rounded-xl shadow-sm transition focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                         </svg>
                         Request Change Day
                     </button>
-
                 </div>
+
             </div>
 
             <div class="overflow-x-auto">
@@ -150,13 +142,52 @@
                                     </span>
                                 </td>
                                 <td class="py-3">
-                                    <a onclick="showDetail({{ $item->id }})"
-                                        class="text-blue-500 hover:text-blue-700 cursor-pointer">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                        </svg>
-                                    </a>
+                                    <div class="flex items-center gap-2">
+                                        {{-- View --}}
+                                        <a onclick="showDetail({{ $item->id }})"
+                                            title="View Detail"
+                                            class="text-blue-500 hover:text-blue-700 cursor-pointer transition">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
+                                        </a>
+
+                                        @if (strtolower($item->change_day_status) === 'pending')
+                                            {{-- Edit --}}
+                                            <a onclick="openEditModal({{ $item->id }})"
+                                                title="Edit Request"
+                                                class="text-yellow-500 hover:text-yellow-700 cursor-pointer transition">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                </svg>
+                                            </a>
+
+                                            {{-- Delete --}}
+                                            <form action="{{ route('changeday.cancel', $item->id) }}" method="POST"
+                                                class="inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="button" title="Cancel Request"
+                                                    onclick="confirmDeleteChangeDay(this)"
+                                                    class="text-red-400 hover:text-red-600 transition">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg>
+                                                </button>
+                                            </form>
+                                        @else
+                                            {{-- Locked --}}
+                                            <span title="Cannot be modified" class="text-gray-300 cursor-not-allowed">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                                </svg>
+                                            </span>
+                                        @endif
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach
@@ -191,6 +222,77 @@
 
     {{-- MODAL REQUEST CHANGE DAY --}}
     @include('changeday.create')
+
+    {{-- MODAL EDIT CHANGE DAY --}}
+    <div id="editChangeDayModal" tabindex="-1" aria-hidden="true"
+        class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+        <div class="relative w-full max-w-2xl">
+            <div class="bg-white rounded-3xl shadow-2xl overflow-hidden">
+                <div class="flex items-center justify-between px-6 py-5 border-b border-gray-100">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800">Edit Change Day Request</h3>
+                        <p class="mt-1 text-sm text-gray-500">Swap a regular work day off for working on a Sunday or national holiday.</p>
+                    </div>
+                    <button onclick="closeEditModal()"
+                        class="w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-full hover:bg-gray-100 transition ml-4">
+                        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="p-6 overflow-y-auto max-h-[500px]">
+                    <form id="editChangeDayForm" method="POST" class="space-y-5">
+                        @csrf
+                        @method('PUT')
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <!-- ORIGINAL DATE -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Original Date <span class="text-red-500">*</span>
+                                </label>
+                                <p class="text-xs text-gray-400 mb-2">The regular work day (Mon–Sat) you want to take off</p>
+                                <input type="date" id="editOriginalDate" name="original_date"
+                                    class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <p id="editOriginalDateError" class="mt-1.5 text-xs text-red-500 hidden"></p>
+                            </div>
+
+                            <!-- REQUESTED DATE -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Requested Date <span class="text-red-500">*</span>
+                                </label>
+                                <p class="text-xs text-gray-400 mb-2">The Sunday or national holiday you'll work instead, within 1 week</p>
+                                <input type="date" id="editRequestedDate" name="requested_date" disabled
+                                    class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed">
+                                <p id="editRequestedDateError" class="mt-1.5 text-xs text-red-500 hidden"></p>
+                                <p id="editRequestedDateLabel" class="mt-1.5 text-xs text-blue-600 hidden"></p>
+                            </div>
+                        </div>
+
+                        <!-- REASON -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Reason</label>
+                            <textarea id="editReason" name="reason" rows="4"
+                                placeholder="Explain the reason for requesting a change day..."
+                                class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm shadow-sm resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                        </div>
+
+                        <div class="flex flex-col-reverse gap-3 mt-6 sm:flex-row sm:justify-end">
+                            <button type="button" onclick="closeEditModal()"
+                                class="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-100 transition">
+                                Cancel
+                            </button>
+                            <button type="submit"
+                                class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition">
+                                Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
@@ -340,6 +442,180 @@
         function closeDetailModal() {
             document.getElementById('detailModal').classList.add('hidden');
         }
+
+        // ── Edit Modal ─────────────────────────────────────────────────────────
+        function openEditModal(id) {
+            fetch(`/changeday/${id}`)
+                .then(r => r.json())
+                .then(data => {
+                    const form = document.getElementById('editChangeDayForm');
+                    form.action = `/changeday/${id}`;
+
+                    const origVal = data.change_day_tanggal_awal
+                        ? data.change_day_tanggal_awal.substring(0, 10) : '';
+                    const reqVal  = data.change_day_tanggal_akhir
+                        ? data.change_day_tanggal_akhir.substring(0, 10) : '';
+
+                    const origInput = document.getElementById('editOriginalDate');
+                    const reqInput  = document.getElementById('editRequestedDate');
+
+                    origInput.value = origVal;
+                    reqInput.value  = reqVal;
+                    document.getElementById('editReason').value = data.change_day_alasan || '';
+
+                    // Reset errors & label
+                    ['editOriginalDateError','editRequestedDateError','editRequestedDateLabel']
+                        .forEach(id => {
+                            const el = document.getElementById(id);
+                            el.textContent = '';
+                            el.classList.add('hidden');
+                        });
+
+                    // Enable requested date and set range
+                    if (origVal) {
+                        reqInput.min      = addDaysEdit(origVal, -7);
+                        reqInput.max      = addDaysEdit(origVal, 7);
+                        reqInput.disabled = false;
+
+                        // Show label for pre-filled requested date
+                        if (reqVal) {
+                            const lbl = document.getElementById('editRequestedDateLabel');
+                            if (isHolidayEdit(reqVal)) {
+                                lbl.textContent = '🗓 ' + HOLIDAY_MAP_EDIT[reqVal];
+                            } else if (isSundayEdit(reqVal)) {
+                                lbl.textContent = '📅 Sunday';
+                            }
+                            lbl.classList.remove('hidden');
+                        }
+                    }
+
+                    document.getElementById('editChangeDayModal').classList.remove('hidden');
+                })
+                .catch(() => alert('Failed to load request data.'));
+        }
+
+        function closeEditModal() {
+            document.getElementById('editChangeDayModal').classList.add('hidden');
+        }
+
+        // ── Delete Confirm ─────────────────────────────────────────────────────
+        function confirmDeleteChangeDay(btn) {
+            Swal.fire({
+                title: 'Cancel this request?',
+                text: 'This change day request will be permanently removed.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, cancel it',
+                cancelButtonText: 'Keep it',
+                reverseButtons: true,
+                buttonsStyling: false,
+                customClass: {
+                    confirmButton: 'bg-red-500 hover:bg-red-600 text-white font-medium px-4 py-2 rounded-lg ml-2',
+                    cancelButton: 'bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium px-4 py-2 rounded-lg',
+                },
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    btn.closest('form').submit();
+                }
+            });
+        }
+
+        // ── Holiday validation for edit modal ──────────────────────────────────
+        const HOLIDAY_MAP_EDIT = {};
+
+        (async function loadHolidaysEdit() {
+            const year = new Date().getFullYear();
+            const fetchY = async (y) => {
+                try {
+                    const res  = await fetch(`https://libur.deno.dev/api?year=${y}`);
+                    const data = await res.json();
+                    if (Array.isArray(data)) {
+                        data.forEach(item => {
+                            if (item.date) HOLIDAY_MAP_EDIT[item.date.substring(0, 10)] = item.name || 'National Holiday';
+                        });
+                    }
+                } catch (e) {}
+            };
+            await Promise.all([fetchY(year), fetchY(year + 1)]);
+        })();
+
+        function parseLocalEdit(str) {
+            const [y, m, d] = str.split('-').map(Number);
+            return new Date(y, m - 1, d);
+        }
+        function addDaysEdit(str, days) {
+            const d = parseLocalEdit(str);
+            d.setDate(d.getDate() + days);
+            const y = d.getFullYear(), mo = String(d.getMonth()+1).padStart(2,'0'), da = String(d.getDate()).padStart(2,'0');
+            return `${y}-${mo}-${da}`;
+        }
+        function isSundayEdit(str)  { return parseLocalEdit(str).getDay() === 0; }
+        function isHolidayEdit(str) { return Object.prototype.hasOwnProperty.call(HOLIDAY_MAP_EDIT, str); }
+
+        document.getElementById('editOriginalDate').addEventListener('change', function () {
+            const val = this.value;
+            const errEl = document.getElementById('editOriginalDateError');
+            const reqInput = document.getElementById('editRequestedDate');
+            errEl.textContent = ''; errEl.classList.add('hidden');
+            reqInput.value = ''; reqInput.disabled = true;
+            document.getElementById('editRequestedDateLabel').textContent = '';
+            document.getElementById('editRequestedDateLabel').classList.add('hidden');
+
+            if (!val) return;
+
+            if (isSundayEdit(val)) {
+                errEl.textContent = 'Original date cannot be a Sunday — please select a regular work day.';
+                errEl.classList.remove('hidden'); this.value = ''; return;
+            }
+            if (isHolidayEdit(val)) {
+                errEl.textContent = `Original date cannot be a national holiday (${HOLIDAY_MAP_EDIT[val]}) — please select a regular work day.`;
+                errEl.classList.remove('hidden'); this.value = ''; return;
+            }
+            reqInput.min = addDaysEdit(val, -7);
+            reqInput.max = addDaysEdit(val, 7);
+            reqInput.disabled = false;
+        });
+
+        document.getElementById('editRequestedDate').addEventListener('change', function () {
+            const val = this.value;
+            const origVal = document.getElementById('editOriginalDate').value;
+            const errEl = document.getElementById('editRequestedDateError');
+            const lbl   = document.getElementById('editRequestedDateLabel');
+            errEl.textContent = ''; errEl.classList.add('hidden');
+            lbl.textContent  = ''; lbl.classList.add('hidden');
+
+            if (!val) return;
+
+            if (!isSundayEdit(val) && !isHolidayEdit(val)) {
+                errEl.textContent = 'Requested date must be a Sunday or a national holiday.';
+                errEl.classList.remove('hidden'); this.value = ''; return;
+            }
+            const diff = Math.abs((parseLocalEdit(val) - parseLocalEdit(origVal)) / 86400000);
+            if (diff > 7) {
+                errEl.textContent = 'Requested date must be within 1 week of the original date.';
+                errEl.classList.remove('hidden'); this.value = ''; return;
+            }
+            lbl.textContent = isHolidayEdit(val) ? '🗓 ' + HOLIDAY_MAP_EDIT[val] : '📅 Sunday';
+            lbl.classList.remove('hidden');
+        });
+
+        document.getElementById('editChangeDayForm').addEventListener('submit', function (e) {
+            let valid = true;
+            const origVal = document.getElementById('editOriginalDate').value;
+            const reqVal  = document.getElementById('editRequestedDate').value;
+            const origErr = document.getElementById('editOriginalDateError');
+            const reqErr  = document.getElementById('editRequestedDateError');
+
+            if (!origVal || isSundayEdit(origVal) || isHolidayEdit(origVal)) {
+                origErr.textContent = 'Original date must be a regular work day (Mon–Sat, not a holiday).';
+                origErr.classList.remove('hidden'); valid = false;
+            }
+            if (!reqVal || (!isSundayEdit(reqVal) && !isHolidayEdit(reqVal))) {
+                reqErr.textContent = 'Requested date must be a Sunday or national holiday.';
+                reqErr.classList.remove('hidden'); valid = false;
+            }
+            if (!valid) e.preventDefault();
+        });
 
         document.addEventListener('DOMContentLoaded', function() {
 

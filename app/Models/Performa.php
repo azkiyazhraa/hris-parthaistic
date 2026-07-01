@@ -24,6 +24,7 @@ class Performa extends Model
         'tahun',
         'attendance_rate',
         'task_done',
+        'task_target',
         'task_score',
         'quality',
         'productivity',
@@ -39,6 +40,7 @@ class Performa extends Model
         'join_date' => 'date',
         'attendance_rate' => 'integer',
         'task_done' => 'integer',
+        'task_target' => 'integer',
         'task_score' => 'integer',
         'quality' => 'integer',
         'productivity' => 'integer',
@@ -70,8 +72,8 @@ class Performa extends Model
         }
 
         $hadir = $absensi->whereIn('status_kehadiran', ['present', 'pending'])->count();
-        $izin  = $absensi->where('status_kehadiran', 'permit')->count();
-        $sakit = $absensi->where('status_kehadiran', 'sick')->count();
+        $izin  = $absensi->where('status_kehadiran', 'change_day')->count();
+        $sakit = $absensi->where('status_kehadiran', 'leave')->count();
 
         $attendanceRate = round((($hadir + $izin + $sakit) / $totalWorkingDays) * 100);
         

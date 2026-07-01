@@ -51,16 +51,18 @@ class AbsensiKaryawan extends Model
     const CHANGE_DAY_REJECTED = 'rejected';
 
     // Status constants for regular attendance
-    const STATUS_PENDING = 'pending';
-    const STATUS_PRESENT = 'present';
-    const STATUS_PERMIT  = 'permit';
-    const STATUS_SICK    = 'sick';
-    const STATUS_ABSENT  = 'absent';
+    const STATUS_PENDING    = 'pending';
+    const STATUS_PRESENT    = 'present';
+    const STATUS_PERMIT     = 'change_day';
+    const STATUS_SICK       = 'leave';
+    const STATUS_ABSENT     = 'absent';
+    const STATUS_CHANGE_DAY = 'change_day';
+    const STATUS_LEAVE      = 'leave';
 
-    // Keep old names as aliases for backward compatibility during transition
+    // Legacy aliases
     const STATUS_HADIR = 'present';
-    const STATUS_IZIN  = 'permit';
-    const STATUS_SAKIT = 'sick';
+    const STATUS_IZIN  = 'change_day';
+    const STATUS_SAKIT = 'leave';
     const STATUS_ALPHA = 'absent';
     const STATUS_MASUK = 'present';
 
@@ -77,18 +79,18 @@ class AbsensiKaryawan extends Model
     public function getStatusKehadiranBadgeAttribute()
     {
         $colors = [
-            self::STATUS_PENDING => 'yellow',
-            self::STATUS_PRESENT => 'green',
-            self::STATUS_PERMIT  => 'blue',
-            self::STATUS_SICK    => 'purple',
-            self::STATUS_ABSENT  => 'red',
+            self::STATUS_PENDING    => 'yellow',
+            self::STATUS_PRESENT    => 'green',
+            self::STATUS_CHANGE_DAY => 'blue',
+            self::STATUS_LEAVE      => 'purple',
+            self::STATUS_ABSENT     => 'red',
         ];
         $labels = [
-            self::STATUS_PENDING => 'PENDING',
-            self::STATUS_PRESENT => 'PRESENT',
-            self::STATUS_PERMIT  => 'PERMIT',
-            self::STATUS_SICK    => 'SICK',
-            self::STATUS_ABSENT  => 'ABSENT',
+            self::STATUS_PENDING    => 'PENDING',
+            self::STATUS_PRESENT    => 'PRESENT',
+            self::STATUS_CHANGE_DAY => 'CHANGE DAY',
+            self::STATUS_LEAVE      => 'LEAVE',
+            self::STATUS_ABSENT     => 'ABSENT',
         ];
         $color = $colors[$this->status_kehadiran] ?? 'gray';
         $text  = $labels[$this->status_kehadiran] ?? strtoupper($this->status_kehadiran);

@@ -48,19 +48,21 @@
                         @endphp
 
                         <h2 class="text-2xl font-bold
-                            @if (!$absensiToday)
-                                text-gray-400
-                            @elseif ($isOnBreak)
-                                text-blue-500
-                            @elseif ($absensiToday->jam_pulang)
-                                text-green-600
-                            @else
-                                text-yellow-500
+                            @if (!$absensiToday) text-gray-400
+                            @elseif ($absensiToday->status_kehadiran === 'change_day') text-indigo-600
+                            @elseif ($absensiToday->status_kehadiran === 'leave') text-purple-600
+                            @elseif ($isOnBreak) text-blue-500
+                            @elseif ($absensiToday->jam_pulang) text-green-600
+                            @else text-yellow-500
                             @endif"
                             id="attendanceStatus">
 
                             @if (!$absensiToday)
                                 Not Checked In
+                            @elseif ($absensiToday->status_kehadiran === 'change_day')
+                                Change Day Off
+                            @elseif ($absensiToday->status_kehadiran === 'leave')
+                                On Leave
                             @elseif ($isOnBreak)
                                 On Break
                             @elseif ($absensiToday->jam_pulang)
@@ -80,7 +82,11 @@
 
                         <h2 class="text-2xl font-bold {{ $absensiToday && $absensiToday->jam_masuk ? 'text-blue-900' : 'text-gray-400' }} font-mono"
                             id="attendanceTime">
-                            {{ $absensiToday ? \Carbon\Carbon::parse($absensiToday->jam_masuk)->format('H:i:s') : '--:--' }}
+                            @if ($absensiToday && $absensiToday->jam_masuk)
+                                {{ \Carbon\Carbon::parse($absensiToday->jam_masuk)->format('H:i:s') }}
+                            @else
+                                --:--
+                            @endif
                         </h2>
                     </div>
 
@@ -137,25 +143,25 @@
                         </h2>
                     </div>
 
-                    <!-- PERMISSION -->
+                    <!-- CHANGE DAY -->
                     <div class="bg-indigo-50 rounded-2xl p-4">
                         <p class="text-sm text-gray-500 mb-1">
-                            Permission
+                            Change Day
                         </p>
 
-                        <h2 id="permissionCount" class="text-3xl font-bold text-indigo-600">
-                            {{ $monthAbcense->where('status_kehadiran', 'permit')->count() }}
+                        <h2 id="changeDayCount" class="text-3xl font-bold text-indigo-600">
+                            {{ $monthAbcense->where('status_kehadiran', 'change_day')->count() }}
                         </h2>
                     </div>
 
-                    <!-- SICK -->
-                    <div class="bg-red-50 rounded-2xl p-4">
+                    <!-- LEAVE -->
+                    <div class="bg-purple-50 rounded-2xl p-4">
                         <p class="text-sm text-gray-500 mb-1">
-                            Sick
+                            Leave
                         </p>
 
-                        <h2 id="sickCount" class="text-3xl font-bold text-red-600">
-                            {{ $monthAbcense->where('status_kehadiran', 'sick')->count() }}
+                        <h2 id="leaveCount" class="text-3xl font-bold text-purple-600">
+                            {{ $monthAbcense->where('status_kehadiran', 'leave')->count() }}
                         </h2>
                     </div>
 
@@ -196,8 +202,8 @@
                             <option value="">All Status</option>
                             <option value="pending">Pending</option>
                             <option value="present">Present</option>
-                            <option value="permit">Permission</option>
-                            <option value="sick">Sick</option>
+                            <option value="change_day">Change Day</option>
+                            <option value="leave">Leave</option>
                         </select>
                     </div>
 
@@ -258,18 +264,28 @@
                                 <td class="py-3">
                                     @php
                                         $badgeClass = match ($item->status_kehadiran) {
-                                            'pending' => 'bg-yellow-100 text-yellow-700',
-                                            'present' => 'bg-green-100 text-green-700',
-                                            'permit' => 'bg-blue-100 text-blue-700',
-                                            'sick' => 'bg-purple-100 text-purple-700',
-                                            default => 'bg-red-100 text-red-700',
+                                            'pending'    => 'bg-yellow-100 text-yellow-700',
+                                            'present'    => 'bg-green-100 text-green-700',
+                                            'change_day' => 'bg-blue-100 text-blue-700',
+                                            'leave'      => 'bg-purple-100 text-purple-700',
+                                            default      => 'bg-red-100 text-red-700',
                                         };
                                     @endphp
 
+                                    @php
+                                        $statusLabel = match($item->status_kehadiran) {
+                                            'pending'    => 'Pending',
+                                            'present'    => 'Present',
+                                            'change_day' => 'Change Day',
+                                            'leave'      => 'Leave',
+                                            'absent'     => 'Absent',
+                                            default      => ucfirst($item->status_kehadiran),
+                                        };
+                                    @endphp
                                     <span
-                                        class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium capitalize {{ $badgeClass }}">
+                                        class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium {{ $badgeClass }}">
                                         <span class="h-1.5 w-1.5 rounded-full bg-current"></span>
-                                        {{ $item->status_kehadiran }}
+                                        {{ $statusLabel }}
                                     </span>
                                 </td>
 
@@ -356,10 +372,10 @@
                         case 'present':
                             statusClass = 'bg-emerald-100 text-emerald-700';
                             break;
-                        case 'permit':
+                        case 'change_day':
                             statusClass = 'bg-blue-100 text-blue-700';
                             break;
-                        case 'sick':
+                        case 'leave':
                             statusClass = 'bg-purple-100 text-purple-700';
                             break;
                         case 'change day pending':

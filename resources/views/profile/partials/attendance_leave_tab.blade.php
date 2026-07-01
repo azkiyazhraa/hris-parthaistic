@@ -96,18 +96,18 @@
                             <td class="px-6 py-4 whitespace-nowrap">
                                 @php
                                     $statusClass = match($attendance->status_kehadiran) {
-                                        'present' => 'bg-green-100 text-green-800',
-                                        'permit' => 'bg-blue-100 text-blue-800',
-                                        'sick' => 'bg-purple-100 text-purple-800',
-                                        'absent' => 'bg-red-100 text-red-800',
-                                        default => 'bg-gray-100 text-gray-800',
+                                        'present'    => 'bg-green-100 text-green-800',
+                                        'change_day' => 'bg-blue-100 text-blue-800',
+                                        'leave'      => 'bg-purple-100 text-purple-800',
+                                        'absent'     => 'bg-red-100 text-red-800',
+                                        default      => 'bg-gray-100 text-gray-800',
                                     };
                                     $statusText = match($attendance->status_kehadiran) {
-                                        'present' => 'Present',
-                                        'permit' => 'Permit',
-                                        'sick' => 'Sick',
-                                        'absent' => 'Absent',
-                                        default => ucfirst($attendance->status_kehadiran ?? 'pending'),
+                                        'present'    => 'Present',
+                                        'change_day' => 'Change Day',
+                                        'leave'      => 'Leave',
+                                        'absent'     => 'Absent',
+                                        default      => ucfirst($attendance->status_kehadiran ?? 'pending'),
                                     };
                                 @endphp
                                 <span class="px-2 py-1 text-xs rounded-full {{ $statusClass }}">{{ $statusText }}</span>
@@ -133,6 +133,7 @@
                 <div>
                     <p class="text-gray-500 text-sm">Annual Leave</p>
                     <p class="text-2xl font-bold text-gray-800">{{ $annualLeaveUsed }}/{{ $annualLeaveQuota }} days</p>
+                    <p class="text-xs text-gray-400 mt-1">{{ max(0, $annualLeaveQuota - $annualLeaveUsed) }} days remaining</p>
                 </div>
                 <div class="bg-blue-100 rounded-full p-2">
                     <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -142,42 +143,45 @@
             </div>
         </div>
 
-        <!-- Sick Leave Card -->
-        <div class="bg-white border-l-4 border-green-500 rounded-lg shadow-md p-4">
+        <!-- Maternity/Paternity Leave Card -->
+        <div class="bg-white border-l-4 border-pink-500 rounded-lg shadow-md p-4">
             <div class="flex justify-between items-start">
                 <div>
-                    <p class="text-gray-500 text-sm">Sick Leave</p>
-                    <p class="text-2xl font-bold text-gray-800">{{ $sickLeaveUsed }}/{{ $sickLeaveQuota }} days</p>
+                    <p class="text-gray-500 text-sm">{{ $maternityLeaveLabel }}</p>
+                    <p class="text-2xl font-bold text-gray-800">{{ $maternityLeaveUsed }}/{{ $maternityLeaveQuota }} days</p>
+                    <p class="text-xs text-gray-400 mt-1">{{ max(0, $maternityLeaveQuota - $maternityLeaveUsed) }} days remaining</p>
                 </div>
-                <div class="bg-green-100 rounded-full p-2">
-                    <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path>
+                <div class="bg-pink-100 rounded-full p-2">
+                    <svg class="w-5 h-5 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
                     </svg>
                 </div>
             </div>
         </div>
 
-        <!-- Emergency Leave Card -->
+        <!-- Marriage Leave Card -->
         <div class="bg-white border-l-4 border-yellow-500 rounded-lg shadow-md p-4">
             <div class="flex justify-between items-start">
                 <div>
-                    <p class="text-gray-500 text-sm">Emergency Leave</p>
-                    <p class="text-2xl font-bold text-gray-800">{{ $emergencyLeaveUsed }}/{{ $emergencyLeaveQuota }} days</p>
+                    <p class="text-gray-500 text-sm">Marriage Leave</p>
+                    <p class="text-2xl font-bold text-gray-800">{{ $marriageLeaveUsed }}/{{ $marriageLeaveQuota }} days</p>
+                    <p class="text-xs text-gray-400 mt-1">{{ max(0, $marriageLeaveQuota - $marriageLeaveUsed) }} days remaining</p>
                 </div>
                 <div class="bg-yellow-100 rounded-full p-2">
                     <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"></path>
                     </svg>
                 </div>
             </div>
         </div>
 
-        <!-- Other Leave Card -->
+        <!-- Bereavement Leave Card -->
         <div class="bg-white border-l-4 border-purple-500 rounded-lg shadow-md p-4">
             <div class="flex justify-between items-start">
                 <div>
-                    <p class="text-gray-500 text-sm">Other Leave</p>
-                    <p class="text-2xl font-bold text-gray-800">{{ $otherLeaveUsed }}/{{ $otherLeaveQuota }} days</p>
+                    <p class="text-gray-500 text-sm">Bereavement Leave</p>
+                    <p class="text-2xl font-bold text-gray-800">{{ $bereavementLeaveUsed }}/{{ $bereavementLeaveQuota }} days</p>
+                    <p class="text-xs text-gray-400 mt-1">{{ max(0, $bereavementLeaveQuota - $bereavementLeaveUsed) }} days remaining</p>
                 </div>
                 <div class="bg-purple-100 rounded-full p-2">
                     <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -207,7 +211,7 @@
                     @forelse($leaveRequests as $leave)
                         <tr class="hover:bg-gray-50">
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {{ \Carbon\Carbon::parse($leave['tanggal_mulai'])->format('d/m/Y') }} - {{ \Carbon\Carbon::parse($leave['tanggal_selesai'])->format('d/m/Y') }}
+                                {{ $leave['tanggal_mulai'] }} - {{ $leave['tanggal_selesai'] }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                                 {{ $leave['jenis_cuti'] }}

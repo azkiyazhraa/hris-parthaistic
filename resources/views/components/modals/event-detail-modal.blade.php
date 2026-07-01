@@ -360,17 +360,17 @@
         }) : '-';
 
         const statusClass = {
-            'present': 'bg-green-100 text-green-700',
-            'permit': 'bg-blue-100 text-blue-700',
-            'sick': 'bg-purple-100 text-purple-700',
-            'absent': 'bg-red-100 text-red-700'
+            'present':    'bg-green-100 text-green-700',
+            'change_day': 'bg-blue-100 text-blue-700',
+            'leave':      'bg-purple-100 text-purple-700',
+            'absent':     'bg-red-100 text-red-700'
         };
 
         const statusText = {
-            'present': 'Present',
-            'permit': 'Permit',
-            'sick': 'Sick',
-            'absent': 'Absent'
+            'present':    'Present',
+            'change_day': 'Change Day',
+            'leave':      'Leave',
+            'absent':     'Absent'
         };
 
         return `

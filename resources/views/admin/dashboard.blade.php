@@ -77,9 +77,31 @@
                 </div>
 
                 <!-- CARD 2 (DONUT) -->
-                <div class="flex flex-col items-center justify-center p-5 bg-white shadow rounded-2xl">
-                    <p class="mb-4 text-sm text-gray-500">Employee's Task Record</p>
-                    <div id="donutChart"></div>
+                <div class="flex flex-col p-5 bg-white shadow rounded-2xl">
+                    <div class="flex items-center justify-between mb-3">
+                        <p class="text-sm text-gray-500">Employee's Task Record</p>
+                        <span class="inline-flex items-center gap-1 text-xs text-yellow-700 bg-yellow-100 px-2 py-0.5 rounded-full font-medium">
+                            <span class="w-1.5 h-1.5 rounded-full bg-yellow-400 inline-block"></span>
+                            Trello: Not Connected
+                        </span>
+                    </div>
+                    @if ($adminTaskTarget > 0)
+                        <div id="donutChart" class="self-center w-full"></div>
+                        <div class="mt-1 text-center">
+                            <p class="text-sm font-semibold text-gray-700">{{ $adminTaskDone }} / {{ $adminTaskTarget }} tasks</p>
+                            <p class="text-xs text-gray-400">across {{ $adminTaskEmployeeCount }} employee(s)</p>
+                        </div>
+                    @else
+                        <div class="flex flex-col items-center justify-center flex-1 py-6 gap-2">
+                            <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
+                                <svg class="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                </svg>
+                            </div>
+                            <p class="text-sm text-gray-400">No performance data yet</p>
+                            <p class="text-xs text-gray-300">Add employee performance to see task overview</p>
+                        </div>
+                    @endif
                 </div>
 
                 <!-- CARD 3 -->
@@ -195,12 +217,12 @@
                                 <p class="ml-1 text-xs text-gray-500">Present</p>
                             </div>
                             <div class="flex items-end justify-center">
-                                <p class="text-2xl font-bold leading-none text-blue-900">{{ $statistics['permit'] }}</p>
-                                <p class="ml-1 text-xs text-gray-500">Permission</p>
+                                <p class="text-2xl font-bold leading-none text-blue-900">{{ $statistics['change_day'] }}</p>
+                                <p class="ml-1 text-xs text-gray-500">Change Day</p>
                             </div>
                             <div class="flex items-end justify-center">
-                                <p class="text-2xl font-bold leading-none text-blue-900">{{ $statistics['sick'] }}</p>
-                                <p class="ml-1 text-xs text-gray-500">Sick</p>
+                                <p class="text-2xl font-bold leading-none text-blue-900">{{ $statistics['leave'] }}</p>
+                                <p class="ml-1 text-xs text-gray-500">Leave</p>
                             </div>
                             <div class="flex items-end justify-center">
                                 <p class="text-2xl font-bold leading-none text-blue-900">{{ $statistics['pending'] }}</p>
@@ -255,10 +277,10 @@
                                                 $status = $item->status_kehadiran;
                                                 $statusMap = [
                                                     'pending' => ['Pending', 'bg-yellow-100 text-yellow-800'],
-                                                    'present' => ['Present', 'bg-green-100 text-green-800'],
-                                                    'permit' => ['Permit', 'bg-blue-100 text-blue-800'],
-                                                    'sick' => ['Sick', 'bg-purple-100 text-purple-800'],
-                                                    'absent' => ['Absent', 'bg-red-100 text-red-800'],
+                                                    'present'    => ['Present',    'bg-green-100 text-green-800'],
+                                                    'change_day' => ['Change Day',  'bg-blue-100 text-blue-800'],
+                                                    'leave'      => ['Leave',       'bg-purple-100 text-purple-800'],
+                                                    'absent'     => ['Absent',      'bg-red-100 text-red-800'],
                                                 ];
                                                 [$label, $class] = $statusMap[$status] ?? [
                                                     'Unknown',
@@ -319,21 +341,15 @@
 
 @push('scripts')
     {{-- DONUT CHART --}}
+    @if ($adminTaskTarget > 0)
     <script>
         var options = {
-            chart: {
-                type: 'donut',
-                height: 250
-            },
-            series: [80, 10, 10],
-            labels: ['Done', 'In Progress', 'To-Do'],
-            colors: ['#06b6d4', '#4ade80', '#f43f5e'],
-            legend: {
-                position: 'bottom'
-            },
-            dataLabels: {
-                enabled: false
-            },
+            chart: { type: 'donut', height: 220 },
+            series: [{{ $adminTaskDone }}, {{ $adminTaskRemaining }}],
+            labels: ['Completed', 'Remaining'],
+            colors: ['#06b6d4', '#e5e7eb'],
+            legend: { position: 'bottom' },
+            dataLabels: { enabled: false },
             plotOptions: {
                 pie: {
                     donut: {
@@ -343,18 +359,16 @@
                             total: {
                                 show: true,
                                 label: 'Progress',
-                                formatter: function() {
-                                    return '80%';
-                                }
+                                formatter: function () { return '{{ $adminTaskPercent }}%'; }
                             }
                         }
                     }
                 }
             }
         };
-        var chart = new ApexCharts(document.querySelector("#donutChart"), options);
-        chart.render();
+        new ApexCharts(document.querySelector('#donutChart'), options).render();
     </script>
+    @endif
 
     {{-- CALENDAR COMPONENT --}}
     <script>
@@ -364,6 +378,7 @@
                 this.currentDate = new Date();
                 this.selectedDate = null;
                 this.events = [];
+                this.holidays = {};
                 this.onDateClick = options.onDateClick || null;
                 this.onEventClick = options.onEventClick || null;
                 if (this.container) this.init();
@@ -372,6 +387,7 @@
             init() {
                 this.render();
                 this.loadEvents();
+                this.loadHolidays();
             }
 
             async loadEvents() {
@@ -425,11 +441,13 @@
                 for (let day = 1; day <= lastDate; day++) {
                     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                     const isToday = this.isToday(year, month, day);
+                    const isSunday = new Date(year, month, day).getDay() === 0;
                     const dayEvents = this.getEventsForDate(dateStr);
+                    const numColor = isToday ? 'text-blue-600' : isSunday ? 'text-red-500' : 'text-gray-700';
                     html += `
                         <div class="calendar-day aspect-square p-1 ${isToday ? 'ring-2 ring-blue-500 rounded-lg' : ''}" data-date="${dateStr}">
                             <button class="flex flex-col items-center justify-start w-full h-full p-1 transition rounded-lg day-btn hover:bg-gray-50">
-                                <span class="text-sm font-medium ${isToday ? 'text-blue-600' : 'text-gray-700'}">${day}</span>
+                                <span class="day-number text-sm font-medium ${numColor}">${day}</span>
                                 <div class="event-indicators mt-1 flex flex-wrap gap-0.5 justify-center">${this.getEventIndicators(dayEvents)}</div>
                             </button>
                         </div>
@@ -484,6 +502,7 @@
                     this.currentDate.setMonth(this.currentDate.getMonth() - 1);
                     this.render();
                     this.loadEvents();
+                    this.loadHolidays();
                 });
 
                 const nextBtn = this.container.querySelector('.calendar-next');
@@ -491,6 +510,7 @@
                     this.currentDate.setMonth(this.currentDate.getMonth() + 1);
                     this.render();
                     this.loadEvents();
+                    this.loadHolidays();
                 });
 
                 const dayBtns = this.container.querySelectorAll('.day-btn');
@@ -505,27 +525,39 @@
             }
 
             showDateEvents(date, events) {
-                if (events.length === 0) {
+                const holiday = this.getHoliday(date);
+
+                if (events.length === 0 && !holiday) {
                     Swal.fire({
                         title: `No Events`,
                         text: `No events scheduled on ${date}`,
                         icon: 'info',
                         confirmButtonText: 'Close',
-                        customClass: {
-                            popup: 'rounded-2xl'
-                        }
+                        customClass: { popup: 'rounded-2xl' }
                     });
                     return;
                 }
 
-                let eventListHtml = '<div class="space-y-2 overflow-y-auto max-h-96">';
                 const colorBg = {
-                    'blue': 'bg-blue-100',
-                    'green': 'bg-green-100',
-                    'yellow': 'bg-yellow-100',
-                    'red': 'bg-red-100',
-                    'purple': 'bg-purple-100'
+                    'blue': 'bg-blue-100', 'green': 'bg-green-100',
+                    'yellow': 'bg-yellow-100', 'red': 'bg-red-100', 'purple': 'bg-purple-100'
                 };
+
+                let eventListHtml = '<div class="space-y-2 overflow-y-auto max-h-96">';
+
+                if (holiday) {
+                    eventListHtml += `
+                        <div class="p-3 border border-red-100 bg-red-50 rounded-xl">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-lg">🎌</div>
+                                <div>
+                                    <p class="text-sm font-medium text-red-700">National Holiday</p>
+                                    <p class="text-xs text-red-500">${this.escapeHtml(holiday)}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
 
                 events.forEach(event => {
                     eventListHtml += `
@@ -552,6 +584,57 @@
                     customClass: {
                         popup: 'rounded-2xl',
                         confirmButton: 'bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg'
+                    }
+                });
+            }
+
+            async loadHolidays() {
+                const year = this.currentDate.getFullYear();
+                if (this.holidays[year] !== undefined) {
+                    this.renderHolidays();
+                    return;
+                }
+                try {
+                    const res = await fetch(`https://libur.deno.dev/api?year=${year}`);
+                    const data = await res.json();
+                    this.holidays[year] = {};
+                    data.forEach(h => { this.holidays[year][h.date] = h.name; });
+                } catch (e) {
+                    this.holidays[year] = {};
+                    console.warn('Failed to load holidays:', e);
+                }
+                this.renderHolidays();
+            }
+
+            getHoliday(dateStr) {
+                const year = dateStr.slice(0, 4);
+                return (this.holidays[year] || {})[dateStr] || null;
+            }
+
+            renderHolidays() {
+                const today = new Date();
+                const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+
+                this.container.querySelectorAll('.calendar-day').forEach(dayEl => {
+                    const date = dayEl.getAttribute('data-date');
+                    if (!date) return;
+                    const holiday = this.getHoliday(date);
+                    if (!holiday) return;
+
+                    if (date !== todayStr) {
+                        const numEl = dayEl.querySelector('.day-number');
+                        if (numEl) {
+                            numEl.classList.remove('text-gray-700', 'text-red-500');
+                            numEl.classList.add('text-red-500');
+                        }
+                    }
+
+                    const indicatorsEl = dayEl.querySelector('.event-indicators');
+                    if (indicatorsEl && !dayEl.querySelector('.holiday-dot')) {
+                        const dot = document.createElement('div');
+                        dot.className = 'holiday-dot w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0';
+                        dot.title = holiday;
+                        indicatorsEl.prepend(dot);
                     }
                 });
             }

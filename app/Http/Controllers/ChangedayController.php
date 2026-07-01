@@ -82,13 +82,9 @@ class ChangedayController extends Controller
     public function requestChangeDay(Request $request)
     {
         $request->validate([
-            'original_date' => 'required|date',
-            'requested_date' => 'required|date|after:original_date',
-            'original_start_time' => 'required|date_format:H:i',
-            'original_end_time' => 'required|date_format:H:i|after:original_start_time',
-            'requested_start_time' => 'required|date_format:H:i',
-            'requested_end_time' => 'required|date_format:H:i|after:requested_start_time',
-            'reason' => 'required|string|max:255',
+            'original_date'  => 'required|date',
+            'requested_date' => 'required|date',
+            'reason'         => 'nullable|string|max:500',
         ]);
 
         // SIMPAN DATA ATTACHMENT JIKA ADA
@@ -98,19 +94,15 @@ class ChangedayController extends Controller
         }
 
         $data = [
-            'karyawan_id' => $this->getEmployeeId(),
-            'nama_karyawan' => Auth::user()->nama_lengkap,
-            'tanggal' => now(),
-            'is_change_day' => true,
-            'jam_masuk' => $request->input('original_start_time'),
-            'jam_pulang' => $request->input('original_end_time'),
-            'change_day_tanggal_awal' => $request->input('original_date'),
+            'karyawan_id'              => $this->getEmployeeId(),
+            'nama_karyawan'            => Auth::user()->nama_lengkap,
+            'tanggal'                  => now(),
+            'is_change_day'            => true,
+            'change_day_tanggal_awal'  => $request->input('original_date'),
             'change_day_tanggal_akhir' => $request->input('requested_date'),
-            'change_day_jam_mulai' => $request->input('requested_start_time'),
-            'change_day_jam_selesai' => $request->input('requested_end_time'),
-            'change_day_alasan' => $request->input('reason'),
-            'attachment' => $attachmentPath,
-            'change_day_status' => AbsensiKaryawan::CHANGE_DAY_PENDING,
+            'change_day_alasan'        => $request->input('reason'),
+            'attachment'               => $attachmentPath,
+            'change_day_status'        => AbsensiKaryawan::CHANGE_DAY_PENDING,
         ];
 
         AbsensiKaryawan::create($data);
@@ -124,5 +116,51 @@ class ChangedayController extends Controller
         $data = AbsensiKaryawan::with(['karyawan', 'disetujuiOleh'])->findOrFail($id);
 
         return response()->json($data);
+    }
+
+    public function updateRequest(Request $request, $id)
+    {
+        $record = AbsensiKaryawan::where('karyawan_id', $this->getEmployeeId())
+            ->where('id', $id)
+            ->where('is_change_day', true)
+            ->firstOrFail();
+
+        if ($record->change_day_status !== AbsensiKaryawan::CHANGE_DAY_PENDING) {
+            return redirect()->route('changeday.index')
+                ->with('error', 'Only pending requests can be edited.');
+        }
+
+        $request->validate([
+            'original_date'  => 'required|date',
+            'requested_date' => 'required|date',
+            'reason'         => 'nullable|string|max:500',
+        ]);
+
+        $record->update([
+            'change_day_tanggal_awal'  => $request->original_date,
+            'change_day_tanggal_akhir' => $request->requested_date,
+            'change_day_alasan'        => $request->reason,
+        ]);
+
+        return redirect()->route('changeday.index')
+            ->with('success', 'Change day request updated successfully.');
+    }
+
+    public function cancelRequest($id)
+    {
+        $record = AbsensiKaryawan::where('karyawan_id', $this->getEmployeeId())
+            ->where('id', $id)
+            ->where('is_change_day', true)
+            ->firstOrFail();
+
+        if ($record->change_day_status !== AbsensiKaryawan::CHANGE_DAY_PENDING) {
+            return redirect()->route('changeday.index')
+                ->with('error', 'Only pending requests can be cancelled.');
+        }
+
+        $record->delete();
+
+        return redirect()->route('changeday.index')
+            ->with('success', 'Change day request cancelled successfully.');
     }
 }

@@ -31,7 +31,7 @@
                         <svg class="w-3.5 h-3.5 text-[#0052CC] flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M21 0H3C1.343 0 0 1.343 0 3v18c0 1.656 1.343 3 3 3h18c1.656 0 3-1.344 3-3V3c0-1.657-1.344-3-3-3zM10.44 18.18c0 .795-.645 1.44-1.44 1.44H4.56c-.795 0-1.44-.645-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44H9c.795 0 1.44.645 1.44 1.44v12.36zm10.44-7.08c0 .794-.645 1.44-1.44 1.44H15c-.795 0-1.44-.646-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44h4.44c.795 0 1.44.645 1.44 1.44v5.28z"/>
                         </svg>
-                        Task Done will be auto-synced from Trello when the integration is configured.
+                        When Trello is connected, the Sync button will auto-fill Task Done — manual input is always available.
                     </p>
                 </div>
             </div>
@@ -115,14 +115,15 @@
                                     value="{{ old('task_done', $performa->task_done) }}" min="0"
                                     class="w-full px-3 py-2 border rounded-lg bg-white"
                                     onchange="calculateAll()" onkeyup="calculateAll()">
-                                <p class="text-xs text-gray-400 mt-1">Will auto-sync from Trello when connected</p>
+                                <p class="text-xs text-gray-400 mt-1">Enter manually, or use Sync button to auto-fill from Trello</p>
                             </div>
                             <div>
-                                <label class="block mb-2 text-sm font-bold text-gray-700">Monthly Target</label>
-                                <input type="number" id="task_target" name="task_target" value="20" min="1"
+                                <label class="block mb-2 text-sm font-bold text-gray-700">Monthly Target <span class="text-red-500">*</span></label>
+                                <input type="number" id="task_target" name="task_target"
+                                    value="{{ old('task_target', $performa->task_target ?: '') }}" min="1" required
                                     class="w-full px-3 py-2 border rounded-lg bg-white"
                                     onchange="calculateAll()" onkeyup="calculateAll()">
-                                <p class="text-xs text-gray-400 mt-1">Default: 20 tasks/month</p>
+                                <p class="text-xs text-gray-400 mt-1">Set task target for this employee</p>
                             </div>
                             <div>
                                 <label class="block mb-2 text-sm font-bold text-gray-700">Task Score (auto)</label>
@@ -144,7 +145,7 @@
                                 </svg>
                                 Sync from Trello
                             </button>
-                            <p class="text-xs text-gray-400">Enter task count manually — will be auto-synced from Trello when connected.</p>
+                            <p class="text-xs text-gray-400">Sync fills the field — you can still edit the value manually after syncing.</p>
                         </div>
                     </div>
                 </div>

@@ -12,6 +12,42 @@ use Illuminate\Support\Facades\Storage;
 
 class CutiController extends Controller
 {
+    // Quotas per leave type
+    const QUOTA_TAHUNAN      = 12;
+    const QUOTA_MELAHIRKAN_P = 90; // perempuan: 3 bulan
+    const QUOTA_MELAHIRKAN_L = 3;  // laki-laki: 3 hari
+    const QUOTA_MENIKAH      = 3;
+    const QUOTA_DUKA         = 2;
+
+    private function getLeaveQuotas(int $karyawanId): array
+    {
+        $karyawan = Karyawan::find($karyawanId);
+        $tahun    = date('Y');
+
+        $kuotaMelahirkan = $karyawan->jenis_kelamin === 'P'
+            ? self::QUOTA_MELAHIRKAN_P
+            : self::QUOTA_MELAHIRKAN_L;
+
+        $used = fn(string $jenis) => (int) PengajuanCuti::where('karyawan_id', $karyawanId)
+            ->where('tahun_cuti', $tahun)
+            ->where('jenis_cuti', $jenis)
+            ->where('status', 'disetujui')
+            ->sum('total_hari');
+
+        return [
+            'karyawan'          => $karyawan,
+            'tahunSekarang'     => $tahun,
+            'kuotaTahunan'      => self::QUOTA_TAHUNAN,
+            'kuotaMelahirkan'   => $kuotaMelahirkan,
+            'kuotaMenikah'      => self::QUOTA_MENIKAH,
+            'kuotaDuka'         => self::QUOTA_DUKA,
+            'sisaTahunan'       => max(0, self::QUOTA_TAHUNAN - $used('tahunan')),
+            'sisaMelahirkan'    => max(0, $kuotaMelahirkan - $used('melahirkan')),
+            'sisaMenikah'       => max(0, self::QUOTA_MENIKAH - $used('menikah')),
+            'sisaDuka'          => max(0, self::QUOTA_DUKA - $used('duka')),
+        ];
+    }
+
     // Employee: Index - List all leave requests
     public function index()
     {
@@ -23,70 +59,70 @@ class CutiController extends Controller
             ->get();
 
         $approvedCount = $cuti->where('status', 'disetujui')->count();
-        $pendingCount = $cuti->where('status', 'pending')->count();
+        $pendingCount  = $cuti->where('status', 'pending')->count();
         $rejectedCount = $cuti->where('status', 'ditolak')->count();
 
-        return view('cuti.index', compact('cuti', 'approvedCount', 'pendingCount', 'rejectedCount'));
+        $quotas = $this->getLeaveQuotas($karyawanId);
+
+        return view('cuti.index', array_merge(
+            compact('cuti', 'approvedCount', 'pendingCount', 'rejectedCount'),
+            $quotas
+        ));
     }
 
     // Employee: Show create form
     public function create()
     {
-        $tahunSekarang = date('Y');
-        $kuotaTotal = 12;
-        $kuotaTerpakai = PengajuanCuti::where('karyawan_id', Auth::id())
-            ->where('tahun_cuti', $tahunSekarang)
-            ->where('jenis_cuti', 'tahunan')
-            ->where('status', 'disetujui')
-            ->sum('total_hari');
-        $sisaKuota = max(0, $kuotaTotal - $kuotaTerpakai);
-
-        return view('cuti.create', compact('sisaKuota'));
+        $quotas = $this->getLeaveQuotas(Auth::id());
+        return view('cuti.create', $quotas);
     }
 
     // Employee: Store leave request
     public function store(Request $request)
     {
         $request->validate([
-            'jenis_cuti' => 'required|in:tahunan,melahirkan',
-            'tanggal_mulai' => 'required|date|after_or_equal:today',
-            'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
-            'alasan' => 'required|string|min:10',
-            'lampiran' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
+            'jenis_cuti'     => 'required|in:tahunan,melahirkan,menikah,duka',
+            'tanggal_mulai'  => 'required|date|after_or_equal:today',
+            'tanggal_selesai'=> 'required|date|after_or_equal:tanggal_mulai',
+            'alasan'         => 'required|string|min:10',
+            'lampiran'       => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
         ]);
 
-        $karyawan = Karyawan::find(Auth::id());
-        $totalHari = PengajuanCuti::hitungTotalHari($request->tanggal_mulai, $request->tanggal_selesai);
+        $karyawanId = Auth::id();
+        $karyawan   = Karyawan::find($karyawanId);
+        $totalHari  = PengajuanCuti::hitungTotalHari($request->tanggal_mulai, $request->tanggal_selesai);
+        $tahun      = date('Y');
 
-        // Check quota for annual leave
-        if ($request->jenis_cuti == 'tahunan') {
-            $tahunSekarang = date('Y');
-            $kuotaTerpakai = PengajuanCuti::where('karyawan_id', Auth::id())
-                ->where('tahun_cuti', $tahunSekarang)
-                ->where('jenis_cuti', 'tahunan')
-                ->where('status', 'disetujui')
-                ->sum('total_hari');
-            $sisaKuota = 12 - $kuotaTerpakai;
+        $quotas = $this->getLeaveQuotas($karyawanId);
 
-            if ($totalHari > $sisaKuota) {
-                return redirect()->back()->with('error', 'Insufficient annual leave quota. Remaining quota: ' . $sisaKuota . ' days')->withInput();
-            }
+        $quotaMap = [
+            'tahunan'   => ['sisa' => $quotas['sisaTahunan'],    'kuota' => $quotas['kuotaTahunan'],    'label' => 'Annual'],
+            'melahirkan'=> ['sisa' => $quotas['sisaMelahirkan'],  'kuota' => $quotas['kuotaMelahirkan'], 'label' => $karyawan->jenis_kelamin === 'P' ? 'Maternity' : 'Paternity'],
+            'menikah'   => ['sisa' => $quotas['sisaMenikah'],     'kuota' => $quotas['kuotaMenikah'],    'label' => 'Marriage'],
+            'duka'      => ['sisa' => $quotas['sisaDuka'],        'kuota' => $quotas['kuotaDuka'],       'label' => 'Bereavement'],
+        ];
+
+        $q = $quotaMap[$request->jenis_cuti];
+        if ($totalHari > $q['sisa']) {
+            return redirect()->back()
+                ->with('error', $q['label'] . ' leave quota exceeded. Remaining: ' . $q['sisa'] . ' days.')
+                ->withInput();
         }
 
         PengajuanCuti::create([
-            'karyawan_id' => Auth::id(),
-            'nama_karyawan' => $karyawan->nama_lengkap,
-            'jenis_cuti' => $request->jenis_cuti,
-            'tanggal_mulai' => $request->tanggal_mulai,
+            'karyawan_id'  => $karyawanId,
+            'nama_karyawan'=> $karyawan->nama_lengkap,
+            'jenis_cuti'   => $request->jenis_cuti,
+            'tanggal_mulai'=> $request->tanggal_mulai,
             'tanggal_selesai' => $request->tanggal_selesai,
-            'total_hari' => $totalHari,
-            'alasan' => $request->alasan,
-            'status' => 'pending',
-            'lampiran' => $request->hasFile('lampiran') ? $request->file('lampiran')->store('cuti', 'public') : null,
-            'tahun_cuti' => date('Y'),
-            'kuota_total' => 12,
-            'kuota_terpakai' => 0,
-            'sisa_kuota' => 12,
+            'total_hari'   => $totalHari,
+            'alasan'       => $request->alasan,
+            'status'       => 'pending',
+            'lampiran'     => $request->hasFile('lampiran') ? $request->file('lampiran')->store('cuti', 'public') : null,
+            'tahun_cuti'   => $tahun,
+            'kuota_total'  => $q['kuota'],
+            'kuota_terpakai' => $q['kuota'] - $q['sisa'],
+            'sisa_kuota'   => $q['sisa'] - $totalHari,
         ]);
 
         return redirect()->route('cuti.index')->with('success', 'Leave request submitted successfully');
@@ -101,17 +137,9 @@ class CutiController extends Controller
             return redirect()->route('cuti.index')->with('error', 'A processed leave request cannot be changed');
         }
 
-        $tahunSekarang = date('Y');
-        $kuotaTotal = 12;
-        $kuotaTerpakai = PengajuanCuti::where('karyawan_id', Auth::id())
-            ->where('tahun_cuti', $tahunSekarang)
-            ->where('jenis_cuti', 'tahunan')
-            ->where('status', 'disetujui')
-            ->where('id', '!=', $id)
-            ->sum('total_hari');
-        $sisaKuota = max(0, $kuotaTotal - $kuotaTerpakai);
+        $quotas = $this->getLeaveQuotas(Auth::id());
 
-        return view('cuti.edit', compact('cuti', 'sisaKuota'));
+        return view('cuti.edit', array_merge(compact('cuti'), $quotas));
     }
 
     // Employee: Update leave request
@@ -124,29 +152,34 @@ class CutiController extends Controller
         }
 
         $request->validate([
-            'jenis_cuti' => 'required|in:tahunan,sakit,melahirkan,penting,ibadah,lainnya',
-            'tanggal_mulai' => 'required|date|after_or_equal:today',
-            'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
-            'alasan' => 'required|string|min:10',
-            'lampiran' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
+            'jenis_cuti'     => 'required|in:tahunan,melahirkan,menikah,duka',
+            'tanggal_mulai'  => 'required|date|after_or_equal:today',
+            'tanggal_selesai'=> 'required|date|after_or_equal:tanggal_mulai',
+            'alasan'         => 'required|string|min:10',
+            'lampiran'       => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
         ]);
 
-        $totalHari = PengajuanCuti::hitungTotalHari($request->tanggal_mulai, $request->tanggal_selesai);
+        $karyawanId = Auth::id();
+        $karyawan   = Karyawan::find($karyawanId);
+        $totalHari  = PengajuanCuti::hitungTotalHari($request->tanggal_mulai, $request->tanggal_selesai);
 
-        // Check quota for annual leave
-        if ($request->jenis_cuti == 'tahunan') {
-            $tahunSekarang = date('Y');
-            $kuotaTerpakai = PengajuanCuti::where('karyawan_id', Auth::id())
-                ->where('tahun_cuti', $tahunSekarang)
-                ->where('jenis_cuti', 'tahunan')
-                ->where('status', 'disetujui')
-                ->where('id', '!=', $id)
-                ->sum('total_hari');
-            $sisaKuota = 12 - $kuotaTerpakai;
+        $quotas = $this->getLeaveQuotas($karyawanId);
+        $quotaMap = [
+            'tahunan'   => ['sisa' => $quotas['sisaTahunan'],   'label' => 'Annual'],
+            'melahirkan'=> ['sisa' => $quotas['sisaMelahirkan'],'label' => $karyawan->jenis_kelamin === 'P' ? 'Maternity' : 'Paternity'],
+            'menikah'   => ['sisa' => $quotas['sisaMenikah'],   'label' => 'Marriage'],
+            'duka'      => ['sisa' => $quotas['sisaDuka'],      'label' => 'Bereavement'],
+        ];
 
-            if ($totalHari > $sisaKuota) {
-                return redirect()->back()->with('error', 'Insufficient annual leave quota. Remaining quota: ' . $sisaKuota . ' days')->withInput();
-            }
+        $q = $quotaMap[$request->jenis_cuti];
+
+        // Add back days from the record being edited before checking quota
+        $q['sisa'] += $cuti->total_hari;
+
+        if ($totalHari > $q['sisa']) {
+            return redirect()->back()
+                ->with('error', $q['label'] . ' leave quota exceeded. Remaining: ' . ($q['sisa'] - $cuti->total_hari) . ' days.')
+                ->withInput();
         }
 
         $updateData = [

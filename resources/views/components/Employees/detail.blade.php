@@ -605,16 +605,18 @@
         // Recent attendance rows
         const atBody = document.getElementById('emp-attendance-tbody');
         const statusMap = {
-            hadir:  ['bg-green-100 text-green-800',   'Present'],
-            masuk:  ['bg-green-100 text-green-800',   'Present'],
-            present:['bg-green-100 text-green-800',   'Present'],
-            izin:   ['bg-blue-100 text-blue-800',     'Permit'],
-            permit: ['bg-blue-100 text-blue-800',     'Permit'],
-            sakit:  ['bg-purple-100 text-purple-800', 'Sick'],
-            sick:   ['bg-purple-100 text-purple-800', 'Sick'],
-            alpha:  ['bg-red-100 text-red-800',       'Absent'],
-            absent: ['bg-red-100 text-red-800',       'Absent'],
-            pending:['bg-yellow-100 text-yellow-800', 'Pending'],
+            hadir:      ['bg-green-100 text-green-800',   'Present'],
+            masuk:      ['bg-green-100 text-green-800',   'Present'],
+            present:    ['bg-green-100 text-green-800',   'Present'],
+            izin:       ['bg-blue-100 text-blue-800',     'Change Day'],
+            permit:     ['bg-blue-100 text-blue-800',     'Change Day'],
+            change_day: ['bg-blue-100 text-blue-800',     'Change Day'],
+            sakit:      ['bg-purple-100 text-purple-800', 'Leave'],
+            sick:       ['bg-purple-100 text-purple-800', 'Leave'],
+            leave:      ['bg-purple-100 text-purple-800', 'Leave'],
+            alpha:      ['bg-red-100 text-red-800',       'Absent'],
+            absent:     ['bg-red-100 text-red-800',       'Absent'],
+            pending:    ['bg-yellow-100 text-yellow-800', 'Pending'],
         };
         if (!a.recent || !a.recent.length) {
             atBody.innerHTML = `<tr><td colspan="4" class="px-5 py-8 text-center text-gray-400">No attendance records found</td></tr>`;

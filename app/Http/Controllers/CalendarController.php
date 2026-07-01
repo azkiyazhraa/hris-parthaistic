@@ -267,15 +267,15 @@ class CalendarController extends Controller
                     $statusIcon = '✅';
                     $statusText = 'Present';
                     break;
-                case 'permit':
+                case 'change_day':
                     $statusColor = 'blue';
                     $statusIcon = '📝';
-                    $statusText = 'Permit';
+                    $statusText = 'Change Day';
                     break;
-                case 'sick':
+                case 'leave':
                     $statusColor = 'purple';
-                    $statusIcon = '🤒';
-                    $statusText = 'Sick';
+                    $statusIcon = '🏖️';
+                    $statusText = 'Leave';
                     break;
                 case 'absent':
                     $statusColor = 'red';

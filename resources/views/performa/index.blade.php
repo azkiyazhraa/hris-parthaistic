@@ -441,7 +441,7 @@
                                         <div class="mt-1 text-xs text-gray-500">Tasks Done</div>
                                     </div>
                                     <div class="p-3 text-center bg-white border border-gray-200 rounded-lg">
-                                        <div class="text-2xl font-bold text-gray-500">20</div>
+                                        <div class="text-2xl font-bold text-gray-500">${data.task_target ?? 0}</div>
                                         <div class="mt-1 text-xs text-gray-500">Monthly Target</div>
                                     </div>
                                     <div class="p-3 text-center bg-white border border-gray-200 rounded-lg">

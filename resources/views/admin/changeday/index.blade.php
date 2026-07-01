@@ -116,24 +116,10 @@
                                     {{ $item->created_at ? $item->created_at->format('d/m/Y H:i') : '-' }}
                                 </td>
                                 <td class="py-3 px-2 text-gray-700 whitespace-nowrap">
-                                    <div class="text-xs">
-                                        <div>{{ $item->tanggal ? $item->tanggal->format('d/m/Y') : '-' }}</div>
-                                        <div class="text-gray-500">
-                                            {{ $item->jam_masuk ? substr($item->jam_masuk, 0, 5) : '-' }} -
-                                            {{ $item->jam_pulang ? substr($item->jam_pulang, 0, 5) : '-' }}</div>
-                                    </div>
+                                    {{ $item->change_day_tanggal_awal ? $item->change_day_tanggal_awal->format('d M Y') : '-' }}
                                 </td>
                                 <td class="py-3 px-2 text-gray-700 font-semibold whitespace-nowrap">
-                                    <div class="text-xs">
-                                        <div>
-                                            {{ $item->change_day_tanggal_awal ? $item->change_day_tanggal_awal->format('d/m/Y') : '-' }}
-                                        </div>
-                                        <div class="text-gray-500">
-                                            {{ $item->change_day_jam_mulai ? substr($item->change_day_jam_mulai, 0, 5) : '-' }}
-                                            -
-                                            {{ $item->change_day_jam_selesai ? substr($item->change_day_jam_selesai, 0, 5) : '-' }}
-                                        </div>
-                                    </div>
+                                    {{ $item->change_day_tanggal_akhir ? $item->change_day_tanggal_akhir->format('d M Y') : '-' }}
                                 </td>
                                 <td class="py-3 px-2 whitespace-nowrap">
                                     <form action="{{ route('admin.absensi.update-status-change-day', $item->id) }}"
@@ -143,6 +129,7 @@
                                         <input type="hidden" name="is_change_day" value="1">
                                         <input type="hidden" name="change_day_note" id="note-input-{{ $item->id }}">
                                         <select name="change_day_status"
+                                            data-current-status="{{ $item->change_day_status }}"
                                             onchange="updateChangeDayStatus({{ $item->id }}, this)"
                                             class="text-xs rounded-full py-1 px-3 border-0 focus:ring-2 focus:ring-blue-500 cursor-pointer
                                             @if ($item->change_day_status == 'pending') bg-yellow-100 text-yellow-800
@@ -208,7 +195,31 @@
     <script>
         async function updateChangeDayStatus(id, selectElement) {
             const selectedStatus = selectElement.value;
+            const currentStatus = selectElement.dataset.currentStatus || selectElement.getAttribute('data-current-status');
             let note = '';
+
+            // Extra warning when reverting from approved to rejected
+            if (selectedStatus === 'rejected' && currentStatus === 'approved') {
+                const { isConfirmed: warnConfirmed } = await Swal.fire({
+                    title: 'Revert approval?',
+                    html: `<p class="text-sm text-gray-600">This request was already <strong>approved</strong>. Rejecting it will also <strong>remove the related attendance records</strong> that were created for this change day.</p>`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, reject it',
+                    cancelButtonText: 'Keep approved',
+                    reverseButtons: true,
+                    buttonsStyling: false,
+                    customClass: {
+                        popup: 'rounded-2xl',
+                        confirmButton: 'bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg mx-1',
+                        cancelButton: 'bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg mx-1',
+                    },
+                });
+                if (!warnConfirmed) {
+                    location.reload();
+                    return;
+                }
+            }
 
             // INPUT NOTE
             const {

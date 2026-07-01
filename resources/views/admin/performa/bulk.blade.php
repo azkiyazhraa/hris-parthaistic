@@ -16,7 +16,7 @@
             <p class="text-blue-700 text-sm">
                 <strong>Information :</strong> KPI Score and Task Score are calculated automatically.
                 <strong>Performance Score = (KPI Score × 50%) + (Task Score × 50%)</strong>.
-                Task Score = (Tasks Done ÷ Target) × 100. Default target is 20 tasks/month.
+                Task Score = (Tasks Done ÷ Monthly Target) × 100. Set the target per employee.
             </p>
         </div>
 
@@ -59,6 +59,7 @@
                                     </svg>
                                 </span>
                             </th>
+                            <th class="py-3 px-2 text-center">Target</th>
                             <th class="py-3 px-2 text-center">KPI</th>
                             <th class="py-3 px-2 text-center">Task Score</th>
                             <th class="py-3 px-2 text-center">Total</th>
@@ -85,7 +86,9 @@
                                 </td>
                                 <td class="py-2 px-2 text-center">
                                     <input type="number" name="performas[{{ $index }}][task_done]" class="task-done w-16 border rounded text-center py-1" min="0" value="0" onchange="calcRow(this)" onkeyup="calcRow(this)">
-                                    <input type="hidden" name="performas[{{ $index }}][task_target]" value="20">
+                                </td>
+                                <td class="py-2 px-2 text-center">
+                                    <input type="number" name="performas[{{ $index }}][task_target]" class="task-target w-16 border rounded text-center py-1" min="1" value="1" onchange="calcRow(this)" onkeyup="calcRow(this)">
                                 </td>
                                 <td class="py-2 px-2 text-center">
                                     <span class="kpi-display font-semibold text-blue-600">0</span>
@@ -104,21 +107,30 @@
 
             <div class="flex justify-end space-x-2 mt-6">
                 <a href="{{ route('admin.performa.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition">Cancel</a>
-                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition">Save All</button>
+                <button type="submit" id="saveAllBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition">Save All</button>
             </div>
         </form>
     </div>
 </div>
 
 <script>
+function isRowEmpty(row) {
+    const q  = parseInt(row.querySelector('.quality').value)      || 0;
+    const p  = parseInt(row.querySelector('.productivity').value) || 0;
+    const t  = parseInt(row.querySelector('.teamwork').value)     || 0;
+    const d  = parseInt(row.querySelector('.discipline').value)   || 0;
+    const td = parseInt(row.querySelector('.task-done').value)    || 0;
+    return q === 0 && p === 0 && t === 0 && d === 0 && td === 0;
+}
+
 function calcRow(el) {
     const row = el.closest('tr');
     const q = parseInt(row.querySelector('.quality').value)      || 0;
     const p = parseInt(row.querySelector('.productivity').value) || 0;
     const t = parseInt(row.querySelector('.teamwork').value)     || 0;
     const d = parseInt(row.querySelector('.discipline').value)   || 0;
-    const taskDone   = parseInt(row.querySelector('.task-done').value) || 0;
-    const taskTarget = 20;
+    const taskDone   = parseInt(row.querySelector('.task-done').value)   || 0;
+    const taskTarget = Math.max(1, parseInt(row.querySelector('.task-target').value) || 1);
 
     const kpi       = Math.round((q + p + t + d) / 4);
     const taskScore = Math.min(100, Math.round((taskDone / taskTarget) * 100));
@@ -128,5 +140,30 @@ function calcRow(el) {
     row.querySelector('.task-score-display').innerText = taskScore;
     row.querySelector('.total-display').innerText      = total;
 }
+
+document.getElementById('bulkForm').addEventListener('submit', function (e) {
+    const rows = this.querySelectorAll('tbody tr');
+    let filledCount = 0;
+
+    rows.forEach(function (row) {
+        if (isRowEmpty(row)) {
+            row.querySelectorAll('input').forEach(function (input) {
+                input.disabled = true;
+            });
+        } else {
+            filledCount++;
+        }
+    });
+
+    if (filledCount === 0) {
+        e.preventDefault();
+        rows.forEach(function (row) {
+            row.querySelectorAll('input').forEach(function (input) {
+                input.disabled = false;
+            });
+        });
+        alert('Belum ada penilaian yang diisi. Silakan isi minimal satu karyawan.');
+    }
+});
 </script>
 @endsection

@@ -14,46 +14,100 @@
         </div>
 
         <div class="p-4 my-4 bg-white shadow rounded-2xl md:p-6">
-            <div class="grid grid-cols-1 divide-y sm:grid-cols-4 sm:divide-y-0 sm:divide-x">
-                <!-- ITEM 1 -->
-                <div class="flex flex-col gap-1 px-4 py-2">
-                    <span class="text-xl text-blue-900">Year</span>
-                    <div class="flex items-center justify-between gap-2">
-                        <h2 class="text-xl font-semibold text-blue-900 md:text-2xl" id="periode">
-                            {{ date('Y') }}
-                        </h2>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                            stroke="currentColor" class="text-blue-900 size-5">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M6.75 2.994v2.25m10.5-2.25v2.25m-14.252 13.5V7.491a2.25 2.25 0 0 1 2.25-2.25h13.5a2.25 2.25 0 0 1 2.25 2.25v11.251m-18 0a2.25 2.25 0 0 0 2.25 2.25h13.5a2.25 2.25 0 0 0 2.25-2.25m-18 0v-7.5a2.25 2.25 0 0 1 2.25-2.25h13.5a2.25 2.25 0 0 1 2.25 2.25v7.5m-6.75-6h2.25m-9 2.25h4.5m.002-2.25h.005v.006H12v-.006Zm-.001 4.5h.006v.006h-.006v-.005Zm-2.25.001h.005v.006H9.75v-.006Zm-2.25 0h.005v.005h-.006v-.005Zm6.75-2.247h.005v.005h-.005v-.005Zm0 2.247h.006v.006h-.006v-.006Zm2.25-2.248h.006V15H16.5v-.005Z" />
+
+            {{-- ROW 1: Stats --}}
+            <div class="flex flex-wrap items-center justify-between gap-4 pb-4 mb-4 border-b border-gray-100">
+
+                <div class="flex items-center gap-2">
+                    <div class="p-2 rounded-xl bg-blue-50">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 2.994v2.25m10.5-2.25v2.25m-14.252 13.5V7.491a2.25 2.25 0 0 1 2.25-2.25h13.5a2.25 2.25 0 0 1 2.25 2.25v11.251m-18 0a2.25 2.25 0 0 0 2.25 2.25h13.5a2.25 2.25 0 0 0 2.25-2.25m-18 0v-7.5a2.25 2.25 0 0 1 2.25-2.25h13.5a2.25 2.25 0 0 1 2.25 2.25v7.5" />
                         </svg>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-400">Year</p>
+                        <p class="text-lg font-bold text-blue-900">{{ date('Y') }}</p>
                     </div>
                 </div>
 
-                <!-- ITEM 2 -->
-                <div class="flex flex-col gap-1 px-4 py-2">
-                    <span class="text-xl text-blue-900">Approved</span>
-                    <h2 class="text-xl font-semibold text-blue-900 md:text-2xl" id="total_salary">
-                        {{ number_format($approvedCount, 0, ',', '.') }}
-                    </h2>
+                <div class="flex items-center gap-6 sm:gap-10">
+                    <div class="text-center">
+                        <p class="text-2xl font-bold text-green-600">{{ $approvedCount }}</p>
+                        <p class="text-xs text-gray-400 mt-0.5">Approved</p>
+                    </div>
+                    <div class="w-px h-8 bg-gray-200 hidden sm:block"></div>
+                    <div class="text-center">
+                        <p class="text-2xl font-bold text-yellow-500">{{ $pendingCount }}</p>
+                        <p class="text-xs text-gray-400 mt-0.5">Requested</p>
+                    </div>
+                    <div class="w-px h-8 bg-gray-200 hidden sm:block"></div>
+                    <div class="text-center">
+                        <p class="text-2xl font-bold text-red-500">{{ $rejectedCount }}</p>
+                        <p class="text-xs text-gray-400 mt-0.5">Rejected</p>
+                    </div>
                 </div>
 
-                <!-- ITEM 3 -->
-                <div class="flex flex-col gap-1 px-4 py-2">
-                    <span class="text-xl text-blue-900">Requested</span>
-                    <h2 class="text-xl font-semibold text-blue-900 md:text-2xl" id="deduction">
-                        {{ number_format($pendingCount, 0, ',', '.') }}
-                    </h2>
-                </div>
-
-                <!-- ITEM 4 -->
-                <div class="flex flex-col gap-1 px-4 py-2">
-                    <span class="text-xl text-blue-900">Rejected</span>
-                    <h2 class="text-xl font-semibold text-blue-900 md:text-2xl" id="allowance">
-                        {{ number_format($rejectedCount, 0, ',', '.') }}
-                    </h2>
-                </div>
             </div>
+
+            {{-- ROW 2: Quota per leave type --}}
+            @php
+                $quotaItems = [
+                    [
+                        'label'  => 'Annual Leave',
+                        'kuota'  => $kuotaTahunan,
+                        'sisa'   => $sisaTahunan,
+                        'color'  => 'blue',
+                    ],
+                    [
+                        'label'  => $karyawan->jenis_kelamin === 'P' ? 'Maternity Leave' : 'Paternity Leave',
+                        'kuota'  => $kuotaMelahirkan,
+                        'sisa'   => $sisaMelahirkan,
+                        'color'  => 'pink',
+                    ],
+                    [
+                        'label'  => 'Marriage Leave',
+                        'kuota'  => $kuotaMenikah,
+                        'sisa'   => $sisaMenikah,
+                        'color'  => 'yellow',
+                    ],
+                    [
+                        'label'  => 'Bereavement Leave',
+                        'kuota'  => $kuotaDuka,
+                        'sisa'   => $sisaDuka,
+                        'color'  => 'purple',
+                    ],
+                ];
+
+                $palette = [
+                    'blue'   => ['text' => 'text-blue-600',   'bar' => 'bg-blue-500',   'track' => 'bg-blue-100',   'badge' => 'bg-blue-50 text-blue-700'],
+                    'pink'   => ['text' => 'text-pink-600',   'bar' => 'bg-pink-500',   'track' => 'bg-pink-100',   'badge' => 'bg-pink-50 text-pink-700'],
+                    'yellow' => ['text' => 'text-yellow-600', 'bar' => 'bg-yellow-400', 'track' => 'bg-yellow-100', 'badge' => 'bg-yellow-50 text-yellow-700'],
+                    'purple' => ['text' => 'text-purple-600', 'bar' => 'bg-purple-500', 'track' => 'bg-purple-100', 'badge' => 'bg-purple-50 text-purple-700'],
+                ];
+            @endphp
+
+            <div class="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4">
+                @foreach ($quotaItems as $q)
+                    @php
+                        $used = $q['kuota'] - $q['sisa'];
+                        $pct  = $q['kuota'] > 0 ? min(100, round(($used / $q['kuota']) * 100)) : 0;
+                        $c    = $palette[$q['color']];
+                    @endphp
+                    <div>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <p class="text-xs font-semibold text-gray-600 truncate pr-1">{{ $q['label'] }}</p>
+                            <span class="text-xs font-medium px-2 py-0.5 rounded-full shrink-0 {{ $c['badge'] }}">
+                                {{ $q['sisa'] }} left
+                            </span>
+                        </div>
+                        <div class="w-full h-1.5 rounded-full {{ $c['track'] }}">
+                            <div class="h-1.5 rounded-full {{ $c['bar'] }}" style="width: {{ $pct }}%"></div>
+                        </div>
+                        <p class="mt-1 text-xs text-gray-400">{{ $used }} / {{ $q['kuota'] }} days used</p>
+                    </div>
+                @endforeach
+            </div>
+
         </div>
 
         <div class="p-6 bg-white shadow-lg rounded-2xl" style="border: 2px solid #e0eaff;">
@@ -80,24 +134,39 @@
                             class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none">
 
                             <option value="">All Leave Types</option>
-                            <option value="Annual">Annual Leave</option>
-                            <option value="Sick">Sick Leave</option>
-                            <option value="Parental">Parental Leave</option>
-                            <option value="Personal">Personal Leave</option>
-                            <option value="Ibadah">Religious Leave</option>
-                            <option value="Other">Other Leave</option>
+                            <option value="tahunan">Annual Leave</option>
+                            <option value="melahirkan">Maternity / Paternity Leave</option>
+                            <option value="menikah">Marriage Leave</option>
+                            <option value="duka">Bereavement Leave</option>
                         </select>
                     </div>
 
                 </div>
 
                 <!-- BUTTON -->
+                @php
+                    $allQuotasExhausted = $sisaTahunan <= 0 && $sisaMelahirkan <= 0 && $sisaMenikah <= 0 && $sisaDuka <= 0;
+                @endphp
                 <div class="w-full sm:w-auto">
-                    <button type="button" data-modal-target="requestLeaveModal" data-modal-toggle="requestLeaveModal"
-                        class="w-full sm:w-auto bg-blue-900 hover:bg-blue-800 text-white px-5 py-2.5 rounded-xl text-sm font-medium transition">
-
-                        Request Leave
-                    </button>
+                    @if ($allQuotasExhausted)
+                        <button type="button" disabled
+                            title="All leave quotas have been exhausted for this year"
+                            class="w-full sm:w-auto flex items-center gap-2 bg-gray-200 text-gray-400 cursor-not-allowed px-5 py-2.5 rounded-xl text-sm font-medium select-none">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" />
+                            </svg>
+                            Request Leave
+                        </button>
+                        <p class="mt-1 text-xs text-center text-red-500 sm:text-right">All quotas exhausted</p> 
+                    @else
+                        <button type="button" data-modal-target="requestLeaveModal" data-modal-toggle="requestLeaveModal"
+                            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-medium shadow-sm transition focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                            </svg>
+                            Request Leave
+                        </button>
+                    @endif
                 </div>
 
             </div>
@@ -119,12 +188,15 @@
                     <tbody>
                         @php
                             $leaveTypeMap = [
-                                'tahunan' => ['label' => 'Annual Leave', 'key' => 'annual'],
-                                'sakit' => ['label' => 'Sick Leave', 'key' => 'sick'],
-                                'melahirkan' => ['label' => 'Parental Leave', 'key' => 'parental'],
-                                'penting' => ['label' => 'Personal Leave', 'key' => 'personal'],
-                                'ibadah' => ['label' => 'Religious Leave', 'key' => 'ibadah'],
-                                'lainnya' => ['label' => 'Other Leave', 'key' => 'other'],
+                                'tahunan'   => ['label' => 'Annual Leave',     'key' => 'tahunan'],
+                                'melahirkan'=> ['label' => 'Maternity / Paternity Leave', 'key' => 'melahirkan'],
+                                'menikah'   => ['label' => 'Marriage Leave',   'key' => 'menikah'],
+                                'duka'      => ['label' => 'Bereavement Leave','key' => 'duka'],
+                                // legacy values kept for historical records
+                                'sakit'     => ['label' => 'Sick Leave',       'key' => 'sakit'],
+                                'penting'   => ['label' => 'Emergency Leave',  'key' => 'penting'],
+                                'ibadah'    => ['label' => 'Religious Leave',  'key' => 'ibadah'],
+                                'lainnya'   => ['label' => 'Other Leave',      'key' => 'lainnya'],
                             ];
                         @endphp
                         @forelse($cuti as $item)
@@ -164,13 +236,52 @@
                                     </span>
                                 </td>
                                 <td class="py-3">
-                                    <a onclick="showDetail({{ $item->id }})"
-                                        class="text-sm text-blue-600 transition cursor-pointer hover:text-blue-800">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                        </svg>
-                                    </a>
+                                    <div class="flex items-center gap-2">
+                                        {{-- View --}}
+                                        <a onclick="showDetail({{ $item->id }})"
+                                            title="View Detail"
+                                            class="text-blue-500 hover:text-blue-700 cursor-pointer transition">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
+                                        </a>
+
+                                        @if (strtolower($item->status) === 'pending')
+                                            {{-- Edit --}}
+                                            <a href="{{ route('cuti.edit', $item->id) }}"
+                                                title="Edit Request"
+                                                class="text-yellow-500 hover:text-yellow-700 transition">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                </svg>
+                                            </a>
+
+                                            {{-- Delete --}}
+                                            <form action="{{ route('cuti.destroy', $item->id) }}" method="POST"
+                                                class="inline delete-form-cuti">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="button" title="Cancel Request"
+                                                    onclick="confirmDeleteCuti(this)"
+                                                    class="text-red-400 hover:text-red-600 transition">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg>
+                                                </button>
+                                            </form>
+                                        @else
+                                            {{-- Locked --}}
+                                            <span title="Cannot be modified" class="text-gray-300 cursor-not-allowed">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                                </svg>
+                                            </span>
+                                        @endif
+                                    </div>
                                 </td>
                             </tr>
                         @empty
@@ -211,92 +322,118 @@
 
 @push('scripts')
     <script>
+        const leaveQuotas = {
+            'tahunan': {
+                label: 'Annual Leave',
+                total: {{ $kuotaTahunan }},
+                remaining: {{ $sisaTahunan }},
+                color: '#3b82f6',
+                trackColor: '#dbeafe',
+            },
+            'melahirkan': {
+                label: '{{ $karyawan->jenis_kelamin === "P" ? "Maternity Leave" : "Paternity Leave" }}',
+                total: {{ $kuotaMelahirkan }},
+                remaining: {{ $sisaMelahirkan }},
+                color: '#ec4899',
+                trackColor: '#fce7f3',
+            },
+            'menikah': {
+                label: 'Marriage Leave',
+                total: {{ $kuotaMenikah }},
+                remaining: {{ $sisaMenikah }},
+                color: '#eab308',
+                trackColor: '#fef9c3',
+            },
+            'duka': {
+                label: 'Bereavement Leave',
+                total: {{ $kuotaDuka }},
+                remaining: {{ $sisaDuka }},
+                color: '#a855f7',
+                trackColor: '#f3e8ff',
+            },
+        };
+
         function showDetail(id) {
             fetch(`/cuti/${id}`)
                 .then(response => response.json())
                 .then(data => {
-                    const nama = data.karyawan?.nama_lengkap || data.nama_karyawan || '-';
-                    const role = data.karyawan?.role || '-';
-                    const email = data.karyawan?.email || '-';
-                    const phone = data.karyawan?.nomor_telepon || '-';
+                    const nama     = data.karyawan?.nama_lengkap || data.nama_karyawan || '-';
+                    const position = data.karyawan?.jabatan || '-';
+                    const email    = data.karyawan?.email || '-';
+                    const phone    = data.karyawan?.nomor_telepon || '-';
 
                     const foto = data.karyawan?.foto_profil ?
                         `/storage/${data.karyawan.foto_profil}` :
                         `https://ui-avatars.com/api/?background=1E3A8A&color=fff&size=100&name=${encodeURIComponent(nama)}`;
 
-
                     const startDate = data.tanggal_mulai ?
                         new Date(data.tanggal_mulai).toLocaleDateString('id-ID', {
-                            day: '2-digit',
-                            month: 'short',
-                            year: 'numeric'
-                        }) :
-                        '-';
+                            day: '2-digit', month: 'short', year: 'numeric'
+                        }) : '-';
                     const endDate = data.tanggal_selesai ?
                         new Date(data.tanggal_selesai).toLocaleDateString('id-ID', {
-                            day: '2-digit',
-                            month: 'short',
-                            year: 'numeric'
-                        }) :
-                        '-';
-
+                            day: '2-digit', month: 'short', year: 'numeric'
+                        }) : '-';
 
                     const textLeave = {
-                        'tahunan': {
-                            text: 'Annual',
-                        },
-                        'melahirkan': {
-                            text: 'Maternity',
-                        },
+                        'tahunan':    { text: 'Annual Leave' },
+                        'melahirkan': { text: 'Maternity / Paternity Leave' },
+                        'menikah':    { text: 'Marriage Leave' },
+                        'duka':       { text: 'Bereavement Leave' },
                     };
-                    const leaveType = textLeave[(data.jenis_cuti || '').toLowerCase()] || {
-                        text: data.jenis_cuti || '-',
-                    };
+                    const leaveType = textLeave[(data.jenis_cuti || '').toLowerCase()] || { text: data.jenis_cuti || '-' };
                     const leave = leaveType.text;
 
                     const reason = data.alasan || '-';
 
                     const statusMap = {
-                        'pending': {
-                            text: 'Pending',
-                            cls: 'bg-yellow-100 text-yellow-700'
-                        },
-                        'disetujui': {
-                            text: 'Approved',
-                            cls: 'bg-green-100 text-green-700'
-                        },
-                        'ditolak': {
-                            text: 'Rejected',
-                            cls: 'bg-red-100 text-red-700'
-                        },
+                        'pending':   { text: 'Pending',  cls: 'bg-yellow-100 text-yellow-700' },
+                        'disetujui': { text: 'Approved', cls: 'bg-green-100 text-green-700' },
+                        'ditolak':   { text: 'Rejected', cls: 'bg-red-100 text-red-700' },
                     };
-                    const statusInfo = statusMap[(data.status || '').toLowerCase()] || {
-                        text: data.status || '-',
-                        cls: 'bg-gray-100 text-gray-700'
-                    };
+                    const statusInfo = statusMap[(data.status || '').toLowerCase()] || { text: data.status || '-', cls: 'bg-gray-100 text-gray-700' };
                     const statusClass = statusInfo.cls;
-                    const statusText = statusInfo.text;
+                    const statusText  = statusInfo.text;
 
                     const notes = data.catatan;
+
+                    // Quota block
+                    const quota = leaveQuotas[(data.jenis_cuti || '').toLowerCase()];
+                    const quotaBlock = quota ? (() => {
+                        const used = quota.total - quota.remaining;
+                        const pct  = quota.total > 0 ? Math.min(100, Math.round((used / quota.total) * 100)) : 0;
+                        return `
+                            <div class="shrink-0 text-right min-w-[110px]">
+                                <p class="text-xs text-gray-400 mb-0.5">Remaining Quota</p>
+                                <p class="text-2xl font-bold" style="color:${quota.color}">${quota.remaining}</p>
+                                <p class="text-xs text-gray-400">/ ${quota.total} days</p>
+                                <div class="mt-2 w-full h-1.5 rounded-full" style="background:${quota.trackColor}">
+                                    <div class="h-1.5 rounded-full" style="width:${pct}%;background:${quota.color}"></div>
+                                </div>
+                                <p class="text-xs mt-0.5" style="color:${quota.color}">${used} used</p>
+                            </div>`;
+                    })() : '';
 
                     const content = `
                     <div class="space-y-5">
 
                         <div class="pb-4 border-b">
-                            <div class="flex items-start gap-4">
-                                <div class="w-16 h-16 overflow-hidden border-2 border-blue-700 rounded-full shrink-0">
-                                    <img
-                                        src="${foto}"
-                                        class="object-cover w-full h-full"
-                                        onerror="this.src='https://ui-avatars.com/api/?background=1E3A8A&color=fff&size=100&name=${encodeURIComponent(nama)}'">
+                            <div class="flex items-start justify-between gap-4">
+                                <div class="flex items-start gap-3">
+                                    <div class="w-14 h-14 overflow-hidden border-2 border-blue-700 rounded-full shrink-0">
+                                        <img
+                                            src="${foto}"
+                                            class="object-cover w-full h-full"
+                                            onerror="this.src='https://ui-avatars.com/api/?background=1E3A8A&color=fff&size=100&name=${encodeURIComponent(nama)}'">
+                                    </div>
+                                    <div>
+                                        <h3 class="text-base font-semibold text-slate-900">${nama}</h3>
+                                        <p class="text-xs text-gray-500 capitalize">${position}</p>
+                                        <p class="text-xs text-gray-400">${email}</p>
+                                        <p class="text-xs text-gray-400">${phone}</p>
+                                    </div>
                                 </div>
-
-                                <div>
-                                    <h3 class="text-base font-semibold text-slate-900">${name}</h3>
-                                    <p class="text-xs text-gray-500 capitalize">${role}</p>
-                                    <p class="text-xs text-gray-400">${email}</p>
-                                    <p class="text-xs text-gray-400">${phone}</p>
-                                </div>
+                                ${quotaBlock}
                             </div>
                         </div>
 
@@ -354,6 +491,27 @@
 
         function closeDetailModal() {
             document.getElementById('detailModal').classList.add('hidden');
+        }
+
+        function confirmDeleteCuti(btn) {
+            Swal.fire({
+                title: 'Cancel this request?',
+                text: 'This leave request will be permanently removed.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, cancel it',
+                cancelButtonText: 'Keep it',
+                reverseButtons: true,
+                buttonsStyling: false,
+                customClass: {
+                    confirmButton: 'bg-red-500 hover:bg-red-600 text-white font-medium px-4 py-2 rounded-lg ml-2',
+                    cancelButton: 'bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium px-4 py-2 rounded-lg',
+                },
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    btn.closest('form').submit();
+                }
+            });
         }
 
         document.addEventListener('DOMContentLoaded', function() {

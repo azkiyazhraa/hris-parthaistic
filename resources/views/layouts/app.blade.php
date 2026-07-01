@@ -23,6 +23,25 @@
     {{-- SWEETALERT --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    {{-- FLATPICKR --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <style>
+        /* Flatpickr: color Sundays and national holidays red */
+        .flatpickr-day.fp-sunday  { color: #ef4444 !important; }
+        .flatpickr-day.fp-holiday { color: #ef4444 !important; font-weight: 600; }
+        .flatpickr-day.fp-holiday::after {
+            content: '•';
+            display: block;
+            font-size: 8px;
+            color: #ef4444;
+            line-height: 0;
+            margin-top: 2px;
+        }
+        /* Sunday + holiday selected states */
+        .flatpickr-day.fp-sunday.selected,
+        .flatpickr-day.fp-holiday.selected  { color: #fff !important; }
+    </style>
+
     {{-- STYLES --}}
     @stack('styles')
 </head>
@@ -290,6 +309,9 @@
 
     {{-- JAVASCRIPT FOR FLOWBITE --}}
     <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
+
+    {{-- FLATPICKR --}}
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
     {{-- JavaScript --}}
     @stack('scripts')

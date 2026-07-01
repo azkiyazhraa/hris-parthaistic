@@ -42,16 +42,16 @@
                     </div>
 
                     <div class="p-5 border-b lg:border-b-0 border-r border-gray-100 text-center">
-                        <p class="text-xs text-purple-600 mb-1 uppercase tracking-wide">Permission</p>
-                        <p class="text-2xl font-semibold text-purple-600">
-                            {{ $statistics['permit'] ?? 0 }}
+                        <p class="text-xs text-blue-600 mb-1 uppercase tracking-wide">Change Day</p>
+                        <p class="text-2xl font-semibold text-blue-600">
+                            {{ $statistics['change_day'] ?? 0 }}
                         </p>
                     </div>
 
                     <div class="p-5 border-b lg:border-b-0 border-r border-gray-100 text-center">
-                        <p class="text-xs text-red-600 mb-1 uppercase tracking-wide">Sick</p>
-                        <p class="text-2xl font-semibold text-red-600">
-                            {{ $statistics['sick'] ?? 0 }}
+                        <p class="text-xs text-purple-600 mb-1 uppercase tracking-wide">Leave</p>
+                        <p class="text-2xl font-semibold text-purple-600">
+                            {{ $statistics['leave'] ?? 0 }}
                         </p>
                     </div>
                 </div>
@@ -84,8 +84,8 @@
                                 <option value="">All Status</option>
                                 <option value="pending">Pending</option>
                                 <option value="present">Present</option>
-                                <option value="permit">Permit</option>
-                                <option value="sick">Sick</option>
+                                <option value="change_day">Change Day</option>
+                                <option value="leave">Leave</option>
                                 <option value="absent">Absent</option>
                             </select>
                         </div>
@@ -209,40 +209,57 @@
                                     <td class="py-3">
                                         @php
                                             $statusStyles = [
-                                                'pending' => 'bg-yellow-100 text-yellow-800',
-                                                'present' => 'bg-green-100 text-green-800',
-                                                'permit' => 'bg-blue-100 text-blue-800',
-                                                'sick' => 'bg-purple-100 text-purple-800',
-                                                'absent' => 'bg-red-100 text-red-800',
+                                                'pending'    => 'bg-yellow-100 text-yellow-800',
+                                                'present'    => 'bg-green-100 text-green-800',
+                                                'change_day' => 'bg-blue-100 text-blue-800',
+                                                'leave'      => 'bg-purple-100 text-purple-800',
+                                                'absent'     => 'bg-red-100 text-red-800',
                                             ];
-
-                                            $currentStatusClass =
-                                                $statusStyles[$item->status_kehadiran] ?? 'bg-gray-100 text-gray-800';
+                                            $currentStatusClass = $statusStyles[$item->status_kehadiran] ?? 'bg-gray-100 text-gray-800';
+                                            $isToday = $item->tanggal && $item->tanggal->isToday();
+                                            $statusLabel = match($item->status_kehadiran) {
+                                                'pending'    => 'Pending',
+                                                'present'    => 'Present',
+                                                'change_day' => 'Change Day',
+                                                'leave'      => 'Leave',
+                                                'absent'     => 'Absent',
+                                                default      => ucfirst($item->status_kehadiran),
+                                            };
                                         @endphp
 
-                                        <form action="{{ route('admin.absensi.update-status-absensi', $item->id) }}"
-                                            method="POST" class="inline-block" id="form-{{ $item->id }}">
-                                            @csrf
-                                            @method('PUT')
-                                            <select name="status_kehadiran" onchange="updateStatus({{ $item->id }})"
-                                                class="text-xs rounded-full py-1 px-3 border-0 focus:ring-2 focus:ring-blue-500 {{ $currentStatusClass }}">
-                                                <option value="pending"
-                                                    {{ $item->status_kehadiran == 'pending' ? 'selected' : '' }}>
-                                                    Pending</option>
-                                                <option value="present"
-                                                    {{ $item->status_kehadiran == 'present' ? 'selected' : '' }}>Present
-                                                </option>
-                                                <option value="permit"
-                                                    {{ $item->status_kehadiran == 'permit' ? 'selected' : '' }}>Permit
-                                                </option>
-                                                <option value="sick"
-                                                    {{ $item->status_kehadiran == 'sick' ? 'selected' : '' }}>Sick
-                                                </option>
-                                                <option value="absent"
-                                                    {{ $item->status_kehadiran == 'absent' ? 'selected' : '' }}>Absent
-                                                </option>
-                                            </select>
-                                        </form>
+                                        @if ($isToday)
+                                            <div title="Editable tomorrow">
+                                                <span class="inline-flex items-center gap-1 text-xs rounded-full py-1 px-3 cursor-not-allowed opacity-75 {{ $currentStatusClass }}">
+                                                    {{ $statusLabel }}
+                                                    <svg class="w-3 h-3 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                                    </svg>
+                                                </span>
+                                                <p class="text-xs text-gray-400 mt-0.5">Editable tomorrow</p>
+                                            </div>
+                                        @else
+                                            <form action="{{ route('admin.absensi.update-status-absensi', $item->id) }}"
+                                                method="POST" class="inline-block" id="form-{{ $item->id }}">
+                                                @csrf
+                                                @method('PUT')
+                                                <select name="status_kehadiran"
+                                                    data-current="{{ $item->status_kehadiran }}"
+                                                    onchange="updateStatus({{ $item->id }}, this)"
+                                                    class="text-xs rounded-full py-1 px-3 border-0 focus:ring-2 focus:ring-blue-500 {{ $currentStatusClass }}" id="select-{{ $item->id }}">
+                                                    <option value="pending"
+                                                        {{ $item->status_kehadiran == 'pending' ? 'selected' : '' }}>Pending</option>
+                                                    <option value="present"
+                                                        {{ $item->status_kehadiran == 'present' ? 'selected' : '' }}>Present</option>
+                                                    <option value="change_day"
+                                                        {{ $item->status_kehadiran == 'change_day' ? 'selected' : '' }}>Change Day</option>
+                                                    <option value="leave"
+                                                        {{ $item->status_kehadiran == 'leave' ? 'selected' : '' }}>Leave</option>
+                                                    <option value="absent"
+                                                        {{ $item->status_kehadiran == 'absent' ? 'selected' : '' }}>Absent</option>
+                                                </select>
+                                            </form>
+                                        @endif
                                     </td>
 
                                     <td class="py-3">
@@ -289,7 +306,18 @@
 
 @push('scripts')
     <script>
-        function updateStatus(id) {
+        const statusStyles = {
+            pending:    'bg-yellow-100 text-yellow-800',
+            present:    'bg-green-100 text-green-800',
+            change_day: 'bg-blue-100 text-blue-800',
+            leave:      'bg-purple-100 text-purple-800',
+            absent:     'bg-red-100 text-red-800',
+        };
+
+        function updateStatus(id, selectEl) {
+            const previousStatus = selectEl.dataset.current;
+            const newStatus = selectEl.value;
+
             Swal.fire({
                 title: 'Change absence status?',
                 text: 'Changes will be saved immediately.',
@@ -304,9 +332,55 @@
                     cancelButton: 'bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium px-4 py-2 rounded-lg'
                 }
             }).then((result) => {
-                if (result.isConfirmed) {
-                    document.getElementById(`form-${id}`).submit();
+                if (!result.isConfirmed) {
+                    selectEl.value = previousStatus;
+                    return;
                 }
+
+                fetch(`/admin/absensi/${id}/status-absensi`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    body: JSON.stringify({ status_kehadiran: newStatus })
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update the select's data-current to the new value
+                        selectEl.dataset.current = newStatus;
+
+                        // Update the select's color class
+                        const allStatusClasses = Object.values(statusStyles).join(' ').split(' ');
+                        selectEl.classList.remove(...allStatusClasses);
+                        if (statusStyles[newStatus]) {
+                            selectEl.classList.add(...statusStyles[newStatus].split(' '));
+                        }
+
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'success',
+                            title: data.message ?? 'Status updated successfully',
+                            showConfirmButton: false,
+                            timer: 2500,
+                            timerProgressBar: true,
+                        });
+                    } else {
+                        selectEl.value = previousStatus;
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Failed',
+                            text: data.message ?? 'An error occurred.',
+                        });
+                    }
+                })
+                .catch(() => {
+                    selectEl.value = previousStatus;
+                    Swal.fire({ icon: 'error', title: 'Network Error', text: 'Could not reach the server.' });
+                });
             });
         }
 
@@ -368,10 +442,10 @@
                         case 'present':
                             statusClass = 'bg-emerald-100 text-emerald-700';
                             break;
-                        case 'permit':
+                        case 'change_day':
                             statusClass = 'bg-blue-100 text-blue-700';
                             break;
-                        case 'sick':
+                        case 'leave':
                             statusClass = 'bg-purple-100 text-purple-700';
                             break;
                         case 'change day pending':
@@ -589,6 +663,13 @@
             statusFilter.addEventListener('change', applyFilters);
             dateFromInput.addEventListener('change', applyFilters);
             dateToInput.addEventListener('change', applyFilters);
+
+            // Default: show yesterday's records
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yStr = yesterday.toISOString().split('T')[0];
+            dateFromInput.value = yStr;
+            dateToInput.value = yStr;
 
             applyFilters();
         });
