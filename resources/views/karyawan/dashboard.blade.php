@@ -131,12 +131,25 @@
                 <div class="flex flex-col p-5 bg-white shadow rounded-2xl">
                     <div class="flex items-center justify-between mb-3">
                         <p class="text-sm text-gray-500">My Task Record</p>
-                        <span class="inline-flex items-center gap-1 text-xs text-yellow-700 bg-yellow-100 px-2 py-0.5 rounded-full font-medium">
-                            <span class="w-1.5 h-1.5 rounded-full bg-yellow-400 inline-block"></span>
-                            Trello: Not Connected
-                        </span>
+                        @if ($trackerConnected)
+                            <span class="inline-flex items-center gap-1 text-xs text-green-700 bg-green-100 px-2 py-0.5 rounded-full font-medium">
+                                <span class="w-1.5 h-1.5 rounded-full bg-green-400 inline-block"></span>
+                                Trello: Connected
+                            </span>
+                        @else
+                            <span class="inline-flex items-center gap-1 text-xs text-yellow-700 bg-yellow-100 px-2 py-0.5 rounded-full font-medium">
+                                <span class="w-1.5 h-1.5 rounded-full bg-yellow-400 inline-block"></span>
+                                Trello: Not Connected
+                            </span>
+                        @endif
                     </div>
-                    @if ($taskTarget > 0)
+                    @if ($trackerConnected && $trackerTaskTotal > 0)
+                        <div id="donutChart" class="self-center w-full"></div>
+                        <div class="mt-1 text-center">
+                            <p class="text-sm font-semibold text-gray-700">{{ $trackerTaskCompleted }} / {{ $trackerTaskTotal }} tasks completed</p>
+                            <p class="text-xs text-gray-400">all-time (via Trello)</p>
+                        </div>
+                    @elseif (!$trackerConnected && $taskTarget > 0)
                         <div id="donutChart" class="self-center w-full"></div>
                         <div class="mt-1 text-center">
                             <p class="text-sm font-semibold text-gray-700">{{ $taskDone }} / {{ $taskTarget }} tasks completed</p>
@@ -412,11 +425,24 @@
 
 @push('scripts')
     {{-- DONUT CHART --}}
-    @if ($taskTarget > 0)
+    @php
+        $showTrackerChart  = $trackerConnected && $trackerTaskTotal > 0;
+        $showPerformaChart = !$showTrackerChart && $taskTarget > 0;
+        if ($showTrackerChart) {
+            $chartDone      = $trackerTaskCompleted;
+            $chartRemaining = max(0, $trackerTaskTotal - $trackerTaskCompleted);
+            $chartPercent   = round(($trackerTaskCompleted / $trackerTaskTotal) * 100);
+        } else {
+            $chartDone      = $taskDone;
+            $chartRemaining = $taskRemaining;
+            $chartPercent   = $taskPercent;
+        }
+    @endphp
+    @if ($showTrackerChart || $showPerformaChart)
     <script>
         var options = {
             chart: { type: 'donut', height: 220 },
-            series: [{{ $taskDone }}, {{ $taskRemaining }}],
+            series: [{{ $chartDone }}, {{ $chartRemaining }}],
             labels: ['Completed', 'Remaining'],
             colors: ['#06b6d4', '#e5e7eb'],
             legend: { position: 'bottom' },
@@ -430,7 +456,7 @@
                             total: {
                                 show: true,
                                 label: 'Progress',
-                                formatter: function () { return '{{ $taskPercent }}%'; }
+                                formatter: function () { return '{{ $chartPercent }}%'; }
                             }
                         }
                     }

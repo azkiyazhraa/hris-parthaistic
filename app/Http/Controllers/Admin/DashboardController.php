@@ -8,6 +8,7 @@ use App\Models\Karyawan;
 use App\Models\PengajuanCuti;
 use App\Models\Pengumuman;
 use App\Models\Performa;
+use App\Services\TrackerApiService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -137,12 +138,19 @@ class DashboardController extends Controller
         $adminTaskPercent       = $adminTaskTarget > 0 ? round(($adminTaskDone / $adminTaskTarget) * 100) : 0;
         $adminTaskEmployeeCount = (int) ($taskAggregate->employee_count ?? 0);
 
+        // Tracker stats (all employees, all-time)
+        $trackerStats       = (new TrackerApiService())->getAggregatedStats();
+        $trackerConnected   = $trackerStats['connected'];
+        $trackerTaskTotal   = $trackerStats['total_task'];
+        $trackerTaskCompleted = $trackerStats['task_completed'];
+
         return view('admin.dashboard', compact(
             'totalKaryawan', 'fulltime', 'contract', 'internship',
             'fulltimePercent', 'contractPercent', 'internshipPercent',
             'resignedEmployees', 'attachment', 'absensi', 'statistics',
             'adminTaskDone', 'adminTaskTarget', 'adminTaskRemaining',
             'adminTaskPercent', 'adminTaskEmployeeCount',
+            'trackerConnected', 'trackerTaskTotal', 'trackerTaskCompleted',
         ));
     }
 

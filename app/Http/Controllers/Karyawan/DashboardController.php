@@ -8,6 +8,7 @@ use App\Models\Performa;
 use App\Models\PengajuanCuti;
 use App\Models\Pengumuman;
 use App\Models\BreakTime;
+use App\Services\TrackerApiService;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
@@ -124,6 +125,16 @@ class DashboardController extends Controller
             ? ($months[$latestPerforma->bulan] . ' ' . $latestPerforma->tahun)
             : null;
 
+        // Tracker stats (this employee, all-time)
+        $trackerEmail = $karyawan->tracker_email ?: $karyawan->email;
+        $trackerStat  = $trackerEmail
+            ? (new TrackerApiService())->getSingleStatByEmail($trackerEmail)
+            : ['connected' => false, 'total_task' => 0, 'task_completed' => 0];
+
+        $trackerConnected     = $trackerStat['connected'];
+        $trackerTaskTotal     = $trackerStat['total_task'];
+        $trackerTaskCompleted = $trackerStat['task_completed'];
+
         return view('karyawan.dashboard', compact(
             'attachment',
             'absensi',
@@ -155,6 +166,10 @@ class DashboardController extends Controller
             'taskRemaining',
             'taskPercent',
             'taskPeriod',
+
+            'trackerConnected',
+            'trackerTaskTotal',
+            'trackerTaskCompleted',
         ));
     }
 

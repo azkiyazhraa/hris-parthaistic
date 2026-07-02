@@ -100,6 +100,84 @@ class TrackerApiService
         return $this->indexByEmail($data ?? []);
     }
 
+    /**
+     * Aggregate total_task and task_completed across ALL users in Tracker (all-time).
+     * Returns ['connected' => bool, 'total_task' => int, 'task_completed' => int]
+     */
+    public function getAggregatedStats(): array
+    {
+        if (! $this->isConfigured()) {
+            return ['connected' => false, 'total_task' => 0, 'task_completed' => 0];
+        }
+
+        $token = $this->getToken();
+        if (! $token) {
+            return ['connected' => false, 'total_task' => 0, 'task_completed' => 0];
+        }
+
+        $data = $this->requestFromEndpoint($token, '/api/statistics');
+
+        if ($data === null) {
+            $this->forgetToken();
+            $token = $this->getToken();
+            if (! $token) return ['connected' => false, 'total_task' => 0, 'task_completed' => 0];
+            $data = $this->requestFromEndpoint($token, '/api/statistics');
+        }
+
+        if ($data === null) {
+            return ['connected' => false, 'total_task' => 0, 'task_completed' => 0];
+        }
+
+        $totalTask = 0;
+        $taskCompleted = 0;
+        foreach ($data as $stat) {
+            $totalTask     += (int) ($stat['total_todo']   ?? 0)
+                            + (int) ($stat['total_doing']  ?? 0)
+                            + (int) ($stat['total_done']   ?? 0);
+            $taskCompleted += (int) ($stat['total_done']   ?? 0);
+        }
+
+        return ['connected' => true, 'total_task' => $totalTask, 'task_completed' => $taskCompleted];
+    }
+
+    /**
+     * Get all-time statistics for a single user matched by email.
+     * Returns ['connected' => bool, 'total_task' => int, 'task_completed' => int]
+     */
+    public function getSingleStatByEmail(string $email): array
+    {
+        $empty = ['connected' => false, 'total_task' => 0, 'task_completed' => 0];
+
+        if (! $this->isConfigured()) return $empty;
+
+        $token = $this->getToken();
+        if (! $token) return $empty;
+
+        $data = $this->requestFromEndpoint($token, '/api/statistics');
+
+        if ($data === null) {
+            $this->forgetToken();
+            $token = $this->getToken();
+            if (! $token) return $empty;
+            $data = $this->requestFromEndpoint($token, '/api/statistics');
+        }
+
+        foreach ($data ?? [] as $stat) {
+            if (($stat['user']['email'] ?? null) === $email) {
+                $total = (int) ($stat['total_todo']  ?? 0)
+                       + (int) ($stat['total_doing'] ?? 0)
+                       + (int) ($stat['total_done']  ?? 0);
+                return [
+                    'connected'      => true,
+                    'total_task'     => $total,
+                    'task_completed' => (int) ($stat['total_done'] ?? 0),
+                ];
+            }
+        }
+
+        return $empty;
+    }
+
     private function indexByEmail(array $data): array
     {
         $indexed = [];
