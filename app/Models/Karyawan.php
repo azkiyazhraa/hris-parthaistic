@@ -34,6 +34,8 @@ class Karyawan extends Authenticatable
         'status',
         'nik',
         'npwp',
+        'nomor_paspor',
+        'paspor_berlaku_hingga',
         'tempat_lahir',
         'tanggal_lahir',
         'jenis_kelamin',
@@ -59,6 +61,7 @@ class Karyawan extends Authenticatable
         'tanggal_bergabung' => 'date',
         'end_date' => 'date',
         'tanggal_lahir' => 'date',
+        'paspor_berlaku_hingga' => 'date',
         'email_verified_at' => 'datetime',
     ];
 

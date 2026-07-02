@@ -276,6 +276,17 @@
                         <input type="text" name="npwp" value="{{ old('npwp', $item->npwp) }}"
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Passport Number</label>
+                        <input type="text" name="nomor_paspor" value="{{ old('nomor_paspor', $item->nomor_paspor) }}"
+                            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Passport Validity Period</label>
+                        <input type="date" name="paspor_berlaku_hingga"
+                            value="{{ old('paspor_berlaku_hingga', $item->paspor_berlaku_hingga ? $item->paspor_berlaku_hingga->format('Y-m-d') : '') }}"
+                            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Address <span class="text-red-500">*</span></label>
                         <textarea name="alamat" rows="3" required
@@ -393,14 +404,15 @@
                                 <path d="M21 0H3C1.343 0 0 1.343 0 3v18c0 1.656 1.343 3 3 3h18c1.656 0 3-1.344 3-3V3c0-1.657-1.344-3-3-3zM10.44 18.18c0 .795-.645 1.44-1.44 1.44H4.56c-.795 0-1.44-.645-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44H9c.795 0 1.44.645 1.44 1.44v12.36zm10.44-7.08c0 .794-.645 1.44-1.44 1.44H15c-.795 0-1.44-.646-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44h4.44c.795 0 1.44.645 1.44 1.44v5.28z"/>
                             </svg>
                             Tracker / Trello Email
+                            <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                            </svg>
                         </label>
-                        <input type="email" name="tracker_email"
-                            value="{{ old('tracker_email', $item->tracker_email) }}"
-                            placeholder="Email yang digunakan di Dashboard Tracker (jika berbeda)"
-                            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <input type="email" name="tracker_email" disabled
+                            value="{{ $item->tracker_email ?? '-' }}"
+                            class="w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-500 cursor-not-allowed">
                         <p class="text-xs text-gray-400 mt-1">
-                            Isi hanya jika email di Dashboard Activity Tracker berbeda dengan email utama di atas.
-                            Digunakan untuk mencocokkan data task dari Trello saat sync performa.
+                            Locked — Tracker/Trello email can only be filled in when an employee is first created and cannot be changed afterward.
                         </p>
                     </div>
                 </div>

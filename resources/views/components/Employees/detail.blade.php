@@ -105,6 +105,14 @@
                                             <p class="font-medium text-gray-800" id="detail_npwp">-</p>
                                         </div>
                                         <div>
+                                            <p class="text-gray-400 text-xs uppercase tracking-wider">Passport Number</p>
+                                            <p class="font-medium text-gray-800" id="detail_nomor_paspor">-</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-gray-400 text-xs uppercase tracking-wider">Passport Validity Period</p>
+                                            <p class="font-medium text-gray-800" id="detail_paspor_berlaku_hingga">-</p>
+                                        </div>
+                                        <div>
                                             <p class="text-gray-400 text-xs uppercase tracking-wider">Bank Name</p>
                                             <p class="font-medium text-gray-800" id="detail_nama_bank">-</p>
                                         </div>
@@ -449,6 +457,8 @@
             alamat: "{{ addslashes($karyawan->alamat ?? '-') }}",
             nik: "{{ $karyawan->nik ?? '-' }}",
             npwp: "{{ $karyawan->npwp ?? '-' }}",
+            nomor_paspor: "{{ $karyawan->nomor_paspor ?? '-' }}",
+            paspor_berlaku_hingga: "{{ $karyawan->paspor_berlaku_hingga ? $karyawan->paspor_berlaku_hingga->format('d F Y') : '-' }}",
             tempat_lahir: "{{ $karyawan->tempat_lahir ?? '-' }}",
             tanggal_lahir: "{{ $karyawan->tanggal_lahir ? $karyawan->tanggal_lahir->format('d F Y') : '-' }}",
             jenis_kelamin: "{{ $karyawan->jenis_kelamin == 'L' ? 'Male' : ($karyawan->jenis_kelamin == 'P' ? 'Female' : '-') }}",
@@ -523,6 +533,8 @@
         document.getElementById('detail_nomor_telepon').innerText        = data.nomor_telepon;
         document.getElementById('detail_nik').innerText                  = data.nik;
         document.getElementById('detail_npwp').innerText                 = data.npwp;
+        document.getElementById('detail_nomor_paspor').innerText         = data.nomor_paspor;
+        document.getElementById('detail_paspor_berlaku_hingga').innerText = data.paspor_berlaku_hingga;
         document.getElementById('detail_nama_bank').innerText            = data.nama_bank;
         document.getElementById('detail_nomor_rekening').innerText       = data.nomor_rekening;
         document.getElementById('detail_nama_kontak_darurat').innerText  = data.nama_kontak_darurat;

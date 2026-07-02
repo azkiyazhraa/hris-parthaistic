@@ -175,6 +175,8 @@ class DashboardController extends Controller
                 'nomor_telepon' => 'nullable|string|max:30',
                 'alamat' => 'nullable|string',
                 'npwp' => 'nullable|string|max:50',
+                'nomor_paspor' => 'nullable|string|max:50',
+                'paspor_berlaku_hingga' => 'nullable|date',
                 'tempat_lahir' => 'nullable|string|max:100',
                 'tanggal_lahir' => 'nullable|date',
                 'jenis_kelamin' => 'nullable|in:L,P',
@@ -189,6 +191,7 @@ class DashboardController extends Controller
                 'end_date' => 'nullable|date',
                 'reason_resigned' => 'nullable|string|max:255',
                 'foto_profil' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+                'tracker_email' => 'nullable|email|max:255',
             ]);
 
             // Tanggal bergabung (default hari ini jika tidak diisi)
@@ -239,6 +242,8 @@ class DashboardController extends Controller
                 'alamat' => $validated['alamat'] ?? null,
                 'nik' => $validated['nik'] ?? null,
                 'npwp' => $validated['npwp'] ?? null,
+                'nomor_paspor' => $validated['nomor_paspor'] ?? null,
+                'paspor_berlaku_hingga' => $validated['paspor_berlaku_hingga'] ?? null,
                 'tempat_lahir' => $validated['tempat_lahir'] ?? null,
                 'tanggal_lahir' => $validated['tanggal_lahir'] ?? null,
                 'jenis_kelamin' => $jenisKelamin ?: null,
@@ -249,6 +254,7 @@ class DashboardController extends Controller
                 'tahun_lulus' => $validated['tahun_lulus'] ?? null,
                 'nama_kontak_darurat' => $validated['nama_kontak_darurat'] ?? null,
                 'telepon_kontak_darurat' => $validated['telepon_kontak_darurat'] ?? null,
+                'tracker_email' => $validated['tracker_email'] ?? null,
             ]);
 
             return redirect()
@@ -292,6 +298,8 @@ class DashboardController extends Controller
                 'nomor_telepon' => 'nullable|string|max:30',
                 'alamat' => 'nullable|string',
                 'npwp' => 'nullable|string|max:50',
+                'nomor_paspor' => 'nullable|string|max:50',
+                'paspor_berlaku_hingga' => 'nullable|date',
                 'tempat_lahir' => 'nullable|string|max:100',
                 'tanggal_lahir' => 'nullable|date',
                 'jenis_kelamin' => 'nullable|in:L,P',
@@ -306,7 +314,7 @@ class DashboardController extends Controller
                 'end_date' => 'nullable|date',
                 'reason_resigned' => 'nullable|string|max:255',
                 'foto_profil' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-                'tracker_email' => 'nullable|email|max:255',
+                // tracker_email intentionally not accepted here — locked after creation
             ]);
 
             // Tanggal bergabung
@@ -371,6 +379,8 @@ class DashboardController extends Controller
                 'alamat' => $validated['alamat'] ?? $karyawan->alamat,
                 'nik' => $validated['nik'] ?? $karyawan->nik,
                 'npwp' => $validated['npwp'] ?? $karyawan->npwp,
+                'nomor_paspor' => $validated['nomor_paspor'] ?? $karyawan->nomor_paspor,
+                'paspor_berlaku_hingga' => $validated['paspor_berlaku_hingga'] ?? $karyawan->paspor_berlaku_hingga,
                 'tempat_lahir' => $validated['tempat_lahir'] ?? $karyawan->tempat_lahir,
                 'tanggal_lahir' => $validated['tanggal_lahir'] ?? $karyawan->tanggal_lahir,
                 'jenis_kelamin' => $jenisKelamin ?: $karyawan->jenis_kelamin,
@@ -381,7 +391,7 @@ class DashboardController extends Controller
                 'tahun_lulus' => $validated['tahun_lulus'] ?? $karyawan->tahun_lulus,
                 'nama_kontak_darurat' => $validated['nama_kontak_darurat'] ?? $karyawan->nama_kontak_darurat,
                 'telepon_kontak_darurat' => $validated['telepon_kontak_darurat'] ?? $karyawan->telepon_kontak_darurat,
-                'tracker_email' => $validated['tracker_email'] ?? null,
+                // tracker_email deliberately excluded — locked after creation, keeps $karyawan->tracker_email as-is
             ];
 
             // Update password jika diisi
