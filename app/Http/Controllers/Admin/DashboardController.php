@@ -68,7 +68,7 @@ class DashboardController extends Controller
             default => '0',
         };
 
-        $NNN = str_pad(Karyawan::count() + 1, 3, '0', STR_PAD_LEFT);
+        $NNN = str_pad(Karyawan::where('role', 'karyawan')->count() + 1, 3, '0', STR_PAD_LEFT);
 
         return '1' . $XX . $G . $NNN;
     }
@@ -116,7 +116,7 @@ class DashboardController extends Controller
             'leave'      => (int) ($attendanceCounts->leave      ?? 0),
             'absent'     => (int) ($attendanceCounts->absent     ?? 0),
         ];
-
+ 
         // Task aggregate dari latest performa tiap karyawan aktif
         $activeKaryawanIds = Karyawan::whereIn('status', ['Full-time', 'Contract', 'Internship'])
             ->where('role', '!=', 'admin')
@@ -205,18 +205,20 @@ class DashboardController extends Controller
             // Tanggal bergabung (default hari ini jika tidak diisi)
             $tanggalBergabung = Carbon::parse($validated['tanggal_bergabung'] ?? now());
 
-            // Jenis kelamin untuk NIP
             $jenisKelamin = $validated['jenis_kelamin'] ?? '';
 
-            // Generate NIP dengan format baru
-            $newNip = $this->generateNip($tanggalBergabung, $jenisKelamin);
+            // Admin/HR tidak perlu NIP
+            $newNip = null;
+            if ($validated['role'] === 'karyawan') {
+                $newNip = $this->generateNip($tanggalBergabung, $jenisKelamin);
 
-            // Pastikan NIP unik (jika tabrakan, tambah suffix)
-            $baseNip = $newNip;
-            $suffix = 1;
-            while (Karyawan::where('nip', $newNip)->exists()) {
-                $newNip = $baseNip . 'A' . $suffix;
-                $suffix++;
+                // Jika tabrakan, naikkan NNN sampai unik
+                $nipPrefix = substr($newNip, 0, 4); // "1" + XX + G
+                $nnn = Karyawan::where('role', 'karyawan')->count() + 1;
+                while (Karyawan::where('nip', $newNip)->exists()) {
+                    $nnn++;
+                    $newNip = $nipPrefix . str_pad($nnn, 3, '0', STR_PAD_LEFT);
+                }
             }
 
             // Upload foto profil
@@ -267,7 +269,7 @@ class DashboardController extends Controller
 
             return redirect()
                 ->route('admin.karyawan')
-                ->with('success', 'Employee added successfully. NIP generated: ' . $newNip . ' | Bank: BSI');
+                ->with('success', 'Employee added successfully.' . ($newNip ? ' NIP: ' . $newNip . ' |' : '') . ' Bank: BSI');
         } catch (\Throwable $th) {
             return redirect()
                 ->back()
@@ -331,37 +333,36 @@ class DashboardController extends Controller
             // Jenis kelamin
             $jenisKelamin = $validated['jenis_kelamin'] ?? ($karyawan->jenis_kelamin ?? '');
 
-            // Cek apakah NIP perlu diupdate
-            $oldJoinDate = $karyawan->tanggal_bergabung ? $karyawan->tanggal_bergabung->format('Y-m-d') : null;
-            $newJoinDate = $tanggalBergabung->format('Y-m-d');
-            $oldGender = $karyawan->jenis_kelamin ?? '';
+            // Admin/HR tidak punya NIP
+            $newNip = null;
+            if ($validated['role'] === 'karyawan') {
+                $oldJoinDate = $karyawan->tanggal_bergabung ? $karyawan->tanggal_bergabung->format('Y-m-d') : null;
+                $newJoinDate = $tanggalBergabung->format('Y-m-d');
+                $oldGender   = $karyawan->jenis_kelamin ?? '';
+                $nipChanged  = $oldJoinDate !== $newJoinDate || $oldGender !== $jenisKelamin;
 
-            $nipChanged = $oldJoinDate !== $newJoinDate || $oldGender !== $jenisKelamin;
+                $newNip = $karyawan->nip; // default tetap NIP lama
+                if ($nipChanged || $karyawan->nip === null) {
+                    // NNN dipertahankan dari NIP lama; kalau tidak ada, hitung dari jumlah karyawan
+                    $oldNnn = $karyawan->nip ? (int) substr($karyawan->nip, -3)
+                                             : Karyawan::where('role', 'karyawan')->count() + 1;
 
-            $newNip = $karyawan->nip; // default tetap NIP lama
-            if ($nipChanged) {
-                // Ambil NNN (nomor urut) dari NIP lama agar tidak berubah
-                // Format NIP baru: X + YY + G + NNN (7 karakter)
-                $oldNnn = substr($karyawan->nip, -3); // 3 digit terakhir = nomor urut
+                    $XX = str_pad($this->getOperationalYear($tanggalBergabung), 2, '0', STR_PAD_LEFT);
+                    $G  = match (strtoupper($jenisKelamin)) {
+                        'L'     => '1',
+                        'P'     => '2',
+                        default => '0',
+                    };
+                    $generatedNip = '1' . $XX . $G . str_pad($oldNnn, 3, '0', STR_PAD_LEFT);
 
-                $tahunOps = $this->getOperationalYear($tanggalBergabung);
-                $X = (string) $tahunOps;
-                $YY = str_pad($tanggalBergabung->month, 2, '0', STR_PAD_LEFT);
-                $G = match (strtoupper($jenisKelamin)) {
-                    'L' => '1',
-                    'P' => '2',
-                    default => '0',
-                };
-                $generatedNip = $X . $YY . $G . $oldNnn;
-
-                // Pastikan unik (kecuali milik karyawan ini sendiri)
-                $baseNip = $generatedNip;
-                $suffix = 1;
-                while (Karyawan::where('nip', $generatedNip)->where('id', '!=', $id)->exists()) {
-                    $generatedNip = $baseNip . 'A' . $suffix;
-                    $suffix++;
+                    // Jika tabrakan dengan karyawan lain, naikkan NNN
+                    $nnn = $oldNnn;
+                    while (Karyawan::where('nip', $generatedNip)->where('id', '!=', $id)->exists()) {
+                        $nnn++;
+                        $generatedNip = '1' . $XX . $G . str_pad($nnn, 3, '0', STR_PAD_LEFT);
+                    }
+                    $newNip = $generatedNip;
                 }
-                $newNip = $generatedNip;
             }
 
             // Data yang akan diupdate
