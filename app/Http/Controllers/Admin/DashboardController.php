@@ -49,31 +49,27 @@ class DashboardController extends Controller
     }
 
     /**
-     * Generate NIP otomatis dengan format baru:
-     * [X][YY][G][NNN]
+     * Generate NIP otomatis dengan format: [1][XX][G][NNN]
+     * 1   — kode perusahaan Parthaistic
+     * XX  — tahun operasional ke-berapa (2 digit, zero-padded)
+     * G   — jenis kelamin (1=L, 2=P)
+     * NNN — nomor urut karyawan global (3 digit)
+     *
+     * Contoh: 1051033 = Parthaistic, tahun ke-5, laki-laki, karyawan ke-33
      */
     private function generateNip(Carbon $joinDate, string $jenisKelamin): string
     {
-        // X: tahun operasional (1 digit)
-        $tahunOps = $this->getOperationalYear($joinDate);
-        $X = (string) $tahunOps; // bisa >9 jika perusahaan sangat lama, tapi pakai apa adanya
+        $XX = str_pad($this->getOperationalYear($joinDate), 2, '0', STR_PAD_LEFT);
 
-        // YY: bulan join (2 digit)
-        $YY = str_pad($joinDate->month, 2, '0', STR_PAD_LEFT);
-
-        // G: jenis kelamin
         $G = match (strtoupper($jenisKelamin)) {
             'L' => '1',
             'P' => '2',
             default => '0',
         };
 
-        // NNN: nomor urut — ambil dari jumlah karyawan yang sudah ada + 1
-        // Hitung semua karyawan (termasuk admin/hr) untuk nomor urut global
-        $totalKaryawan = Karyawan::count();
-        $NNN = str_pad($totalKaryawan + 1, 3, '0', STR_PAD_LEFT);
+        $NNN = str_pad(Karyawan::count() + 1, 3, '0', STR_PAD_LEFT);
 
-        return $X . $YY . $G . $NNN;
+        return '1' . $XX . $G . $NNN;
     }
 
     public function index()
