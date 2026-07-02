@@ -20,6 +20,24 @@
             </p>
         </div>
 
+        {{-- TRACKER SYNC BUTTON --}}
+        <div class="mb-4 flex items-center justify-between gap-3 p-3 border border-dashed border-gray-300 rounded-xl bg-gray-50">
+            <div class="flex items-center gap-2 text-sm text-gray-500">
+                <svg class="w-4 h-4 text-[#0052CC]" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M21 0H3C1.343 0 0 1.343 0 3v18c0 1.656 1.343 3 3 3h18c1.656 0 3-1.344 3-3V3c0-1.657-1.344-3-3-3zM10.44 18.18c0 .795-.645 1.44-1.44 1.44H4.56c-.795 0-1.44-.645-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44H9c.795 0 1.44.645 1.44 1.44v12.36zm10.44-7.08c0 .794-.645 1.44-1.44 1.44H15c-.795 0-1.44-.646-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44h4.44c.795 0 1.44.645 1.44 1.44v5.28z"/>
+                </svg>
+                <span id="syncStatus">Auto-fill <strong>Task Done</strong> dari Dashboard Tracker (via Trello)</span>
+            </div>
+            <button type="button" id="syncTrackerBtn"
+                onclick="syncFromTracker()"
+                class="flex items-center gap-1.5 px-3 py-1.5 bg-[#0052CC] hover:bg-[#0041a3] text-white text-xs font-medium rounded-lg transition">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+                Sync from Tracker
+            </button>
+        </div>
+
         <form method="POST" action="{{ route('admin.performa.bulk.store') }}" id="bulkForm">
             @csrf
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -67,10 +85,14 @@
                     </thead>
                     <tbody>
                         @foreach ($karyawans as $index => $karyawan)
-                            <tr class="border-b hover:bg-blue-50/40 transition">
+                            <tr class="border-b hover:bg-blue-50/40 transition" data-karyawan-id="{{ $karyawan->id }}">
                                 <td class="py-2 px-2">
-                                    <span class="font-medium">{{ $karyawan->nama_lengkap }}</span>
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="font-medium">{{ $karyawan->nama_lengkap }}</span>
+                                        <span class="tracker-badge hidden text-[10px] bg-[#0052CC] text-white px-1.5 py-0.5 rounded font-medium">Trello</span>
+                                    </div>
                                     <input type="hidden" name="performas[{{ $index }}][karyawan_id]" value="{{ $karyawan->id }}">
+                                    <input type="hidden" name="performas[{{ $index }}][task_source]" value="manual" class="task-source-input">
                                 </td>
                                 <td class="py-2 px-2 text-center">
                                     <input type="number" name="performas[{{ $index }}][quality]" class="quality w-16 border rounded text-center py-1" min="0" max="100" value="0" onchange="calcRow(this)" onkeyup="calcRow(this)">
@@ -114,6 +136,66 @@
 </div>
 
 <script>
+function syncFromTracker() {
+    const btn = document.getElementById('syncTrackerBtn');
+    const status = document.getElementById('syncStatus');
+
+    btn.disabled = true;
+    btn.innerHTML = `<svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg> Syncing...`;
+    status.textContent = 'Menghubungi Dashboard Tracker...';
+
+    const bulan = document.getElementById('bulan').value;
+    const tahun = document.getElementById('tahun').value;
+    if (!bulan || !tahun) {
+        status.innerHTML = `<span class="text-red-500">Pilih bulan dan tahun terlebih dahulu.</span>`;
+        btn.disabled = false;
+        btn.innerHTML = `Sync from Tracker`;
+        return;
+    }
+
+    fetch(`{{ route('admin.performa.sync-tracker') }}?bulan=${bulan}&tahun=${tahun}`, {
+        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(res => res.json())
+    .then(resp => {
+        if (!resp.success) {
+            status.innerHTML = `<span class="text-red-500">${resp.message}</span>`;
+            btn.disabled = false;
+            btn.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg> Retry`;
+            return;
+        }
+
+        const data = resp.data;
+        let filled = 0;
+
+        document.querySelectorAll('tbody tr').forEach(row => {
+            const karyawanId = row.dataset.karyawanId;
+            if (data[karyawanId] !== undefined) {
+                const taskDoneInput = row.querySelector('.task-done');
+                const taskSourceInput = row.querySelector('.task-source-input');
+                const badge = row.querySelector('.tracker-badge');
+
+                taskDoneInput.value = data[karyawanId].task_done;
+                taskSourceInput.value = 'trello';
+                if (badge) badge.classList.remove('hidden');
+                calcRow(taskDoneInput);
+                filled++;
+            }
+        });
+
+        status.innerHTML = `<span class="text-green-600 font-medium">Sync berhasil — ${filled} karyawan ter-update dari ${resp.total} data Tracker.</span>`;
+        btn.disabled = false;
+        btn.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Synced`;
+        btn.classList.replace('bg-[#0052CC]', 'bg-green-600');
+        btn.classList.replace('hover:bg-[#0041a3]', 'hover:bg-green-700');
+    })
+    .catch(() => {
+        status.innerHTML = `<span class="text-red-500">Koneksi ke Tracker gagal. Pastikan server Tracker berjalan.</span>`;
+        btn.disabled = false;
+        btn.innerHTML = `Sync from Tracker`;
+    });
+}
+
 function isRowEmpty(row) {
     const q  = parseInt(row.querySelector('.quality').value)      || 0;
     const p  = parseInt(row.querySelector('.productivity').value) || 0;

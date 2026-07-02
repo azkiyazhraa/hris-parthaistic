@@ -50,7 +50,7 @@
 
     @include('components.sidebar')
 
-    <div class="flex flex-col h-screen p-4 bg-gray-100 sm:ml-64 md:rounded-tl-2xl md:rounded-bl-2xl">
+    <div class="flex flex-col h-screen p-4 bg-gray-100 sidebar-offset md:rounded-tl-2xl md:rounded-bl-2xl">
 
         <div class="flex items-center justify-between hidden md:flex">
             <!-- LEFT (HAMBURGER) -->

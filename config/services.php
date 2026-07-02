@@ -39,4 +39,10 @@ return [
         'token' => env('FONNTE_TOKEN'),
     ],
 
+    'tracker' => [
+        'url'      => env('TRACKER_API_URL', 'http://dashboard-activity-tracker.test'),
+        'email'    => env('TRACKER_API_EMAIL'),
+        'password' => env('TRACKER_API_PASSWORD'),
+    ],
+
 ];

@@ -314,8 +314,13 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Marital Status <span class="text-red-500">*</span></label>
-                        <input type="text" name="status_pernikahan" value="{{ old('status_pernikahan', $item->status_pernikahan) }}" required
+                        <select name="status_pernikahan" required
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            <option value="">Select Marital Status</option>
+                            <option value="Single" {{ old('status_pernikahan', $item->status_pernikahan) === 'Single' ? 'selected' : '' }}>Single</option>
+                            <option value="Married" {{ old('status_pernikahan', $item->status_pernikahan) === 'Married' ? 'selected' : '' }}>Married</option>
+                            <option value="Divorced" {{ old('status_pernikahan', $item->status_pernikahan) === 'Divorced' ? 'selected' : '' }}>Divorced</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -371,6 +376,32 @@
                         <label class="block text-sm font-medium text-gray-700 mb-1">Emergency Contact Phone <span class="text-red-500">*</span></label>
                         <input type="text" name="telepon_kontak_darurat" value="{{ old('telepon_kontak_darurat', $item->telepon_kontak_darurat) }}" required
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+                </div>
+            </div>
+
+            {{-- INTEGRASI --}}
+            <div>
+                <h3 class="text-sm font-semibold text-gray-700 mb-3 border-b pb-2 flex items-center gap-2">
+                    Integrations
+                    <span class="text-xs font-normal text-gray-400">(optional)</span>
+                </h3>
+                <div class="grid grid-cols-1 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1.5">
+                            <svg class="w-4 h-4 text-[#0052CC]" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M21 0H3C1.343 0 0 1.343 0 3v18c0 1.656 1.343 3 3 3h18c1.656 0 3-1.344 3-3V3c0-1.657-1.344-3-3-3zM10.44 18.18c0 .795-.645 1.44-1.44 1.44H4.56c-.795 0-1.44-.645-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44H9c.795 0 1.44.645 1.44 1.44v12.36zm10.44-7.08c0 .794-.645 1.44-1.44 1.44H15c-.795 0-1.44-.646-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44h4.44c.795 0 1.44.645 1.44 1.44v5.28z"/>
+                            </svg>
+                            Tracker / Trello Email
+                        </label>
+                        <input type="email" name="tracker_email"
+                            value="{{ old('tracker_email', $item->tracker_email) }}"
+                            placeholder="Email yang digunakan di Dashboard Tracker (jika berbeda)"
+                            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <p class="text-xs text-gray-400 mt-1">
+                            Isi hanya jika email di Dashboard Activity Tracker berbeda dengan email utama di atas.
+                            Digunakan untuk mencocokkan data task dari Trello saat sync performa.
+                        </p>
                     </div>
                 </div>
             </div>

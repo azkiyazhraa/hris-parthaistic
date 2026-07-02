@@ -225,8 +225,13 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Marital Status <span class="text-red-500">*</span></label>
-                        <input type="text" name="status_pernikahan" value="{{ old('status_pernikahan') }}" required
+                        <select name="status_pernikahan" required
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            <option value="">Select Marital Status</option>
+                            <option value="Single" {{ old('status_pernikahan') === 'Single' ? 'selected' : '' }}>Single</option>
+                            <option value="Married" {{ old('status_pernikahan') === 'Married' ? 'selected' : '' }}>Married</option>
+                            <option value="Divorced" {{ old('status_pernikahan') === 'Divorced' ? 'selected' : '' }}>Divorced</option>
+                        </select>
                     </div>
                 </div>
             </div>

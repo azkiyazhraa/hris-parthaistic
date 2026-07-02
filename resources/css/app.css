@@ -4,6 +4,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@media (min-width: 640px) {
+    .sidebar-offset {
+        margin-left: 16rem;
+    }
+}
+
 body {
     font-family: "Poppins", sans-serif;
 }

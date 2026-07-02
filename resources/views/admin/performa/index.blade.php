@@ -166,7 +166,7 @@
         </div>
 
         {{-- TRELLO INTEGRATION STATUS --}}
-        <div
+        <!-- <div
             class="flex flex-col items-start gap-3 p-4 bg-white border border-blue-200 border-dashed shadow rounded-2xl sm:flex-row sm:items-center sm:gap-4">
             <div class="flex items-center flex-1 min-w-0 gap-3">
                 <div class="w-9 h-9 bg-[#0052CC] rounded-lg flex items-center justify-center flex-shrink-0">
@@ -195,7 +195,7 @@
                 </svg>
                 Configure
             </button>
-        </div>
+        </div> -->
 
         {{-- TABLE --}}
         <div class="w-full p-6 bg-white shadow-lg rounded-2xl" style="border: 2px solid #e0eaff;">

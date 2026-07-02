@@ -211,6 +211,8 @@ Route::middleware(['auth', 'admin'])
                 Route::post('/bulk', [PerformaController::class, 'adminBulkStore'])->name('bulk.store');
                 Route::get('/karyawan/{id}', [PerformaController::class, 'getKaryawanData'])->name('get-karyawan');
                 Route::get('/attendance-rate', [PerformaController::class, 'getAttendanceRate'])->name('attendance-rate');
+                Route::get('/sync-tracker', [PerformaController::class, 'syncFromTracker'])->name('sync-tracker');
+                Route::get('/sync-tracker/{karyawanId}', [PerformaController::class, 'syncFromTrackerSingle'])->name('sync-tracker-single');
                 Route::post('/', [PerformaController::class, 'adminStore'])->name('store');
                 Route::get('/{id}/edit', [PerformaController::class, 'adminEdit'])->name('edit');
                 Route::put('/{id}', [PerformaController::class, 'adminUpdate'])->name('update');

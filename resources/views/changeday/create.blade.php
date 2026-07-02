@@ -72,12 +72,13 @@
                     <!-- REASON -->
                     <div class="mt-5">
                         <label for="reason" class="block text-sm font-medium text-gray-700 mb-2">
-                            Reason
+                            Reason <span class="text-red-500">*</span>
                         </label>
 
-                        <textarea id="reason" name="reason" rows="4"
+                        <textarea id="reason" name="reason" rows="4" required
                             placeholder="Explain the reason for requesting a change day..."
                             class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm shadow-sm resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                        <p id="reasonError" class="mt-1.5 text-xs text-red-500 hidden"></p>
                     </div>
 
                     <!-- FILE -->
@@ -177,11 +178,13 @@
     }];
 
     // ── DOM refs ───────────────────────────────────────────────────────────────
-    const origInput = document.getElementById('originalDate');
-    const reqInput  = document.getElementById('requestedDate');
-    const origError = document.getElementById('originalDateError');
-    const reqError  = document.getElementById('requestedDateError');
-    const reqLabel  = document.getElementById('requestedDateLabel');
+    const origInput   = document.getElementById('originalDate');
+    const reqInput    = document.getElementById('requestedDate');
+    const origError   = document.getElementById('originalDateError');
+    const reqError    = document.getElementById('requestedDateError');
+    const reqLabel    = document.getElementById('requestedDateLabel');
+    const reasonInput = document.getElementById('reason');
+    const reasonError = document.getElementById('reasonError');
 
     function showError(el, msg) { el.textContent = msg; el.classList.remove('hidden'); }
     function clearMsg(el)       { el.textContent = ''; el.classList.add('hidden'); }
@@ -278,6 +281,13 @@
                 showError(reqError, 'Requested date must be within 1 week of the original date.');
                 valid = false;
             }
+        }
+
+        if (!reasonInput.value.trim()) {
+            showError(reasonError, 'Reason is required.');
+            valid = false;
+        } else {
+            clearMsg(reasonError);
         }
 
         if (!valid) e.preventDefault();

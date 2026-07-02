@@ -26,6 +26,7 @@ class Performa extends Model
         'task_done',
         'task_target',
         'task_score',
+        'task_source',
         'quality',
         'productivity',
         'teamwork',

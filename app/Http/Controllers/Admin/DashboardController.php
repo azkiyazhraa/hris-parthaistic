@@ -310,6 +310,7 @@ class DashboardController extends Controller
                 'end_date' => 'nullable|date',
                 'reason_resigned' => 'nullable|string|max:255',
                 'foto_profil' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+                'tracker_email' => 'nullable|email|max:255',
             ]);
 
             // Tanggal bergabung
@@ -384,6 +385,7 @@ class DashboardController extends Controller
                 'tahun_lulus' => $validated['tahun_lulus'] ?? $karyawan->tahun_lulus,
                 'nama_kontak_darurat' => $validated['nama_kontak_darurat'] ?? $karyawan->nama_kontak_darurat,
                 'telepon_kontak_darurat' => $validated['telepon_kontak_darurat'] ?? $karyawan->telepon_kontak_darurat,
+                'tracker_email' => $validated['tracker_email'] ?? null,
             ];
 
             // Update password jika diisi

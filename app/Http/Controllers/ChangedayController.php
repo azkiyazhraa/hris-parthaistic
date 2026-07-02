@@ -84,7 +84,7 @@ class ChangedayController extends Controller
         $request->validate([
             'original_date'  => 'required|date',
             'requested_date' => 'required|date',
-            'reason'         => 'nullable|string|max:500',
+            'reason'         => 'required|string|max:500',
         ]);
 
         // SIMPAN DATA ATTACHMENT JIKA ADA
@@ -133,7 +133,7 @@ class ChangedayController extends Controller
         $request->validate([
             'original_date'  => 'required|date',
             'requested_date' => 'required|date',
-            'reason'         => 'nullable|string|max:500',
+            'reason'         => 'required|string|max:500',
         ]);
 
         $record->update([

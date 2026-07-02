@@ -6,6 +6,7 @@ use App\Models\Karyawan;
 use App\Models\Notifikasi;
 use App\Models\Performa;
 use App\Models\AbsensiKaryawan;
+use App\Services\TrackerApiService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -262,8 +263,9 @@ class PerformaController extends Controller
         $tahun = range(2023, date('Y') + 1);
         $currentMonth = Carbon::now()->month;
         $currentYear = Carbon::now()->year;
+        $trackerConfigured = (new TrackerApiService())->isConfigured();
 
-        return view('admin.performa.create', compact('karyawans', 'bulan', 'tahun', 'currentMonth', 'currentYear'));
+        return view('admin.performa.create', compact('karyawans', 'bulan', 'tahun', 'currentMonth', 'currentYear', 'trackerConfigured'));
     }
 
     public function getKaryawanData($id)
@@ -379,6 +381,7 @@ class PerformaController extends Controller
             'task_done'      => $taskDone,
             'task_target'    => $taskTarget,
             'task_score'     => $taskScore,
+            'task_source'    => 'manual',
             'quality'        => $request->quality,
             'productivity'   => $request->productivity,
             'teamwork'       => $request->teamwork,
@@ -560,7 +563,7 @@ class PerformaController extends Controller
             'task_done' => $performa->task_done,
             'task_target' => $performa->task_target,
             'task_score' => $performa->task_score,
-            'task_source' => $performa->trello_card_id ? 'trello' : 'manual',
+            'task_source' => $performa->task_source ?? 'manual',
             'performance_score' => $performa->performance_score,
             'status_performance' => $this->getStatusPerformance($performa->performance_score),
             'quarter' => $performa->quarter,
@@ -661,6 +664,7 @@ class PerformaController extends Controller
                     'task_done'      => $taskDone,
                     'task_target'    => $taskTarget,
                     'task_score'     => $taskScore,
+                    'task_source'    => $data['task_source'] ?? 'manual',
                     'quality'        => $data['quality'],
                     'productivity'   => $data['productivity'],
                     'teamwork'       => $data['teamwork'],
@@ -682,6 +686,111 @@ class PerformaController extends Controller
 
         return redirect()->route('admin.performa.index')
             ->with('success', $message);
+    }
+
+    public function syncFromTracker(Request $request)
+    {
+        $bulan = (int) $request->query('bulan');
+        $tahun = (int) $request->query('tahun');
+
+        if (! $bulan || ! $tahun) {
+            return response()->json(['success' => false, 'message' => 'Parameter bulan dan tahun wajib diisi.'], 422);
+        }
+
+        $service = new TrackerApiService();
+
+        if (! $service->isConfigured()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tracker API belum dikonfigurasi. Tambahkan TRACKER_API_EMAIL dan TRACKER_API_PASSWORD di .env',
+            ], 503);
+        }
+
+        $statsByEmail = $service->getStatisticsByEmailForPeriod($bulan, $tahun);
+
+        if ($statsByEmail === []) {
+            return response()->json([
+                'success' => false,
+                'message' => "Tidak ada task selesai di periode ini (bulan {$bulan}/{$tahun}) di Dashboard Tracker.",
+            ], 404);
+        }
+
+        $emails = array_keys($statsByEmail);
+        $karyawans = Karyawan::where(function ($q) use ($emails) {
+            $q->whereIn('tracker_email', $emails)
+              ->orWhereIn('email', $emails);
+        })->get();
+
+        $result = [];
+        foreach ($karyawans as $karyawan) {
+            $matchEmail = ($karyawan->tracker_email && isset($statsByEmail[$karyawan->tracker_email]))
+                ? $karyawan->tracker_email
+                : $karyawan->email;
+
+            $stat = $statsByEmail[$matchEmail] ?? null;
+            if (! $stat) continue;
+
+            $result[$karyawan->id] = [
+                'task_done' => (int) ($stat['total_done'] ?? 0),
+                'name'      => $karyawan->nama_lengkap,
+            ];
+        }
+
+        return response()->json([
+            'success' => true,
+            'data'    => $result,
+            'matched' => count($result),
+            'total'   => count($statsByEmail),
+        ]);
+    }
+
+    public function syncFromTrackerSingle(Request $request, $karyawanId)
+    {
+        $bulan = (int) $request->query('bulan');
+        $tahun = (int) $request->query('tahun');
+
+        if (! $bulan || ! $tahun) {
+            return response()->json(['success' => false, 'message' => 'Parameter bulan dan tahun wajib diisi.'], 422);
+        }
+
+        $karyawan = Karyawan::findOrFail($karyawanId);
+
+        $service = new TrackerApiService();
+
+        if (! $service->isConfigured()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tracker API belum dikonfigurasi.',
+            ], 503);
+        }
+
+        $statsByEmail = $service->getStatisticsByEmailForPeriod($bulan, $tahun);
+
+        if ($statsByEmail === []) {
+            return response()->json([
+                'success' => false,
+                'message' => "Tidak ada task selesai di periode bulan {$bulan}/{$tahun} di Tracker.",
+            ], 404);
+        }
+
+        $matchEmail = ($karyawan->tracker_email && isset($statsByEmail[$karyawan->tracker_email]))
+            ? $karyawan->tracker_email
+            : $karyawan->email;
+
+        $stat = $statsByEmail[$matchEmail] ?? null;
+
+        if (! $stat) {
+            return response()->json([
+                'success' => false,
+                'message' => "Data task untuk {$karyawan->nama_lengkap} tidak ditemukan di Tracker. Pastikan Tracker Email sudah diset.",
+            ], 404);
+        }
+
+        return response()->json([
+            'success'   => true,
+            'task_done' => (int) ($stat['total_done'] ?? 0),
+            'name'      => $karyawan->nama_lengkap,
+        ]);
     }
 
     public function checkAndResetKPI()

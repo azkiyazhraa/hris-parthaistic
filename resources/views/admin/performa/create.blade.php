@@ -55,7 +55,7 @@
                         @enderror
                     </div>
                     <div>
-                        <label class="block mb-2 text-sm font-bold text-gray-700">Bulan *</label>
+                        <label class="block mb-2 text-sm font-bold text-gray-700">Month *</label>
                         <select name="bulan" id="bulan" required class="w-full px-3 py-2 border rounded-lg">
                             <option value="">Select Months</option>
                             @foreach ($bulan as $b)
@@ -84,7 +84,7 @@
                         @enderror
                     </div>
                     <div>
-                        <label class="block mb-2 text-sm font-bold text-gray-700">Tahun *</label>
+                        <label class="block mb-2 text-sm font-bold text-gray-700">Year *</label>
                         <select name="tahun" id="tahun" required class="w-full px-3 py-2 border rounded-lg">
                             <option value="">Select Year</option>
                             @foreach ($tahun as $t)
@@ -150,17 +150,25 @@
                                     <path d="M21 0H3C1.343 0 0 1.343 0 3v18c0 1.656 1.343 3 3 3h18c1.656 0 3-1.344 3-3V3c0-1.657-1.344-3-3-3zM10.44 18.18c0 .795-.645 1.44-1.44 1.44H4.56c-.795 0-1.44-.645-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44H9c.795 0 1.44.645 1.44 1.44v12.36zm10.44-7.08c0 .794-.645 1.44-1.44 1.44H15c-.795 0-1.44-.646-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44h4.44c.795 0 1.44.645 1.44 1.44v5.28z"/>
                                 </svg>
                             </div>
-                            <span class="text-xs text-yellow-700 bg-yellow-100 px-2 py-0.5 rounded-full font-medium">Trello — Not Connected</span>
+                            @if($trackerConfigured)
+                                <span class="text-xs text-green-700 bg-green-100 px-2 py-0.5 rounded-full font-medium">Tracker — Connected</span>
+                            @else
+                                <span class="text-xs text-yellow-700 bg-yellow-100 px-2 py-0.5 rounded-full font-medium">Tracker — Not Connected</span>
+                            @endif
                         </div>
                     </div>
                     <div class="bg-gray-50 border border-dashed border-gray-300 rounded-xl p-4">
+                        <input type="hidden" name="task_source" id="task_source" value="manual">
                         <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
                             <div>
-                                <label class="block mb-2 text-sm font-bold text-gray-700">Tasks Completed</label>
+                                <label class="block mb-2 text-sm font-bold text-gray-700">
+                                    Tasks Completed
+                                    <span id="trelloBadge" class="hidden ml-1 text-[10px] bg-[#0052CC] text-white px-1.5 py-0.5 rounded font-medium">Trello</span>
+                                </label>
                                 <input type="number" id="task_done" name="task_done" value="0" min="0"
                                     class="w-full px-3 py-2 border rounded-lg bg-white"
                                     onchange="calculateAll()" onkeyup="calculateAll()">
-                                <p class="text-xs text-gray-400 mt-1">Enter manually, or use Sync button to auto-fill from Trello</p>
+                                <p class="text-xs text-gray-400 mt-1" id="taskDoneHint">Enter manually, or use Sync button to auto-fill from Tracker</p>
                             </div>
                             <div>
                                 <label class="block mb-2 text-sm font-bold text-gray-700">Monthly Target <span class="text-red-500">*</span></label>
@@ -181,15 +189,25 @@
                             </div>
                         </div>
                         <div class="mt-4 flex flex-col sm:flex-row items-start sm:items-center gap-3 pt-3 border-t border-gray-200">
-                            <button type="button" disabled
-                                title="Configure Trello API first to enable auto-sync"
-                                class="flex items-center gap-2 px-3 py-2 bg-white text-gray-400 rounded-lg text-xs font-medium cursor-not-allowed border border-gray-200">
-                                <svg class="w-4 h-4 text-[#0052CC] opacity-40" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M21 0H3C1.343 0 0 1.343 0 3v18c0 1.656 1.343 3 3 3h18c1.656 0 3-1.344 3-3V3c0-1.657-1.344-3-3-3zM10.44 18.18c0 .795-.645 1.44-1.44 1.44H4.56c-.795 0-1.44-.645-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44H9c.795 0 1.44.645 1.44 1.44v12.36zm10.44-7.08c0 .794-.645 1.44-1.44 1.44H15c-.795 0-1.44-.646-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44h4.44c.795 0 1.44.645 1.44 1.44v5.28z"/>
-                                </svg>
-                                Sync from Trello
-                            </button>
-                            <p class="text-xs text-gray-400">Sync fills the field — you can still edit the value manually after syncing.</p>
+                            @if($trackerConfigured)
+                                <button type="button" id="syncSingleBtn" onclick="syncSingleFromTracker()"
+                                    class="flex items-center gap-2 px-3 py-2 bg-[#0052CC] hover:bg-[#0041a3] text-white rounded-lg text-xs font-medium transition border border-transparent">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                    </svg>
+                                    Sync from Tracker
+                                </button>
+                                <span id="syncSingleStatus" class="text-xs text-gray-400">Pilih karyawan terlebih dahulu, lalu klik Sync.</span>
+                            @else
+                                <button type="button" disabled title="Konfigurasi TRACKER_API_EMAIL & TRACKER_API_PASSWORD di .env terlebih dahulu"
+                                    class="flex items-center gap-2 px-3 py-2 bg-white text-gray-400 rounded-lg text-xs font-medium cursor-not-allowed border border-gray-200">
+                                    <svg class="w-4 h-4 text-[#0052CC] opacity-40" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M21 0H3C1.343 0 0 1.343 0 3v18c0 1.656 1.343 3 3 3h18c1.656 0 3-1.344 3-3V3c0-1.657-1.344-3-3-3zM10.44 18.18c0 .795-.645 1.44-1.44 1.44H4.56c-.795 0-1.44-.645-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44H9c.795 0 1.44.645 1.44 1.44v12.36zm10.44-7.08c0 .794-.645 1.44-1.44 1.44H15c-.795 0-1.44-.646-1.44-1.44V5.82c0-.795.645-1.44 1.44-1.44h4.44c.795 0 1.44.645 1.44 1.44v5.28z"/>
+                                    </svg>
+                                    Sync from Tracker
+                                </button>
+                                <p class="text-xs text-gray-400">Tambahkan TRACKER_API_EMAIL & TRACKER_API_PASSWORD di .env untuk mengaktifkan sync.</p>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -345,9 +363,87 @@
             calculateAll();
         }
 
-        document.getElementById('karyawan_id').addEventListener('change', fetchAttendanceRate);
+        document.getElementById('karyawan_id').addEventListener('change', function () {
+            fetchAttendanceRate();
+            // reset sync state saat ganti karyawan
+            resetSyncState();
+        });
         document.getElementById('bulan').addEventListener('change', fetchAttendanceRate);
         document.getElementById('tahun').addEventListener('change', fetchAttendanceRate);
+
+        @if($trackerConfigured)
+        function resetSyncState() {
+            document.getElementById('task_source').value = 'manual';
+            document.getElementById('trelloBadge').classList.add('hidden');
+            document.getElementById('taskDoneHint').textContent = 'Enter manually, or use Sync button to auto-fill from Tracker';
+            const btn = document.getElementById('syncSingleBtn');
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg> Sync from Tracker`;
+                btn.className = 'flex items-center gap-2 px-3 py-2 bg-[#0052CC] hover:bg-[#0041a3] text-white rounded-lg text-xs font-medium transition border border-transparent';
+            }
+            document.getElementById('syncSingleStatus').textContent = 'Pilih karyawan terlebih dahulu, lalu klik Sync.';
+            document.getElementById('syncSingleStatus').className = 'text-xs text-gray-400';
+        }
+
+        async function syncSingleFromTracker() {
+            const karyawanId = document.getElementById('karyawan_id').value;
+            if (!karyawanId) {
+                document.getElementById('syncSingleStatus').textContent = 'Pilih karyawan terlebih dahulu.';
+                document.getElementById('syncSingleStatus').className = 'text-xs text-red-500';
+                return;
+            }
+
+            const btn = document.getElementById('syncSingleBtn');
+            const status = document.getElementById('syncSingleStatus');
+            btn.disabled = true;
+            btn.innerHTML = `<svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg> Syncing...`;
+            status.textContent = 'Menghubungi Dashboard Tracker...';
+            status.className = 'text-xs text-gray-400';
+
+            const bulan = document.getElementById('bulan').value;
+                const tahun = document.getElementById('tahun').value;
+                if (!bulan || !tahun) {
+                    status.textContent = 'Pilih bulan dan tahun terlebih dahulu.';
+                    status.className = 'text-xs text-red-500';
+                    btn.disabled = false;
+                    btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg> Sync from Tracker`;
+                    return;
+                }
+
+            try {
+                const resp = await fetch(`{{ url('admin/performa/sync-tracker') }}/${karyawanId}?bulan=${bulan}&tahun=${tahun}`, {
+                    headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                });
+                const data = await resp.json();
+
+                if (!data.success) {
+                    status.textContent = data.message;
+                    status.className = 'text-xs text-red-500';
+                    btn.disabled = false;
+                    btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg> Retry`;
+                    return;
+                }
+
+                document.getElementById('task_done').value = data.task_done;
+                document.getElementById('task_source').value = 'trello';
+                document.getElementById('trelloBadge').classList.remove('hidden');
+                document.getElementById('taskDoneHint').textContent = `Diisi otomatis dari Tracker. Kamu bisa ubah manual.`;
+                calculateAll();
+
+                status.textContent = `Sync berhasil — ${data.task_done} task selesai dari Tracker.`;
+                status.className = 'text-xs text-green-600 font-medium';
+                btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Synced`;
+                btn.className = 'flex items-center gap-2 px-3 py-2 bg-green-600 text-white rounded-lg text-xs font-medium border border-transparent';
+                btn.disabled = false;
+            } catch (e) {
+                status.textContent = 'Koneksi ke Tracker gagal.';
+                status.className = 'text-xs text-red-500';
+                btn.disabled = false;
+                btn.innerHTML = `Sync from Tracker`;
+            }
+        }
+        @endif
 
         calculateAll();
     </script>

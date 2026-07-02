@@ -16,6 +16,7 @@ class Karyawan extends Authenticatable
     protected $fillable = [
         'nip',
         'email',
+        'tracker_email',
         'kata_sandi',
         'nama_depan',
         'nama_belakang',

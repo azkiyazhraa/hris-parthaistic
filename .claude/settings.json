@@ -4,7 +4,17 @@
       "Bash(Select-String -Path \"c:\\\\laragon\\\\www\\\\hris-parthaistic\\\\routes\\\\web.php\" -Pattern \"changeday\")",
       "Bash(Select-Object LineNumber, Line)",
       "Bash(composer show *)",
-      "PowerShell(head -20)"
+      "PowerShell(head -20)",
+      "Bash(ls \"C:\\\\laragon\\\\www\\\\Dashboard-Activity-Tracker\" 2>/dev/null || echo \"Directory not found\")",
+      "Read(//c/laragon/www/Dashboard-Activity-Tracker/**)",
+      "Bash(ls \"C:\\\\laragon\\\\www\\\\Dashboard-Activity-Tracker\\\\app\" 2>/dev/null)",
+      "Read(//c/laragon/www/Dashboard-Activity-Tracker/app/**)",
+      "Bash(ls \"C:\\\\laragon\\\\www\\\\Dashboard-Activity-Tracker\\\\routes\" 2>/dev/null)",
+      "Read(//c/laragon/www/Dashboard-Activity-Tracker/routes/**)",
+      "Bash(ls \"C:\\\\laragon\\\\www\\\\Dashboard-Activity-Tracker\\\\app\\\\Models\" 2>/dev/null)",
+      "Read(//c/laragon/www/Dashboard-Activity-Tracker/app/Models/**)",
+      "Bash(ls \"C:\\\\laragon\\\\www\\\\Dashboard-Activity-Tracker\\\\app\\\\Services\" 2>/dev/null)",
+      "Read(//c/laragon/www/Dashboard-Activity-Tracker/app/Services/**)"
     ]
   }
 }

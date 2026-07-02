@@ -437,8 +437,8 @@
 I would like to request a password reset for my HRIS account.
 
 My account details:
-📧 Email: ${email || 'Not provided'}
-🔑 Password: ${password || 'Not provided'}
+- Email: ${email || 'Not provided'}
+- Password: ${password || 'Not provided'}
 
 Please help me reset my password. Thank you!`;
 
@@ -449,8 +449,8 @@ Please help me reset my password. Thank you!`;
 I would like to request a new account for the HRIS System.
 
 Here are my details:
-📧 Email: ${email || 'Not provided'}
-🔑 Desired Password: ${password || 'Not provided'}
+- Email: ${email || 'Not provided'}
+- Desired Password: ${password || 'Not provided'}
 
 Please help me to create a new account. Thank you!`;
             }

@@ -59,7 +59,7 @@
         <!-- LOGO -->
         <div class="flex justify-center mb-6">
             <div class="w-20 h-20 rounded-3xl bg-gradient-to-br from-blue-600 to-indigo-800 flex items-center justify-center overflow-hidden p-2 shadow-lg">
-                <img src="{{ asset('assets/image/logo-partharis.png') }}" alt="Parthaistic Logo" class="logo-image">
+                <img src="{{ asset('assets/image/logo-partharis-white.png') }}" alt="Parthaistic Logo" class="logo-image">
             </div>
         </div>
 

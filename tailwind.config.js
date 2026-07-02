@@ -9,6 +9,7 @@ export default {
         './resources/views/**/*.blade.php',
         "./node_modules/flowbite/**/*.js"
     ],
+    safelist: ['sm:ml-64'],
     theme: {
         extend: {
             fontFamily: {
