@@ -287,27 +287,39 @@
                                     <span id="emp-annual-used">0</span>/<span id="emp-annual-quota">12</span>
                                     <span class="text-sm font-normal"> days</span>
                                 </p>
+                                <div class="mt-2 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                                    <div id="emp-annual-bar" class="h-full bg-blue-500 rounded-full transition-all duration-500" style="width:0%"></div>
+                                </div>
                             </div>
-                            <div class="bg-white border-l-4 border-green-500 rounded-lg shadow-md p-4">
-                                <p class="text-gray-500 text-xs">Sick Leave</p>
+                            <div class="bg-white border-l-4 border-pink-500 rounded-lg shadow-md p-4">
+                                <p class="text-gray-500 text-xs" id="emp-melahirkan-label">Maternity Leave</p>
                                 <p class="text-xl font-bold text-gray-800 mt-1">
-                                    <span id="emp-sick-used">0</span>/<span id="emp-sick-quota">12</span>
+                                    <span id="emp-melahirkan-used">0</span>/<span id="emp-melahirkan-quota">90</span>
                                     <span class="text-sm font-normal"> days</span>
                                 </p>
+                                <div class="mt-2 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                                    <div id="emp-melahirkan-bar" class="h-full bg-pink-500 rounded-full transition-all duration-500" style="width:0%"></div>
+                                </div>
                             </div>
                             <div class="bg-white border-l-4 border-yellow-500 rounded-lg shadow-md p-4">
-                                <p class="text-gray-500 text-xs">Emergency Leave</p>
+                                <p class="text-gray-500 text-xs">Marriage Leave</p>
                                 <p class="text-xl font-bold text-gray-800 mt-1">
-                                    <span id="emp-emergency-used">0</span>/<span id="emp-emergency-quota">12</span>
+                                    <span id="emp-menikah-used">0</span>/<span id="emp-menikah-quota">3</span>
                                     <span class="text-sm font-normal"> days</span>
                                 </p>
+                                <div class="mt-2 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                                    <div id="emp-menikah-bar" class="h-full bg-yellow-500 rounded-full transition-all duration-500" style="width:0%"></div>
+                                </div>
                             </div>
                             <div class="bg-white border-l-4 border-purple-500 rounded-lg shadow-md p-4">
-                                <p class="text-gray-500 text-xs">Other Leave</p>
+                                <p class="text-gray-500 text-xs">Bereavement Leave</p>
                                 <p class="text-xl font-bold text-gray-800 mt-1">
-                                    <span id="emp-other-used">0</span>/<span id="emp-other-quota">12</span>
+                                    <span id="emp-duka-used">0</span>/<span id="emp-duka-quota">2</span>
                                     <span class="text-sm font-normal"> days</span>
                                 </p>
+                                <div class="mt-2 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                                    <div id="emp-duka-bar" class="h-full bg-purple-500 rounded-full transition-all duration-500" style="width:0%"></div>
+                                </div>
                             </div>
                         </div>
 
@@ -636,14 +648,21 @@
         }
 
         // Leave quotas
-        document.getElementById('emp-annual-used').textContent    = l.annual_used || 0;
-        document.getElementById('emp-annual-quota').textContent   = l.annual_quota || 12;
-        document.getElementById('emp-sick-used').textContent      = l.sick_used || 0;
-        document.getElementById('emp-sick-quota').textContent     = l.sick_quota || 12;
-        document.getElementById('emp-emergency-used').textContent = l.emergency_used || 0;
-        document.getElementById('emp-emergency-quota').textContent= l.emergency_quota || 12;
-        document.getElementById('emp-other-used').textContent     = l.other_used || 0;
-        document.getElementById('emp-other-quota').textContent    = l.other_quota || 12;
+        function setLeaveCard(prefix, used, quota) {
+            used  = used  || 0;
+            quota = quota || 1;
+            document.getElementById(`emp-${prefix}-used`).textContent  = used;
+            document.getElementById(`emp-${prefix}-quota`).textContent = quota;
+            const pct = quota > 0 ? Math.min(Math.round((used / quota) * 100), 100) : 0;
+            document.getElementById(`emp-${prefix}-bar`).style.width   = pct + '%';
+        }
+        setLeaveCard('annual',    l.annual_used,    l.annual_quota);
+        setLeaveCard('melahirkan', l.melahirkan_used, l.melahirkan_quota);
+        setLeaveCard('menikah',   l.menikah_used,   l.menikah_quota);
+        setLeaveCard('duka',      l.duka_used,      l.duka_quota);
+        if (l.melahirkan_label) {
+            document.getElementById('emp-melahirkan-label').textContent = l.melahirkan_label;
+        }
 
         // Leave request rows
         const lvBody = document.getElementById('emp-leave-tbody');

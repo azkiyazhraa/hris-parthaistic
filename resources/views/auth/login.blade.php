@@ -162,10 +162,10 @@
                 <div class="relative z-10">
 
                     <div
-                        class="w-20 h-20 rounded-3xl bg-white/10 backdrop-blur-md flex items-center justify-center mb-8 border border-white/10 overflow-hidden p-2">
+                        class="w-20 h-20 rounded-3xl bg-white/10 backdrop-blur-md flex items-center justify-center mb-8 border border-white/0 overflow-hidden p-2">
 
                         <!-- LOGO PNG -->
-                        <img src="{{ asset('assets/image/logo-partharis.png') }}" alt="Parthaistic Logo" class="logo-image">
+                        <img src="{{ asset('assets/image/logo-partharis-white.png') }}" alt="Parthaistic Logo" class="logo-image">
                     </div>
 
                     <h1 class="text-5xl font-bold leading-tight mb-4">
@@ -385,7 +385,7 @@
                         </p>
 
                         <div class="mt-6 text-xs text-slate-400">
-                            © 2026 HRIS Management System
+                            © 2026 PARTHARIS. All rights reserved.
                         </div>
 
                     </div>

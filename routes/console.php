@@ -10,3 +10,6 @@ Artisan::command('inspire', function () {
 
 // Create pending attendance records for approved change day requests when the requested date arrives
 Schedule::command('changeday:create-attendance')->dailyAt('00:05');
+
+// Create leave attendance records for approved leaves whose date has arrived today
+Schedule::command('leave:sync-attendance')->dailyAt('00:06');

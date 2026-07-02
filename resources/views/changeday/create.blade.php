@@ -136,9 +136,9 @@
             const notice = document.getElementById('holidayLoadingNotice');
             if (notice) notice.remove();
         }
-        // Redraw both pickers so onDayCreate re-runs with holiday data
-        if (fpOrig) fpOrig.redraw();
-        if (fpReq)  fpReq.redraw();
+        // Refresh both pickers: re-color days and re-evaluate disable rules
+        if (fpOrig) { fpOrig.set('disable', origDisableFn); }
+        if (fpReq)  { fpReq.set('disable', reqDisableFn); }
     }
 
     // ── Date helpers ───────────────────────────────────────────────────────────
@@ -163,6 +163,18 @@
     function isSunday(str)         { return parseLocal(str).getDay() === 0; }
     function isHoliday(str)        { return Object.prototype.hasOwnProperty.call(HOLIDAY_MAP, str); }
     function isRegularWorkday(str) { return !isSunday(str) && !isHoliday(str); }
+
+    // ── Flatpickr disable rules ────────────────────────────────────────────────
+    // Original Date: block Sundays & national holidays
+    const origDisableFn = [function(date) {
+        const str = toYMD(date);
+        return isSunday(str) || isHoliday(str);
+    }];
+    // Requested Date: block regular workdays (only allow Sundays & holidays)
+    const reqDisableFn = [function(date) {
+        const str = toYMD(date);
+        return !isSunday(str) && !isHoliday(str);
+    }];
 
     // ── DOM refs ───────────────────────────────────────────────────────────────
     const origInput = document.getElementById('originalDate');
@@ -190,22 +202,12 @@
     let fpOrig = flatpickr('#originalDate', {
         dateFormat: 'Y-m-d',
         allowInput: false,
+        disable: origDisableFn,
         onDayCreate,
         onChange: function (selectedDates, dateStr) {
             clearMsg(origError);
             resetRequestedDate();
             if (!dateStr) return;
-
-            if (isSunday(dateStr)) {
-                showError(origError, 'Original date cannot be a Sunday — please select a regular work day.');
-                fpOrig.clear();
-                return;
-            }
-            if (isHoliday(dateStr)) {
-                showError(origError, `Original date cannot be a national holiday (${HOLIDAY_MAP[dateStr]}) — please select a regular work day.`);
-                fpOrig.clear();
-                return;
-            }
 
             // Unlock requested date within ±7 days
             fpReq.set('minDate', addDays(dateStr, -7));
@@ -233,24 +235,21 @@
         dateFormat: 'Y-m-d',
         allowInput: false,
         clickOpens: false,
+        disable: reqDisableFn,
         onDayCreate,
         onChange: function (selectedDates, dateStr) {
-            const origVal = origInput.value;
             clearMsg(reqError);
             clearMsg(reqLabel);
             if (!dateStr) return;
 
-            if (!isSunday(dateStr) && !isHoliday(dateStr)) {
-                showError(reqError, 'Requested date must be a Sunday or a national holiday.');
-                fpReq.clear();
-                return;
-            }
-
-            const diffDays = Math.abs((parseLocal(dateStr) - parseLocal(origVal)) / 86400000);
-            if (diffDays > 7) {
-                showError(reqError, 'Requested date must be within 1 week of the original date.');
-                fpReq.clear();
-                return;
+            const origVal = origInput.value;
+            if (origVal) {
+                const diffDays = Math.abs((parseLocal(dateStr) - parseLocal(origVal)) / 86400000);
+                if (diffDays > 7) {
+                    showError(reqError, 'Requested date must be within 1 week of the original date.');
+                    fpReq.clear();
+                    return;
+                }
             }
 
             reqLabel.textContent = isHoliday(dateStr) ? '🗓 ' + HOLIDAY_MAP[dateStr] : '📅 Sunday';
@@ -273,6 +272,12 @@
         } else if (!isSunday(reqInput.value) && !isHoliday(reqInput.value)) {
             showError(reqError, 'Requested date must be a Sunday or national holiday.');
             valid = false;
+        } else if (origInput.value) {
+            const diffDays = Math.abs((parseLocal(reqInput.value) - parseLocal(origInput.value)) / 86400000);
+            if (diffDays > 7) {
+                showError(reqError, 'Requested date must be within 1 week of the original date.');
+                valid = false;
+            }
         }
 
         if (!valid) e.preventDefault();

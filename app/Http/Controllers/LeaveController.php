@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AbsensiKaryawan;
 use App\Models\Karyawan;
 use App\Models\Notifikasi;
 use App\Models\PengajuanCuti;
@@ -301,6 +302,9 @@ class LeaveController extends Controller
 
         $cuti->save();
 
+        // Sync attendance records for the leave period
+        $this->syncLeaveAttendance($cuti, $request->status, $oldStatus);
+
         $statusText = $request->status == 'disetujui' ? 'approved' : 'rejected';
         $message = 'Your leave request for ' . Carbon::parse($cuti->tanggal_mulai)->format('d/m/Y') . ' - ' . Carbon::parse($cuti->tanggal_selesai)->format('d/m/Y') . " has been $statusText";
 
@@ -316,5 +320,52 @@ class LeaveController extends Controller
         ]);
 
         return redirect()->route('admin.leave.index')->with('success', 'Leave status updated successfully');
+    }
+
+    /**
+     * Create or remove AbsensiKaryawan records when leave status changes.
+     * Only creates records for dates <= today (future dates are handled by the daily scheduler).
+     * Removes records when an approved leave is rejected.
+     */
+    private function syncLeaveAttendance(PengajuanCuti $cuti, string $newStatus, string $oldStatus): void
+    {
+        $today = Carbon::today();
+
+        if ($newStatus === 'disetujui') {
+            $current = Carbon::parse($cuti->tanggal_mulai)->startOfDay();
+            $end     = Carbon::parse($cuti->tanggal_selesai)->startOfDay();
+
+            while ($current->lte($end) && $current->lte($today)) {
+                $dateStr = $current->toDateString();
+
+                $exists = AbsensiKaryawan::where('karyawan_id', $cuti->karyawan_id)
+                    ->whereDate('tanggal', $dateStr)
+                    ->where('is_change_day', false)
+                    ->exists();
+
+                if (! $exists) {
+                    AbsensiKaryawan::create([
+                        'karyawan_id'      => $cuti->karyawan_id,
+                        'nama_karyawan'    => $cuti->nama_karyawan,
+                        'tanggal'          => $dateStr,
+                        'is_change_day'    => false,
+                        'status_kehadiran' => AbsensiKaryawan::STATUS_LEAVE,
+                        'keterangan'       => $cuti->jenis_cuti_label . ' (Leave approved)',
+                    ]);
+                }
+
+                $current->addDay();
+            }
+        } elseif ($newStatus === 'ditolak' && $oldStatus === 'disetujui') {
+            // Remove attendance records that were created for this leave
+            AbsensiKaryawan::where('karyawan_id', $cuti->karyawan_id)
+                ->where('status_kehadiran', AbsensiKaryawan::STATUS_LEAVE)
+                ->where('is_change_day', false)
+                ->whereBetween('tanggal', [
+                    $cuti->tanggal_mulai->toDateString(),
+                    $cuti->tanggal_selesai->toDateString(),
+                ])
+                ->delete();
+        }
     }
 }

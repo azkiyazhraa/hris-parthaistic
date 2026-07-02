@@ -165,7 +165,23 @@
                                 </td>
 
                                 <td class="px-2 py-3 whitespace-nowrap">
-                                    {!! $item->status_badge !!}
+                                    <form action="{{ route('admin.leave.update-status', $item->id) }}"
+                                        method="POST" class="inline-block" id="leave-form-{{ $item->id }}">
+                                        @csrf
+                                        @method('PUT')
+                                        <input type="hidden" name="catatan" id="leave-note-{{ $item->id }}">
+                                        <select name="status"
+                                            data-current-status="{{ $item->status }}"
+                                            onchange="updateLeaveStatus({{ $item->id }}, this)"
+                                            class="text-xs rounded-full py-1 px-3 border-0 focus:ring-2 focus:ring-blue-500 cursor-pointer
+                                            @if ($item->status == 'pending') bg-yellow-100 text-yellow-800
+                                            @elseif($item->status == 'disetujui') bg-green-100 text-green-800
+                                            @else bg-red-100 text-red-800 @endif">
+                                            <option value="pending" {{ $item->status == 'pending' ? 'selected' : '' }}>Pending</option>
+                                            <option value="disetujui" {{ $item->status == 'disetujui' ? 'selected' : '' }}>Approved</option>
+                                            <option value="ditolak" {{ $item->status == 'ditolak' ? 'selected' : '' }}>Rejected</option>
+                                        </select>
+                                    </form>
                                 </td>
 
                                 <td class="py-3 pl-2 pr-4 sm:pr-2 whitespace-nowrap">
@@ -177,18 +193,6 @@
                                                     d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                             </svg>
                                         </a>
-                                        @if ($item->status == 'pending')
-                                            <button
-                                                onclick="openStatusModal({{ $item->id }}, '{{ $item->nama_karyawan }}')"
-                                                class="p-1 text-green-500 transition rounded-full hover:text-green-700 hover:bg-green-50"
-                                                title="Approve/Reject">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                </svg>
-                                            </button>
-                                        @endif
                                     </div>
                                 </td>
                             </tr>
@@ -203,46 +207,6 @@
             </div>
             <div id="paginationContainer" class="flex flex-wrap items-center justify-end gap-2 mt-6">
             </div>
-        </div>
-    </div>
-
-    {{-- MODAL APPROVE/REJECT --}}
-    <div id="statusModal" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black/50">
-        <div class="w-full max-w-md p-6 mx-4 bg-white shadow-xl rounded-2xl">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-semibold text-blue-900">Update Leave Status</h3>
-                <button onclick="closeStatusModal()"
-                    class="text-2xl leading-none text-gray-400 hover:text-gray-600">&times;</button>
-            </div>
-            <form id="statusForm" method="POST">
-                @csrf
-                @method('PUT')
-                <input type="hidden" name="id" id="modalCutiId">
-                <div class="mb-4">
-                    <p class="mb-2 text-sm text-gray-600">Employee: <span id="modalNamaKaryawan"
-                            class="font-semibold"></span></p>
-                </div>
-                <div class="mb-4">
-                    <label class="block mb-2 text-sm font-bold text-gray-700">Status</label>
-                    <select name="status"
-                        class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="disetujui">✅ Approve</option>
-                        <option value="ditolak">❌ Reject</option>
-                    </select>
-                </div>
-                <div class="mb-4">
-                    <label class="block mb-2 text-sm font-bold text-gray-700">Notes (Optional)</label>
-                    <textarea name="catatan" rows="3"
-                        class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Tambahkan catatan untuk karyawan..."></textarea>
-                </div>
-                <div class="flex justify-end gap-2">
-                    <button type="button" onclick="closeStatusModal()"
-                        class="px-4 py-2 text-white transition bg-gray-500 rounded-lg hover:bg-gray-600">Cancel</button>
-                    <button type="submit"
-                        class="px-4 py-2 text-white transition bg-blue-600 rounded-lg hover:bg-blue-700">Save</button>
-                </div>
-            </form>
         </div>
     </div>
 
@@ -263,46 +227,62 @@
 @endsection
 
 
-@push('styles')
-    <style>
-        .status-badge {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        #statusModal.show {
-            display: flex;
-        }
-
-        #statusModal {
-            display: none;
-        }
-
-        /* Better table responsiveness */
-        @media (max-width: 640px) {
-            .container {
-                padding-left: 0.5rem;
-                padding-right: 0.5rem;
-            }
-        }
-    </style>
-@endpush
 
 
 @push('scripts')
     <script>
-        function openStatusModal(id, nama) {
-            document.getElementById('modalCutiId').value = id;
-            document.getElementById('modalNamaKaryawan').innerText = nama;
-            document.getElementById('statusForm').action = "{{ url('admin/leave') }}/" + id + "/status";
-            document.getElementById('statusModal').classList.add('show');
-        }
+        async function updateLeaveStatus(id, selectElement) {
+            const selectedStatus = selectElement.value;
+            const currentStatus  = selectElement.dataset.currentStatus;
 
-        function closeStatusModal() {
-            document.getElementById('statusModal').classList.remove('show');
+            const labelMap = { disetujui: 'Approved', ditolak: 'Rejected', pending: 'Pending' };
+
+            // Warning when reverting from approved to rejected
+            if (selectedStatus === 'ditolak' && currentStatus === 'disetujui') {
+                const { isConfirmed } = await Swal.fire({
+                    title: 'Revert approval?',
+                    html: `<p class="text-sm text-gray-600">This request was already <strong>approved</strong>. Rejecting it may affect the employee's leave quota.</p>`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, reject it',
+                    cancelButtonText: 'Keep approved',
+                    reverseButtons: true,
+                    buttonsStyling: false,
+                    customClass: {
+                        popup: 'rounded-2xl',
+                        confirmButton: 'bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg mx-1',
+                        cancelButton: 'bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg mx-1',
+                    },
+                });
+                if (!isConfirmed) { location.reload(); return; }
+            }
+
+            // Notes modal
+            const { value: inputNote, isConfirmed } = await Swal.fire({
+                title: `Change status to ${labelMap[selectedStatus] || selectedStatus}?`,
+                input: 'textarea',
+                inputLabel: selectedStatus === 'ditolak' ? 'Rejection reason' : 'Note (optional)',
+                inputPlaceholder: selectedStatus === 'ditolak' ? 'Enter rejection reason...' : 'Add a note...',
+                inputAttributes: { 'aria-label': 'Note' },
+                showCancelButton: true,
+                confirmButtonText: 'Save',
+                cancelButtonText: 'Cancel',
+                reverseButtons: true,
+                buttonsStyling: false,
+                customClass: {
+                    popup: 'rounded-2xl',
+                    confirmButton: 'bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg mx-1',
+                    cancelButton: 'bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg mx-1',
+                },
+                inputValidator: (value) => {
+                    if (selectedStatus === 'ditolak' && !value) return 'Rejection reason is required';
+                },
+            });
+
+            if (!isConfirmed) { location.reload(); return; }
+
+            document.getElementById(`leave-note-${id}`).value = inputNote || '';
+            document.getElementById(`leave-form-${id}`).submit();
         }
 
         function showDetail(id) {
@@ -417,13 +397,6 @@
         function closeDetailModal() {
             document.getElementById('detailModal').classList.add('hidden');
         }
-
-        // Close modal when clicking outside
-        document.getElementById('statusModal')?.addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeStatusModal();
-            }
-        });
 
         document.addEventListener('DOMContentLoaded', function() {
 

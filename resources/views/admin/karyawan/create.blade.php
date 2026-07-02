@@ -30,8 +30,8 @@
                 <h3 class="text-sm font-semibold text-gray-700 mb-3 border-b pb-2">Main Data</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">NIK</label>
-                        <input type="text" name="nik" value="{{ old('nik') }}"
+                        <label class="block text-sm font-medium text-gray-700 mb-1">NIK <span class="text-red-500">*</span></label>
+                        <input type="text" name="nik" value="{{ old('nik') }}" required
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
 
@@ -87,8 +87,8 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Position</label>
-                        <select name="jabatan" id="jabatanSelect" onchange="toggleJabatanLainnya()"
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Position <span class="text-red-500">*</span></label>
+                        <select name="jabatan" id="jabatanSelect" onchange="toggleJabatanLainnya()" required
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                             <option value="">Select Position</option>
                             <option value="Chief Executive Officer" {{ old('jabatan') == 'Chief Executive Officer' ? 'selected' : '' }}>Chief Executive Officer</option>
@@ -166,8 +166,8 @@
                         <p class="text-xs text-gray-500 mt-1">Default bank: BSI (cannot be changed)</p>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Account Number</label>
-                        <input type="text" name="nomor_rekening" value="{{ old('nomor_rekening') }}"
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Account Number <span class="text-red-500">*</span></label>
+                        <input type="text" name="nomor_rekening" value="{{ old('nomor_rekening') }}" required
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                 </div>
@@ -178,8 +178,8 @@
                 <h3 class="text-sm font-semibold text-gray-700 mb-3 border-b pb-2">Contact</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                        <input type="text" name="nomor_telepon" value="{{ old('nomor_telepon') }}"
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number <span class="text-red-500">*</span></label>
+                        <input type="text" name="nomor_telepon" value="{{ old('nomor_telepon') }}" required
                             placeholder="08xxxxxxxxxx"
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
@@ -189,8 +189,8 @@
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                     <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
-                        <textarea name="alamat" rows="3"
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Address <span class="text-red-500">*</span></label>
+                        <textarea name="alamat" rows="3" required
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">{{ old('alamat') }}</textarea>
                     </div>
                 </div>
@@ -201,31 +201,31 @@
                 <h3 class="text-sm font-semibold text-gray-700 mb-3 border-b pb-2">Personal Data</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Place of Birth</label>
-                        <input type="text" name="tempat_lahir" value="{{ old('tempat_lahir') }}"
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Place of Birth <span class="text-red-500">*</span></label>
+                        <input type="text" name="tempat_lahir" value="{{ old('tempat_lahir') }}" required
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
-                        <input type="date" name="tanggal_lahir" value="{{ old('tanggal_lahir') }}"
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Date of Birth <span class="text-red-500">*</span></label>
+                        <input type="date" name="tanggal_lahir" value="{{ old('tanggal_lahir') }}" required
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
-                        <select name="jenis_kelamin" class="w-full border rounded-lg px-3 py-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Gender <span class="text-red-500">*</span></label>
+                        <select name="jenis_kelamin" required class="w-full border rounded-lg px-3 py-2">
                             <option value="">Select</option>
                             <option value="L" {{ old('jenis_kelamin') == 'L' ? 'selected' : '' }}>Male</option>
                             <option value="P" {{ old('jenis_kelamin') == 'P' ? 'selected' : '' }}>Female</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Religion</label>
-                        <input type="text" name="agama" value="{{ old('agama') }}"
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Religion <span class="text-red-500">*</span></label>
+                        <input type="text" name="agama" value="{{ old('agama') }}" required
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Marital Status</label>
-                        <input type="text" name="status_pernikahan" value="{{ old('status_pernikahan') }}"
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Marital Status <span class="text-red-500">*</span></label>
+                        <input type="text" name="status_pernikahan" value="{{ old('status_pernikahan') }}" required
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                 </div>
@@ -254,18 +254,18 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">University/School</label>
-                        <input type="text" name="universitas" value="{{ old('universitas') }}"
+                        <label class="block text-sm font-medium text-gray-700 mb-1">University/School <span class="text-red-500">*</span></label>
+                        <input type="text" name="universitas" value="{{ old('universitas') }}" required
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Major</label>
-                        <input type="text" name="jurusan" value="{{ old('jurusan') }}"
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Major <span class="text-red-500">*</span></label>
+                        <input type="text" name="jurusan" value="{{ old('jurusan') }}" required
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Graduation Year</label>
-                        <input type="number" name="tahun_lulus" value="{{ old('tahun_lulus') }}"
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Graduation Year <span class="text-red-500">*</span></label>
+                        <input type="number" name="tahun_lulus" value="{{ old('tahun_lulus') }}" required
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                             min="1900" max="2099" step="1">
                     </div>
@@ -277,13 +277,13 @@
                 <h3 class="text-sm font-semibold text-gray-700 mb-3 border-b pb-2">Emergency Contact</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Emergency Contact Name</label>
-                        <input type="text" name="nama_kontak_darurat" value="{{ old('nama_kontak_darurat') }}"
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Emergency Contact Name <span class="text-red-500">*</span></label>
+                        <input type="text" name="nama_kontak_darurat" value="{{ old('nama_kontak_darurat') }}" required
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Emergency Contact Phone</label>
-                        <input type="text" name="telepon_kontak_darurat" value="{{ old('telepon_kontak_darurat') }}"
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Emergency Contact Phone <span class="text-red-500">*</span></label>
+                        <input type="text" name="telepon_kontak_darurat" value="{{ old('telepon_kontak_darurat') }}" required
                             class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                 </div>

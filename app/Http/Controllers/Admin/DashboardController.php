@@ -462,22 +462,26 @@ class DashboardController extends Controller
         );
 
         // Leave usage
+        $approvedStatuses = ['disetujui', 'approved'];
         $annualUsed = PengajuanCuti::where('karyawan_id', $id)
             ->where('jenis_cuti', 'tahunan')
-            ->whereIn('status', ['disetujui', 'approved'])
+            ->whereIn('status', $approvedStatuses)
             ->sum('total_hari');
-        $sickUsed = PengajuanCuti::where('karyawan_id', $id)
-            ->where('jenis_cuti', 'sakit')
-            ->whereIn('status', ['disetujui', 'approved'])
+        $melahirkanUsed = PengajuanCuti::where('karyawan_id', $id)
+            ->where('jenis_cuti', 'melahirkan')
+            ->whereIn('status', $approvedStatuses)
             ->sum('total_hari');
-        $emergencyUsed = PengajuanCuti::where('karyawan_id', $id)
-            ->where('jenis_cuti', 'penting')
-            ->whereIn('status', ['disetujui', 'approved'])
+        $menikahUsed = PengajuanCuti::where('karyawan_id', $id)
+            ->where('jenis_cuti', 'menikah')
+            ->whereIn('status', $approvedStatuses)
             ->sum('total_hari');
-        $otherUsed = PengajuanCuti::where('karyawan_id', $id)
-            ->where('jenis_cuti', 'lainnya')
-            ->whereIn('status', ['disetujui', 'approved'])
+        $dukaUsed = PengajuanCuti::where('karyawan_id', $id)
+            ->where('jenis_cuti', 'duka')
+            ->whereIn('status', $approvedStatuses)
             ->sum('total_hari');
+
+        $kuotaMelahirkan = $karyawan->jenis_kelamin === 'P' ? 90 : 3;
+        $labelMelahirkan = $karyawan->jenis_kelamin === 'P' ? 'Maternity Leave' : 'Paternity Leave';
 
         $leaveRequests = PengajuanCuti::where('karyawan_id', $id)->orderBy('created_at', 'desc')->limit(5)->get()->map(
             fn($l) => [
@@ -528,15 +532,16 @@ class DashboardController extends Controller
                 'recent' => $recentAttendances,
             ],
             'leave' => [
-                'annual_used' => (int) $annualUsed,
-                'annual_quota' => 12,
-                'sick_used' => (int) $sickUsed,
-                'sick_quota' => 12,
-                'emergency_used' => (int) $emergencyUsed,
-                'emergency_quota' => 12,
-                'other_used' => (int) $otherUsed,
-                'other_quota' => 12,
-                'requests' => $leaveRequests,
+                'annual_used'     => (int) $annualUsed,
+                'annual_quota'    => 12,
+                'melahirkan_used'  => (int) $melahirkanUsed,
+                'melahirkan_quota' => $kuotaMelahirkan,
+                'melahirkan_label' => $labelMelahirkan,
+                'menikah_used'    => (int) $menikahUsed,
+                'menikah_quota'   => 3,
+                'duka_used'       => (int) $dukaUsed,
+                'duka_quota'      => 2,
+                'requests'        => $leaveRequests,
             ],
             'performance' => [
                 'latest_score' => $latestPerf?->performance_score ?? 0,

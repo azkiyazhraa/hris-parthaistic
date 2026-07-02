@@ -296,7 +296,7 @@
         <footer
             class="pb-3 mt-2 text-xs text-center text-gray-500 md:mt-4 md:flex md:items-center md:justify-between md:pb-0 md:text-left">
 
-            <p>&copy; 2026 HRIS - PARTHARIS. All rights reserved.</p>
+            <p>&copy; 2026 PARTHARIS. All rights reserved.</p>
 
             <p class="hidden md:block">
                 Version 1.0.0

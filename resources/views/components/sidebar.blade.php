@@ -156,7 +156,8 @@
     -translate-x-full md:translate-x-0"
     aria-label="Sidebar">
     <div class="h-full px-4 py-6 overflow-y-auto bg-blue-800 text-white">
-        <a href="/dashboard" class="flex items-center ps-2.5 mb-5">
+        <a href="/dashboard" class="flex items-center gap-2 ps-2.5 mb-5">
+            <img src="{{ asset('assets/image/logo-partharis-white.png') }}" alt="Partharis Logo" class="h-8 w-auto">
             <span class="self-center text-lg text-white font-bold whitespace-nowrap">PARTHARIS</span>
         </a>
         <ul class="space-y-2 font-medium">
