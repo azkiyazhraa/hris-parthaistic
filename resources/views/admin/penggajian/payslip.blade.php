@@ -378,55 +378,50 @@
         </div>
 
         @if ($penggajian->catatan)
-            <div style="border: 1px solid #1e40af; border-radius: 6px; padding: 12px 16px;">
-                <h3>Notes</h3>
-                <p>{{ $penggajian->catatan }}</p>
+            <div style="border: 1px solid #1e40af; border-radius: 6px; padding: 8px 16px; max-height: 40px; overflow: hidden;">
+                <h3 style="margin:0 0 2px 0;">Notes</h3>
+                <p style="margin:0;">{{ \Illuminate\Support\Str::limit($penggajian->catatan, 130) }}</p>
             </div>
         @endif
 
-        {{-- SIGNATURE & STAMP --}}
-        <table width="100%" style="border-collapse: collapse; border:none; margin-top:20px;">
-            <tr>
-                <td width="60%" style="border:none;">
-                </td>
+    </div>
 
-                <td width="40%" style="border:none; text-align:center;">
-                    <h3 style="margin-bottom:10px;">Authorized Signature</h3>
+    {{-- SIGNATURE & STAMP — fixed near the bottom so it always sits clear of the
+         footer artwork's baked-in contact block, regardless of how tall the
+         content above it (e.g. Notes) is. Keeps the payslip on a single page. --}}
+    <div style="position: fixed; bottom: 200px; right: 25px; width: 200px; text-align: center; z-index: 20;">
+        <h3 style="margin-bottom:2px;">Depok, {{ \Carbon\Carbon::now()->locale('en')->isoFormat('D MMMM YYYY') }}</h3>
 
-                    <div style="position: relative; width:180px; height:120px; margin:0 auto;">
+        <div style="position: relative; width:140px; height:85px; margin:0 auto;">
 
-                        {{-- Stamp --}}
-                        <img src="data:image/{{ $logoType }};base64,{{ $stampPath }}" alt="Stamp"
-                            style="
-                        position:absolute;
-                        left:20px;
-                        top:10px;
-                        width:100px;
-                        height:100px;
-                        opacity:0.8;
-                    ">
+            {{-- Stamp --}}
+            <img src="data:image/{{ $logoType }};base64,{{ $stampPath }}" alt="Stamp"
+                style="
+            position:absolute;
+            left:12px;
+            top:5px;
+            width:75px;
+            height:75px;
+            opacity:0.8;
+        ">
 
-                        {{-- Signature --}}
-                        <img src="data:image/{{ $logoType }};base64,{{ $signaturePath }}" alt="Signature"
-                            style="
-                        position:absolute;
-                        left:50px;
-                        top:25px;
-                        width:120px;
-                        height:auto;
-                        z-index:10;
-                    ">
-                    </div>
+            {{-- Signature --}}
+            <img src="data:image/{{ $logoType }};base64,{{ $signaturePath }}" alt="Signature"
+                style="
+            position:absolute;
+            left:35px;
+            top:15px;
+            width:90px;
+            height:auto;
+            z-index:10;
+        ">
+        </div>
 
-                    <div style="margin-top:15px;">
-                        <strong>Nina Sakinah</strong>
-                        <br>
-                        <span style="font-size:12px;">Chief Operating Officer</span>
-                    </div>
-                </td>
-            </tr>
-        </table>
-
+        <div style="margin-top:4px;">
+            <strong>Nina Sakinah</strong>
+            <br>
+            <span style="font-size:12px;">Chief Operating Officer</span>
+        </div>
     </div>
 </body>
 
