@@ -116,6 +116,7 @@ Route::middleware('auth')->group(function () {
         ->name('notifikasi.')
         ->group(function () {
             Route::get('/', [NotifikasiController::class, 'index'])->name('index');
+            Route::get('/page', [NotifikasiController::class, 'page'])->name('page');
             Route::post('/{id}/read', [NotifikasiController::class, 'markAsRead'])->name('mark-read');
             Route::post('/read-all', [NotifikasiController::class, 'markAllAsRead'])->name('mark-all-read');
             Route::get('/unread-count', [NotifikasiController::class, 'getUnreadCount'])->name('unread-count');

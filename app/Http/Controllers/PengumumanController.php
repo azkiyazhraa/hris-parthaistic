@@ -35,8 +35,10 @@ class PengumumanController extends Controller
             'kategori' => 'nullable|max:50',
             'target_role' => 'nullable|in:all,admin,hr,karyawan',
             'tanggal_terbit' => 'nullable|date',
-            'tanggal_berlaku_hingga' => 'nullable|date|after_or_equal:tanggal_terbit',
+            'tanggal_berlaku_hingga' => ['nullable', 'date', 'after_or_equal:tanggal_terbit', 'after_or_equal:today'],
             'lampiran' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
+        ], [
+            'tanggal_berlaku_hingga.after_or_equal' => 'Valid Until date cannot be in the past, otherwise the announcement will be hidden from employees immediately.',
         ]);
 
         $data = $request->except(['lampiran']);
@@ -56,8 +58,10 @@ class PengumumanController extends Controller
 
         $pengumuman = Pengumuman::create($data);
 
-        // Create notifications for targeted users
-        $this->sendNotifications($pengumuman);
+        // Only notify targeted users once the announcement is actually published
+        if ($pengumuman->status) {
+            $this->sendNotifications($pengumuman);
+        }
 
         return redirect()->route('admin.pengumuman.index')->with('success', 'Announcement created and notifications sent successfully');
     }
@@ -80,6 +84,7 @@ class PengumumanController extends Controller
     public function update(Request $request, $id)
     {
         $pengumuman = Pengumuman::findOrFail($id);
+        $wasPublished = $pengumuman->status;
 
         $request->validate([
             'judul' => 'required|max:200',
@@ -87,7 +92,21 @@ class PengumumanController extends Controller
             'kategori' => 'nullable|max:50',
             'target_role' => 'nullable|in:all,admin,hr,karyawan',
             'tanggal_terbit' => 'nullable|date',
-            'tanggal_berlaku_hingga' => 'nullable|date|after_or_equal:tanggal_terbit',
+            'tanggal_berlaku_hingga' => [
+                'nullable',
+                'date',
+                'after_or_equal:tanggal_terbit',
+                function ($attribute, $value, $fail) use ($pengumuman) {
+                    if (!$value) {
+                        return;
+                    }
+                    $oldValue = optional($pengumuman->tanggal_berlaku_hingga)->format('Y-m-d');
+                    // Only block newly-set past dates; leave already-archived announcements editable
+                    if ($value !== $oldValue && Carbon::parse($value)->lt(Carbon::today())) {
+                        $fail('Valid Until date cannot be in the past, otherwise the announcement will be hidden from employees immediately.');
+                    }
+                },
+            ],
             'lampiran' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
         ]);
 
@@ -110,7 +129,10 @@ class PengumumanController extends Controller
 
         $pengumuman->update($data);
 
-        $this->sendNotifications($pengumuman);
+        // Only notify on the draft -> published transition, not on every subsequent edit
+        if (!$wasPublished && $pengumuman->status) {
+            $this->sendNotifications($pengumuman);
+        }
 
         return redirect()->route('admin.pengumuman.index')
             ->with('success', 'Announcement updated successfully');
@@ -151,12 +173,10 @@ class PengumumanController extends Controller
         }
     }
 
-    // For Employees to view announcements
-    public function employeeIndex()
+    // Announcements currently visible to the given user (published, targeted, within date range)
+    private function visibleToUser($user)
     {
-        $user = Auth::user();
-
-        $pengumuman = Pengumuman::where('status', true)
+        return Pengumuman::where('status', true)
             ->where(function ($query) use ($user) {
                 $query->where('target_role', 'all')
                     ->orWhere('target_role', $user->role)
@@ -169,7 +189,13 @@ class PengumumanController extends Controller
             ->where(function ($query) {
                 $query->whereNull('tanggal_terbit')
                     ->orWhere('tanggal_terbit', '<=', Carbon::now());
-            })
+            });
+    }
+
+    // For Employees to view announcements
+    public function employeeIndex()
+    {
+        $pengumuman = $this->visibleToUser(Auth::user())
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -178,7 +204,10 @@ class PengumumanController extends Controller
 
     public function employeeShow($id)
     {
-        $pengumuman = Pengumuman::with('pembuat')->findOrFail($id);
+        $pengumuman = $this->visibleToUser(Auth::user())
+            ->with('pembuat')
+            ->findOrFail($id);
+
         return response()->json($pengumuman);
     }
 }

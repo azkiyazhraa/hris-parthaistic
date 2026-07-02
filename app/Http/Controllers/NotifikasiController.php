@@ -27,6 +27,19 @@ class NotifikasiController extends Controller
         ]);
     }
 
+    public function page()
+    {
+        $notifikasi = Notifikasi::where('user_id', Auth::id())
+            ->latest()
+            ->paginate(15);
+
+        $unreadCount = Notifikasi::where('user_id', Auth::id())
+            ->where('status', false)
+            ->count();
+
+        return view('notifikasi.index', compact('notifikasi', 'unreadCount'));
+    }
+
     public function markAsRead($id)
     {
         $notifikasi = Notifikasi::where('user_id', Auth::id())

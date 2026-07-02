@@ -171,6 +171,14 @@
                             <input type="date" name="tanggal_berlaku_hingga"
                                 value="{{ old('tanggal_berlaku_hingga', $item->tanggal_berlaku_hingga ? $item->tanggal_berlaku_hingga->format('Y-m-d') : '') }}"
                                 class="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+
+                            @error('tanggal_berlaku_hingga')
+                                <p class="text-red-500 text-xs mt-2">{{ $message }}</p>
+                            @enderror
+
+                            <p class="text-xs text-gray-500 mt-2">
+                                Leave blank if the announcement should stay valid indefinitely
+                            </p>
                         </div>
 
                     </div>

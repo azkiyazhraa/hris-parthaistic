@@ -1028,7 +1028,8 @@
                         kebijakan: 'bg-amber-100 text-amber-700',
                         pengumuman: 'bg-violet-100 text-violet-700',
                         event: 'bg-emerald-100 text-emerald-700',
-                        penting: 'bg-red-100 text-red-700'
+                        penting: 'bg-red-100 text-red-700',
+                        crew_call: 'bg-cyan-100 text-cyan-700'
                     };
 
                     const badgeClass = categoryClass[data.kategori] || 'bg-gray-100 text-gray-700';
@@ -1045,7 +1046,7 @@
                                 <h4 class="text-2xl font-bold leading-snug text-gray-800">${escapeHtml(data.judul)}</h4>
                                 <div class="flex flex-wrap items-center gap-2 mt-3">
                                     <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${badgeClass}">
-                                        ${ ({ 'umum': 'General', 'kebijakan': 'Policy', 'pengumuman': 'Announcement', 'event': 'Event', 'penting': 'Important' })[data.kategori] || 'Uncategorized' }
+                                        ${ ({ 'umum': 'General', 'kebijakan': 'Policy', 'pengumuman': 'Announcement', 'event': 'Event', 'penting': 'Important', 'crew_call': 'Crew Call' })[data.kategori] || 'Uncategorized' }
                                     </span>
                                     <span class="text-xs text-gray-400">Published ${publishDate}</span>
                                 </div>

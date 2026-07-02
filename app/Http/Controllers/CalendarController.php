@@ -20,15 +20,12 @@ class CalendarController extends Controller
         $year = $request->get('year', Carbon::now()->year);
         $month = $request->get('month', Carbon::now()->month);
         $userId = Auth::id();
-        $userRole = Auth::user()->role;
 
         $events = [];
 
-        // Get Pengumuman events (for admin/HR view)
-        if (in_array($userRole, ['admin', 'hr'])) {
-            $pengumumanEvents = $this->getPengumumanEvents($year, $month);
-            $events = array_merge($events, $pengumumanEvents);
-        }
+        // Get Pengumuman events (filtered per-user by target role below)
+        $pengumumanEvents = $this->getPengumumanEvents($year, $month);
+        $events = array_merge($events, $pengumumanEvents);
 
         // Get Penggajian events (for current user)
         $penggajianEvents = $this->getPenggajianEvents($year, $month, $userId);
@@ -125,19 +122,9 @@ class CalendarController extends Controller
             ->get();
 
         foreach ($pengumuman as $item) {
-            // Check target role
-            $targetRole = [];
-            $targetDept = [];
-
-            if ($item->target_role) {
-                $targetRole = is_array($item->target_role) ? $item->target_role : json_decode($item->target_role, true) ?? [];
-            }
-            if ($item->target_departemen) {
-                $targetDept = is_array($item->target_departemen) ? $item->target_departemen : json_decode($item->target_departemen, true) ?? [];
-            }
-
-            $roleMatch = empty($targetRole) || in_array($user->role, $targetRole);
-            $deptMatch = empty($targetDept) || in_array($user->departemen, $targetDept);
+            // target_role/target_departemen are plain single-value strings, not arrays
+            $roleMatch = empty($item->target_role) || $item->target_role === 'all' || $item->target_role === $user->role;
+            $deptMatch = empty($item->target_departemen) || $item->target_departemen === $user->departemen;
 
             if ($roleMatch && $deptMatch) {
                 $events[] = [

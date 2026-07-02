@@ -41,6 +41,7 @@
                         <option value="pengumuman">Announcement</option>
                         <option value="event">Event</option>
                         <option value="penting">Important</option>
+                        <option value="crew_call">Crew Call</option>
                     </select>
 
                     <!-- Filter Status -->
@@ -87,6 +88,7 @@
                                             'pengumuman' => 'bg-indigo-100 text-indigo-800',
                                             'event'      => 'bg-emerald-100 text-emerald-800',
                                             'penting'    => 'bg-red-100 text-red-800',
+                                            'crew_call'  => 'bg-cyan-100 text-cyan-800',
                                             default      => 'bg-gray-100 text-gray-800',
                                         };
                                         $catLabel = match ($item->kategori) {
@@ -95,6 +97,7 @@
                                             'pengumuman' => 'Announcement',
                                             'event'      => 'Event',
                                             'penting'    => 'Important',
+                                            'crew_call'  => 'Crew Call',
                                             default      => 'Uncategorized',
                                         };
                                     @endphp
@@ -241,6 +244,7 @@
                                     <option value="pengumuman">Announcement</option>
                                     <option value="event">Event</option>
                                     <option value="penting">Important</option>
+                                    <option value="crew_call">Crew Call</option>
                                 </select>
                             </div>
                             <div>
@@ -331,10 +335,11 @@
                         pengumuman: 'bg-indigo-100 text-indigo-700',
                         event: 'bg-emerald-100 text-emerald-700',
                         penting: 'bg-red-100 text-red-700',
+                        crew_call: 'bg-cyan-100 text-cyan-700',
                     };
                     const catLabel = {
                         umum: 'General', kebijakan: 'Policy', pengumuman: 'Announcement',
-                        event: 'Event', penting: 'Important',
+                        event: 'Event', penting: 'Important', crew_call: 'Crew Call',
                     };
                     const badgeClass = catClass[data.kategori] || 'bg-gray-100 text-gray-700';
                     const publishDate = data.tanggal_terbit

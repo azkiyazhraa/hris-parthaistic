@@ -220,7 +220,7 @@
 
                         <!-- FOOTER -->
                         <div class="px-4 py-3 text-center border-t">
-                            <a href="#" class="text-sm font-medium text-blue-600 hover:text-blue-700">
+                            <a href="{{ route('notifikasi.page') }}" class="text-sm font-medium text-blue-600 hover:text-blue-700">
                                 View all notifications
                             </a>
                         </div>
@@ -425,33 +425,6 @@
 
             updateClock();
             setInterval(updateClock, 1000);
-
-            // ==============================
-            // NOTIFICATION COUNT (AUTH ONLY)
-            // ==============================
-            @auth
-
-            function updateNotifCount() {
-                fetch('{{ route('notifikasi.unread-count') }}')
-                    .then(res => res.json())
-                    .then(data => {
-                        const badge = document.getElementById('notif-badge');
-                        if (!badge) return;
-
-                        if (data.count > 0) {
-                            badge.textContent = data.count;
-                            badge.classList.remove('hidden');
-                        } else {
-                            badge.classList.add('hidden');
-                        }
-                    })
-                    .catch(() => console.log('Notif error'));
-            }
-
-            updateNotifCount();
-            setInterval(updateNotifCount, 30000);
-        @endauth
-
         });
     </script>
 
@@ -487,9 +460,17 @@
 
                 notifContainer.innerHTML = '';
 
+                const notifColors = {
+                    pengumuman: 'blue',
+                    penggajian: 'green',
+                    cuti: 'yellow',
+                    performa: 'purple',
+                    absensi: 'red',
+                };
+
                 data.notifikasi.forEach(item => {
 
-                    let color = 'blue';
+                    const color = notifColors[item.tipe_notifikasi] || 'blue';
                     let icon = `
                         <path stroke-linecap="round"
                             stroke-linejoin="round"
@@ -498,16 +479,8 @@
 
                     let createdAt = new Date(item.created_at);
 
-                    if (item.type === 'warning') {
-                        color = 'yellow';
-                    }
-
-                    if (item.type === 'danger') {
-                        color = 'red';
-                    }
-
                     notifContainer.innerHTML += `
-                    <a href="#"
+                    <a href="javascript:void(0)" onclick="markNotifAsRead(${item.id})"
                         class="flex gap-3 px-4 py-3 transition border-b border-gray-100 hover:bg-gray-50">
 
                         <div class="w-10 h-10 rounded-full
@@ -544,6 +517,22 @@
         getNotifikasi();
         setInterval(getNotifikasi, 10000);
 
+        // MARK SINGLE NOTIFICATION AS READ
+        function markNotifAsRead(id) {
+            fetch(`/notifikasi/${id}/read`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        getNotifikasi();
+                    }
+                })
+                .catch(error => console.error('Error marking notification as read:', error));
+        }
 
         // MARK ALL AS READ
         document.getElementById('markAllRead').addEventListener('click', () => {
