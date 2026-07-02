@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\PenggajianExport;
 use App\Models\AbsensiKaryawan;
 use App\Models\Karyawan;
 use App\Models\Notifikasi;
@@ -12,6 +13,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Maatwebsite\Excel\Facades\Excel;
 
 class PenggajianController extends Controller
 {
@@ -114,7 +116,7 @@ class PenggajianController extends Controller
             ->exists();
 
         if ($exists) {
-            $monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+            $monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
             $monthName  = $monthNames[(int)$request->bulan - 1] ?? $request->bulan;
             return redirect()->back()
                 ->with('error', "Payroll for {$karyawan->nama_lengkap} in {$monthName} {$tahunSekarang} already exists.")
@@ -549,61 +551,71 @@ class PenggajianController extends Controller
         return $pdf->download($filename);
     }
 
+    // public function exportReport(Request $request)
+    // {
+    //     $query = Penggajian::with('karyawan');
+
+    //     if ($request->bulan && $request->tahun) {
+    //         $query->where('bulan', $request->bulan)->where('tahun', $request->tahun);
+    //     }
+
+    //     if ($request->status) {
+    //         $query->where('status', $request->status);
+    //     }
+
+    //     $penggajian = $query->get();
+
+    //     $fileName = 'laporan_gaji_' . date('Y-m-d') . '.csv';
+    //     $headers = [
+    //         'Content-Type' => 'text/csv',
+    //         'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+    //     ];
+
+    //     $callback = function () use ($penggajian) {
+    //         $file = fopen('php://output', 'w');
+    //         fputcsv($file, ['ID', 'Nama Karyawan', 'NIP', 'Email', 'Role', 'Bulan', 'Tahun', 'Status', 'Gaji Pokok', 'Transport', 'Meal', 'Internet', 'Position', 'Incentive', 'Total Earnings', 'Tax', 'BPJS Kesehatan', 'BPJS Ketenagakerjaan', 'Late/Absent', 'Loan', 'Total Deductions', 'Net Salary']);
+
+    //         foreach ($penggajian as $item) {
+    //             fputcsv($file, [
+    //                 $item->id,
+    //                 $item->nama_karyawan,
+    //                 $item->karyawan->nip ?? '-',
+    //                 $item->karyawan->email ?? '-',
+    //                 $item->karyawan->role ?? '-',
+    //                 $this->getBulanText($item->bulan),
+    //                 $item->tahun,
+    //                 $item->status,
+    //                 number_format($item->gaji_pokok, 0, ',', '.'),
+    //                 number_format($item->transport_allowance, 0, ',', '.'),
+    //                 number_format($item->meal_allowance, 0, ',', '.'),
+    //                 number_format($item->internet_allowance, 0, ',', '.'),
+    //                 number_format($item->position_allowance, 0, ',', '.'),
+    //                 number_format($item->incentive, 0, ',', '.'),
+    //                 number_format($item->total_earnings, 0, ',', '.'),
+    //                 number_format($item->tax, 0, ',', '.'),
+    //                 number_format($item->bpjs_kesehatan, 0, ',', '.'),
+    //                 number_format($item->bpjs_ketenagakerjaan, 0, ',', '.'),
+    //                 number_format($item->late_absent_deduction, 0, ',', '.'),
+    //                 number_format($item->loan_deduction, 0, ',', '.'),
+    //                 number_format($item->total_deductions, 0, ',', '.'),
+    //                 number_format($item->net_salary, 0, ',', '.'),
+    //             ]);
+    //         }
+
+    //         fclose($file);
+    //     };
+
+    //     return response()->stream($callback, 200, $headers);
+    // }
+
     public function exportReport(Request $request)
     {
-        $query = Penggajian::with('karyawan');
+        $fileName = 'laporan_gaji_' . date('Y-m-d') . '.xlsx';
 
-        if ($request->bulan && $request->tahun) {
-            $query->where('bulan', $request->bulan)->where('tahun', $request->tahun);
-        }
-
-        if ($request->status) {
-            $query->where('status', $request->status);
-        }
-
-        $penggajian = $query->get();
-
-        $fileName = 'laporan_gaji_' . date('Y-m-d') . '.csv';
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
-        ];
-
-        $callback = function () use ($penggajian) {
-            $file = fopen('php://output', 'w');
-            fputcsv($file, ['ID', 'Nama Karyawan', 'NIP', 'Email', 'Role', 'Bulan', 'Tahun', 'Status', 'Gaji Pokok', 'Transport', 'Meal', 'Internet', 'Position', 'Incentive', 'Total Earnings', 'Tax', 'BPJS Kesehatan', 'BPJS Ketenagakerjaan', 'Late/Absent', 'Loan', 'Total Deductions', 'Net Salary']);
-
-            foreach ($penggajian as $item) {
-                fputcsv($file, [
-                    $item->id,
-                    $item->nama_karyawan,
-                    $item->karyawan->nip ?? '-',
-                    $item->karyawan->email ?? '-',
-                    $item->karyawan->role ?? '-',
-                    $this->getBulanText($item->bulan),
-                    $item->tahun,
-                    $item->status,
-                    number_format($item->gaji_pokok, 0, ',', '.'),
-                    number_format($item->transport_allowance, 0, ',', '.'),
-                    number_format($item->meal_allowance, 0, ',', '.'),
-                    number_format($item->internet_allowance, 0, ',', '.'),
-                    number_format($item->position_allowance, 0, ',', '.'),
-                    number_format($item->incentive, 0, ',', '.'),
-                    number_format($item->total_earnings, 0, ',', '.'),
-                    number_format($item->tax, 0, ',', '.'),
-                    number_format($item->bpjs_kesehatan, 0, ',', '.'),
-                    number_format($item->bpjs_ketenagakerjaan, 0, ',', '.'),
-                    number_format($item->late_absent_deduction, 0, ',', '.'),
-                    number_format($item->loan_deduction, 0, ',', '.'),
-                    number_format($item->total_deductions, 0, ',', '.'),
-                    number_format($item->net_salary, 0, ',', '.'),
-                ]);
-            }
-
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        return Excel::download(
+            new PenggajianExport($request->bulan, $request->tahun, $request->status),
+            $fileName
+        );
     }
 
     private function getBulanText($bulan)
