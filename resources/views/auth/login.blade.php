@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>HRIS Management System - Login</title>
+    <title>{{ config('app.name', 'HRIS Management') }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -123,38 +123,38 @@
     </style>
 </head>
 
-<body class="min-h-screen bg-slate-100 overflow-x-hidden">
+<body class="min-h-screen overflow-x-hidden bg-slate-100">
 
     <!-- LOADING OVERLAY (Hidden by default) -->
-    <div id="loadingOverlay" class="loading-overlay hidden">
+    <div id="loadingOverlay" class="hidden loading-overlay">
         <div class="loading-spinner"></div>
     </div>
 
     <!-- BACKGROUND -->
     <div class="fixed inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute -top-32 -left-32 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl animate-pulse">
+        <div class="absolute rounded-full -top-32 -left-32 w-80 h-80 bg-blue-500/20 blur-3xl animate-pulse">
         </div>
 
-        <div class="absolute bottom-0 right-0 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse">
+        <div class="absolute bottom-0 right-0 rounded-full w-96 h-96 bg-purple-500/20 blur-3xl animate-pulse">
         </div>
     </div>
 
     <!-- CONTAINER -->
-    <div class="relative z-10 min-h-screen flex items-center justify-center p-4 md:p-6">
+    <div class="relative z-10 flex items-center justify-center min-h-screen p-4 md:p-6">
 
         <div
             class="w-full max-w-6xl bg-white rounded-[32px] shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-2">
 
             <!-- LEFT SIDE -->
             <div
-                class="hidden lg:flex relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 text-white p-12 flex-col justify-between overflow-hidden">
+                class="relative flex-col justify-between hidden p-12 overflow-hidden text-white lg:flex bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800">
 
                 <!-- DECOR -->
                 <div class="absolute inset-0">
-                    <div class="absolute w-72 h-72 border border-white/10 rounded-full -top-24 -left-24">
+                    <div class="absolute border rounded-full w-72 h-72 border-white/10 -top-24 -left-24">
                     </div>
 
-                    <div class="absolute w-96 h-96 border border-white/5 rounded-full -bottom-44 -right-44">
+                    <div class="absolute border rounded-full w-96 h-96 border-white/5 -bottom-44 -right-44">
                     </div>
                 </div>
 
@@ -162,17 +162,18 @@
                 <div class="relative z-10">
 
                     <div
-                        class="w-20 h-20 rounded-3xl bg-white/10 backdrop-blur-md flex items-center justify-center mb-8 border border-white/0 overflow-hidden p-2">
+                        class="flex items-center justify-center w-20 h-20 p-2 mb-8 overflow-hidden border rounded-3xl bg-white/10 backdrop-blur-md border-white/0">
 
                         <!-- LOGO PNG -->
-                        <img src="{{ asset('assets/image/logo-partharis-white.png') }}" alt="Parthaistic Logo" class="logo-image">
+                        <img src="{{ asset('assets/image/logo-partharis-white.png') }}" alt="Parthaistic Logo"
+                            class="logo-image">
                     </div>
 
-                    <h1 class="text-5xl font-bold leading-tight mb-4">
+                    <h1 class="mb-4 text-5xl font-bold leading-tight">
                         HRIS System
                     </h1>
 
-                    <p class="text-blue-100 text-lg leading-relaxed max-w-md">
+                    <p class="max-w-md text-lg leading-relaxed text-blue-100">
                         Human Resource Information System for employee management,
                         attendance, payroll, and leave requests
                     </p>
@@ -183,10 +184,10 @@
                 <div class="relative z-10 space-y-4">
 
                     <div
-                        class="flex items-center gap-4 bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10">
+                        class="flex items-center gap-4 p-4 border bg-white/10 backdrop-blur-md rounded-2xl border-white/10">
 
-                        <div class="w-11 h-11 rounded-xl bg-green-400/20 flex items-center justify-center">
-                            <i class="fas fa-check text-green-300"></i>
+                        <div class="flex items-center justify-center w-11 h-11 rounded-xl bg-green-400/20">
+                            <i class="text-green-300 fas fa-check"></i>
                         </div>
 
                         <div>
@@ -201,10 +202,10 @@
                     </div>
 
                     <div
-                        class="flex items-center gap-4 bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10">
+                        class="flex items-center gap-4 p-4 border bg-white/10 backdrop-blur-md rounded-2xl border-white/10">
 
-                        <div class="w-11 h-11 rounded-xl bg-green-400/20 flex items-center justify-center">
-                            <i class="fas fa-check text-green-300"></i>
+                        <div class="flex items-center justify-center w-11 h-11 rounded-xl bg-green-400/20">
+                            <i class="text-green-300 fas fa-check"></i>
                         </div>
 
                         <div>
@@ -219,10 +220,10 @@
                     </div>
 
                     <div
-                        class="flex items-center gap-4 bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10">
+                        class="flex items-center gap-4 p-4 border bg-white/10 backdrop-blur-md rounded-2xl border-white/10">
 
-                        <div class="w-11 h-11 rounded-xl bg-green-400/20 flex items-center justify-center">
-                            <i class="fas fa-check text-green-300"></i>
+                        <div class="flex items-center justify-center w-11 h-11 rounded-xl bg-green-400/20">
+                            <i class="text-green-300 fas fa-check"></i>
                         </div>
 
                         <div>
@@ -240,25 +241,26 @@
             </div>
 
             <!-- RIGHT SIDE -->
-            <div class="p-6 sm:p-10 lg:p-14 flex items-center">
+            <div class="flex items-center p-6 sm:p-10 lg:p-14">
 
                 <div class="w-full max-w-md mx-auto">
 
                     <!-- MOBILE LOGO -->
-                    <div class="lg:hidden text-center mb-8">
+                    <div class="mb-8 text-center lg:hidden">
 
                         <div
-                            class="w-20 h-20 mx-auto rounded-3xl bg-blue-600 flex items-center justify-center text-white shadow-lg mb-5 overflow-hidden p-1">
+                            class="flex items-center justify-center w-20 h-20 p-1 mx-auto mb-5 overflow-hidden text-white bg-blue-600 shadow-lg rounded-3xl">
 
                             <!-- LOGO PNG MOBILE -->
-                            <img src="{{ asset('assets/image/logo-partharis.png') }}" alt="Parthaistic Logo" class="logo-image">
+                            <img src="{{ asset('assets/image/logo-partharis.png') }}" alt="Parthaistic Logo"
+                                class="logo-image">
                         </div>
 
                         <h1 class="text-3xl font-bold text-slate-800">
                             HRIS System
                         </h1>
 
-                        <p class="text-slate-500 mt-2">
+                        <p class="mt-2 text-slate-500">
                             Human Resource Information System
                         </p>
                     </div>
@@ -266,7 +268,7 @@
                     <!-- HEADER -->
                     <div class="mb-8">
 
-                        <h2 class="text-3xl font-bold text-slate-800 mb-2">
+                        <h2 class="mb-2 text-3xl font-bold text-slate-800">
                             Welcome Back 👋
                         </h2>
 
@@ -278,7 +280,7 @@
 
                     <!-- ERROR MESSAGES -->
                     @if ($errors->any())
-                        <div class="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl">
+                        <div class="px-4 py-3 mb-6 text-red-700 border border-red-200 bg-red-50 rounded-2xl">
                             @foreach ($errors->all() as $error)
                                 <p class="text-sm">{{ $error }}</p>
                             @endforeach
@@ -292,13 +294,13 @@
                         <!-- EMAIL -->
                         <div>
 
-                            <label class="block text-sm font-medium text-slate-700 mb-2">
+                            <label class="block mb-2 text-sm font-medium text-slate-700">
                                 Email Address
                             </label>
 
                             <div class="relative">
 
-                                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                                <span class="absolute -translate-y-1/2 left-4 top-1/2 text-slate-400">
                                     <i class="fas fa-envelope"></i>
                                 </span>
 
@@ -314,13 +316,13 @@
                         <!-- PASSWORD -->
                         <div>
 
-                            <label class="block text-sm font-medium text-slate-700 mb-2">
+                            <label class="block mb-2 text-sm font-medium text-slate-700">
                                 Password
                             </label>
 
                             <div class="relative">
 
-                                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                                <span class="absolute -translate-y-1/2 left-4 top-1/2 text-slate-400">
                                     <i class="fas fa-lock"></i>
                                 </span>
 
@@ -330,7 +332,7 @@
                                     focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition">
 
                                 <button type="button" onclick="togglePassword()"
-                                    class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                                    class="absolute -translate-y-1/2 right-4 top-1/2 text-slate-400 hover:text-slate-600">
 
                                     <i id="toggleIcon" class="fas fa-eye"></i>
 
@@ -346,7 +348,7 @@
                             <label class="flex items-center gap-2 cursor-pointer">
 
                                 <input type="checkbox" name="remember"
-                                    class="rounded border-slate-300 text-blue-600 focus:ring-blue-500">
+                                    class="text-blue-600 rounded border-slate-300 focus:ring-blue-500">
 
                                 <span class="text-sm text-slate-600">
                                     Remember me
@@ -521,12 +523,12 @@ Please help me to create a new account. Thank you!`;
                             title: '🔒 Account Suspended',
                             html: `
                                 <div class="text-left">
-                                    <p class="text-lg font-semibold text-red-600 mb-3">${data.message}</p>
-                                    <div class="bg-gray-50 rounded-lg p-4 mt-3">
-                                        <p class="text-sm font-medium text-gray-700 mb-2">📋 <strong>Status:</strong> ${data.status}</p>
-                                        <p class="text-sm text-gray-600 mb-2">Your account has been suspended and you <strong>cannot login</strong>.</p>
+                                    <p class="mb-3 text-lg font-semibold text-red-600">${data.message}</p>
+                                    <div class="p-4 mt-3 rounded-lg bg-gray-50">
+                                        <p class="mb-2 text-sm font-medium text-gray-700">📋 <strong>Status:</strong> ${data.status}</p>
+                                        <p class="mb-2 text-sm text-gray-600">Your account has been suspended and you <strong>cannot login</strong>.</p>
                                         <hr class="my-3">
-                                        <p class="text-sm font-medium text-gray-700 mb-2">📞 <strong>Contact HR Department:</strong></p>
+                                        <p class="mb-2 text-sm font-medium text-gray-700">📞 <strong>Contact HR Department:</strong></p>
                                         <p class="text-sm text-gray-600">📧 hr@parthaistic.com</p>
                                         <p class="text-sm text-gray-600">📱 +62 897-2227-030</p>
                                     </div>
@@ -583,7 +585,7 @@ Please help me to create a new account. Thank you!`;
                 loadingOverlay.classList.remove('hidden');
                 submitButton.disabled = true;
                 submitButton.innerHTML =
-                    '<i class="fas fa-spinner fa-spin mr-2"></i> Checking...';
+                    '<i class="mr-2 fas fa-spinner fa-spin"></i> Checking...';
             }
 
             function hideLoading() {

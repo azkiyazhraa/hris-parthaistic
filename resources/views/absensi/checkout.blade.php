@@ -1,23 +1,23 @@
 <div id="absence-modal-checkout-{{ $type }}-{{ optional($absensiToday)->id }}" tabindex="-1" aria-hidden="true"
-    class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+    class="fixed inset-0 z-50 flex items-center justify-center hidden p-4 bg-black/50">
 
     <div class="relative w-full max-w-2xl">
         <!-- MODAL -->
-        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden animate-fadeIn">
+        <div class="overflow-hidden bg-white shadow-2xl rounded-3xl animate-fadeIn">
             <!-- HEADER -->
             <div class="flex items-center justify-between px-6 py-5 border-b border-gray-100">
                 <div>
                     <h3 class="text-xl font-bold text-blue-900">
-                        Close attendance detail 
+                        Close attendance detail
                     </h3>
 
-                    <p class="text-sm text-gray-500 mt-1">
+                    <p class="mt-1 text-sm text-gray-500">
                         Complete close attendence information for today
                     </p>
                 </div>
 
                 <button data-modal-hide="absence-modal-checkout-{{ $type }}-{{ optional($absensiToday)->id }}"
-                    class="w-10 h-10 rounded-xl hover:bg-gray-100 flex items-center justify-center transition">
+                    class="flex items-center justify-center w-10 h-10 transition rounded-xl hover:bg-gray-100">
                     <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M6 18L18 6M6 6l12 12" />
@@ -32,28 +32,28 @@
 
                     <div class="grid grid-cols-2 gap-4">
                         <div class="mb-4">
-                            <label class="block text-gray-700 text-sm font-bold mb-2">Jam Pulang</label>
+                            <label class="block mb-2 text-sm font-bold text-gray-700">Check-out Time</label>
                             <input type="time" name="jam_pulang" id="jam_pulang" required
-                                class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-700 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition"
-                                value="{{ date('H:i') }}">
+                                class="w-full px-4 py-3 text-gray-700 transition bg-white border border-gray-300 shadow-sm rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none"
+                                value="{{ date('H:i') }}" readonly>
                         </div>
 
                         <div class="mb-4">
-                            <label class="block text-gray-700 text-sm font-bold mb-2">Lokasi Pulang</label>
+                            <label class="block mb-2 text-sm font-bold text-gray-700">Check-out Location</label>
                             <input type="text" name="lokasi_pulang" id="lokasi_pulang" required
-                                class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-700 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition"
-                                placeholder="Masukkan lokasi pulang">
+                                class="w-full px-4 py-3 text-gray-700 transition bg-white border border-gray-300 shadow-sm rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none"
+                                placeholder="Enter check-out location">
                         </div>
                     </div>
 
                     <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Notes <span class="text-gray-400 font-normal">(optional)</span></label>
+                        <label class="block mb-2 text-sm font-bold text-gray-700">Explain what you did today</label>
                         <textarea name="keterangan" rows="3"
-                            class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-700 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition resize-none text-sm"
-                            placeholder="Add notes about today's work..."></textarea>
+                            class="w-full px-4 py-3 text-sm text-gray-700 transition bg-white border border-gray-300 shadow-sm resize-none rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none"
+                            placeholder="Add notes about today's work..." required></textarea>
                     </div>
 
-                    <div class="flex items-center justify-end gap-3 mt-8 border-t pt-5">
+                    <div class="flex items-center justify-end gap-3 pt-5 mt-8 border-t">
                         <button type="button"
                             data-modal-hide="absence-modal-checkout-{{ $type }}-{{ optional($absensiToday)->id }}"
                             class="px-5 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium transition">

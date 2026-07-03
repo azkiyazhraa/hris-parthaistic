@@ -260,13 +260,12 @@ class AbsensiController extends Controller
 
             return redirect()->route('absensi.index')
                 ->with('success', 'Attendance submitted successfully');
-
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Absensi store error: '.$e->getMessage());
+            \Log::error('Absensi store error: ' . $e->getMessage());
 
             return redirect()->route('absensi.index')
-                ->with('error', 'An error occurred: '.$e->getMessage());
+                ->with('error', 'An error occurred: ' . $e->getMessage());
         }
     }
 
@@ -403,14 +402,13 @@ class AbsensiController extends Controller
             $remaining = Carbon::now()->diff($minCheckout);
             $hoursLeft = $remaining->h;
             $minsLeft  = $remaining->i;
-            return redirect()->route('absensi.index')
-                ->with('error', "You can only check out after 7 working hours. Time remaining: {$hoursLeft}h {$minsLeft}m.");
+            return redirect()->route('absensi.index')->with('error', "You can only check out after 7 working hours. Time remaining: {$hoursLeft}h {$minsLeft}m.");
         }
 
         $request->validate([
             'jam_pulang'    => 'required',
             'lokasi_pulang' => 'required|string|max:255',
-            'keterangan'    => 'nullable|string|max:500',
+            'keterangan'    => 'required|string|max:500',
         ]);
 
         DB::beginTransaction();
@@ -422,8 +420,8 @@ class AbsensiController extends Controller
                 $jamMasukValue = substr($jamMasukValue, 11, 5);
             }
 
-            $jamMasukDateTime = Carbon::parse($tanggalAbsensi.' '.$jamMasukValue);
-            $jamPulangDateTime = Carbon::parse($tanggalAbsensi.' '.$request->jam_pulang);
+            $jamMasukDateTime = Carbon::parse($tanggalAbsensi . ' ' . $jamMasukValue);
+            $jamPulangDateTime = Carbon::parse($tanggalAbsensi . ' ' . $request->jam_pulang);
 
             if ($jamPulangDateTime < $jamMasukDateTime) {
                 $jamPulangDateTime->addDay();
@@ -436,6 +434,7 @@ class AbsensiController extends Controller
                 'jam_pulang'      => $request->jam_pulang,
                 'lokasi_pulang'   => $request->lokasi_pulang,
                 'total_jam_kerja' => round($totalJam, 2),
+                'keterangan'       => $request->keterangan,
             ];
 
             if ($request->filled('keterangan')) {
@@ -447,12 +446,12 @@ class AbsensiController extends Controller
             DB::commit();
 
             return redirect()->route('absensi.index')
-                ->with('success', 'Check-out recorded. Total working hours: '.number_format($totalJam, 2).'h');
+                ->with('success', 'Check-out recorded. Total working hours: ' . number_format($totalJam, 2) . 'h');
         } catch (\Exception $e) {
             DB::rollBack();
 
             return redirect()->route('absensi.index')
-                ->with('error', 'An error occurred: '.$e->getMessage());
+                ->with('error', 'An error occurred: ' . $e->getMessage());
         }
     }
 
@@ -557,8 +556,8 @@ class AbsensiController extends Controller
             $absensi->update($updateData);
 
             $statusText = $request->change_day_status === 'approved' ? 'approved' : 'rejected';
-            $message = 'Your change day request for '.
-                ($absensi->change_day_tanggal_awal ? $absensi->change_day_tanggal_awal->format('d/m/Y') : '-').
+            $message = 'Your change day request for ' .
+                ($absensi->change_day_tanggal_awal ? $absensi->change_day_tanggal_awal->format('d/m/Y') : '-') .
                 " has been {$statusText}";
 
             Notifikasi::create([
@@ -572,12 +571,11 @@ class AbsensiController extends Controller
 
             return redirect()->route('admin.changeday.index')
                 ->with('success', 'Change day status updated successfully');
-
         } catch (\Exception $e) {
             DB::rollBack();
 
             return redirect()->route('admin.absensi.index')
-                ->with('error', 'An error occurred: '.$e->getMessage());
+                ->with('error', 'An error occurred: ' . $e->getMessage());
         }
     }
 
@@ -608,8 +606,8 @@ class AbsensiController extends Controller
                 $updateData['jam_pulang'] = $absensi->jam_pulang ?: now()->format('H:i');
 
                 if ($updateData['jam_masuk'] && $updateData['jam_pulang']) {
-                    $jamMasukDateTime = Carbon::parse($absensi->tanggal->format('Y-m-d').' '.$updateData['jam_masuk']);
-                    $jamPulangDateTime = Carbon::parse($absensi->tanggal->format('Y-m-d').' '.$updateData['jam_pulang']);
+                    $jamMasukDateTime = Carbon::parse($absensi->tanggal->format('Y-m-d') . ' ' . $updateData['jam_masuk']);
+                    $jamPulangDateTime = Carbon::parse($absensi->tanggal->format('Y-m-d') . ' ' . $updateData['jam_pulang']);
 
                     if ($jamPulangDateTime < $jamMasukDateTime) {
                         $jamPulangDateTime->addDay();
@@ -638,16 +636,15 @@ class AbsensiController extends Controller
 
             return redirect()->route('admin.absensi.index')
                 ->with('success', 'Attendance status updated successfully');
-
         } catch (\Exception $e) {
             DB::rollBack();
 
             if ($request->ajax()) {
-                return response()->json(['success' => false, 'message' => 'An error occurred: '.$e->getMessage()], 500);
+                return response()->json(['success' => false, 'message' => 'An error occurred: ' . $e->getMessage()], 500);
             }
 
             return redirect()->route('admin.absensi.index')
-                ->with('error', 'An error occurred: '.$e->getMessage());
+                ->with('error', 'An error occurred: ' . $e->getMessage());
         }
     }
 

@@ -1,13 +1,13 @@
 @extends('layouts.app')
 @section('content')
-    <div class="container mx-auto py-4 space-y-4">
+    <div class="container py-4 mx-auto space-y-4">
 
-        <div class="bg-gradient-to-r from-blue-200 to-cyan-400 rounded-2xl p-6 shadow-lg flex items-center justify-between">
+        <div class="flex items-center justify-between p-6 shadow-lg bg-gradient-to-r from-blue-200 to-cyan-400 rounded-2xl">
             <div>
-                <h1 class="text-2xl font-bold text-blue-900 mb-1">
+                <h1 class="mb-1 text-2xl font-bold text-blue-900">
                     Attendance Management
                 </h1>
-                <p class="text-gray-700/80 text-sm">
+                <p class="text-sm text-gray-700/80">
                     Manage employee attendance and change day requests.
                 </p>
             </div>
@@ -17,39 +17,39 @@
         </div>
 
         <div class="py-4">
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-6 overflow-hidden">
+            <div class="mb-6 overflow-hidden bg-white border border-gray-100 shadow-sm rounded-2xl">
                 <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5">
 
-                    <div class="p-5 border-b lg:border-b-0 border-r border-gray-100 text-center">
-                        <p class="text-xs text-gray-400 mb-1 uppercase tracking-wide">Total</p>
+                    <div class="p-5 text-center border-b border-r border-gray-100 lg:border-b-0">
+                        <p class="mb-1 text-xs tracking-wide text-gray-400 uppercase">Total</p>
                         <p class="text-2xl font-semibold text-gray-900">
                             {{ $statistics['total'] ?? 0 }}
                         </p>
                     </div>
 
-                    <div class="p-5 border-b lg:border-b-0 border-r border-gray-100 text-center">
-                        <p class="text-xs text-green-600 mb-1 uppercase tracking-wide">Present</p>
+                    <div class="p-5 text-center border-b border-r border-gray-100 lg:border-b-0">
+                        <p class="mb-1 text-xs tracking-wide text-green-600 uppercase">Present</p>
                         <p class="text-2xl font-semibold text-green-600">
                             {{ $statistics['present'] ?? 0 }}
                         </p>
                     </div>
 
-                    <div class="p-5 border-b lg:border-b-0 border-r border-gray-100 text-center">
-                        <p class="text-xs text-yellow-600 mb-1 uppercase tracking-wide">Pending</p>
+                    <div class="p-5 text-center border-b border-r border-gray-100 lg:border-b-0">
+                        <p class="mb-1 text-xs tracking-wide text-yellow-600 uppercase">Pending</p>
                         <p class="text-2xl font-semibold text-yellow-600">
                             {{ $statistics['pending'] ?? 0 }}
                         </p>
                     </div>
 
-                    <div class="p-5 border-b lg:border-b-0 border-r border-gray-100 text-center">
-                        <p class="text-xs text-blue-600 mb-1 uppercase tracking-wide">Change Day</p>
+                    <div class="p-5 text-center border-b border-r border-gray-100 lg:border-b-0">
+                        <p class="mb-1 text-xs tracking-wide text-blue-600 uppercase">Change Day</p>
                         <p class="text-2xl font-semibold text-blue-600">
                             {{ $statistics['change_day'] ?? 0 }}
                         </p>
                     </div>
 
-                    <div class="p-5 border-b lg:border-b-0 border-r border-gray-100 text-center">
-                        <p class="text-xs text-purple-600 mb-1 uppercase tracking-wide">Leave</p>
+                    <div class="p-5 text-center border-b border-r border-gray-100 lg:border-b-0">
+                        <p class="mb-1 text-xs tracking-wide text-purple-600 uppercase">Leave</p>
                         <p class="text-2xl font-semibold text-purple-600">
                             {{ $statistics['leave'] ?? 0 }}
                         </p>
@@ -57,18 +57,18 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-2xl shadow p-4 md:p-6">
-                <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-4">
+            <div class="p-4 bg-white shadow rounded-2xl md:p-6">
+                <div class="flex flex-col gap-4 mb-4 md:flex-row md:items-center md:justify-between">
 
                     <!-- TITLE -->
                     <div>
-                        <span class="font-semibold text-gray-800 text-base">
+                        <span class="text-base font-semibold text-gray-800">
                             Employees Attendance
                         </span>
                     </div>
 
                     <!-- FILTER AREA -->
-                    <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                    <div class="flex flex-col w-full gap-3 sm:flex-row md:w-auto">
 
                         <!-- SEARCH -->
                         <div class="w-full sm:flex-1 md:w-72">
@@ -118,19 +118,19 @@
                 <div class="overflow-x-auto">
                     <table class="w-full min-w-[800px] md:min-w-full text-sm text-left">
                         <thead>
-                            <tr class="text-gray-400 font-medium text-xs uppercase tracking-wide border-b">
-                                <th class="text-left pb-3 whitespace-nowrap">Name</th>
-                                <th class="text-left pb-3 whitespace-nowrap">Role</th>
-                                <th class="text-left pb-3 whitespace-nowrap">Date</th>
-                                <th class="text-left pb-3 whitespace-nowrap">Check-In</th>
-                                <th class="text-left pb-3 whitespace-nowrap">Check-Out</th>
-                                <th class="text-left pb-3 whitespace-nowrap">Status</th>
-                                <th class="text-left pb-3 whitespace-nowrap">Action</th>
+                            <tr class="text-xs font-medium tracking-wide text-gray-400 uppercase border-b">
+                                <th class="pb-3 text-left whitespace-nowrap">Name</th>
+                                <th class="pb-3 text-left whitespace-nowrap">Role</th>
+                                <th class="pb-3 text-left whitespace-nowrap">Date</th>
+                                <th class="pb-3 text-left whitespace-nowrap">Check-In</th>
+                                <th class="pb-3 text-left whitespace-nowrap">Check-Out</th>
+                                <th class="pb-3 text-left whitespace-nowrap">Status</th>
+                                <th class="pb-3 text-left whitespace-nowrap">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($absensi as $item)
-                                <tr class="attendance-row border-b border-gray-100 hover:bg-blue-50/40 transition"
+                                <tr class="transition border-b border-gray-100 attendance-row hover:bg-blue-50/40"
                                     data-search="{{ strtolower(($item->karyawan->nama_lengkap ?? '') . ' ' . ($item->karyawan->email ?? '') . ' ' . ($item->karyawan->nip ?? '')) }}"
                                     data-status="{{ strtolower($item->is_change_day ? $item->change_day_status : $item->status_kehadiran) }}"
                                     data-date="{{ $item->tanggal ? $item->tanggal->format('Y-m-d') : '' }}">
@@ -144,9 +144,9 @@
                                             @endphp
 
                                             <div
-                                                class="w-9 h-9 rounded-full bg-blue-100 border border-blue-200 overflow-hidden shrink-0">
+                                                class="overflow-hidden bg-blue-100 border border-blue-200 rounded-full w-9 h-9 shrink-0">
                                                 <img src="{{ $fotoUrl }}" alt="{{ $item->karyawan->nama_lengkap }}"
-                                                    class="w-full h-full object-cover" loading="lazy"
+                                                    class="object-cover w-full h-full" loading="lazy"
                                                     onerror="this.src='https://ui-avatars.com/api/?background=2563EB&color=fff&size=100&name={{ urlencode($item->nama_lengkap) }}'">
                                             </div>
                                             <div>
@@ -171,7 +171,7 @@
                                         </span>
                                     </td>
 
-                                    
+
 
                                     <td class="py-3">
                                         @if ($item->is_change_day)
@@ -209,30 +209,34 @@
                                     <td class="py-3">
                                         @php
                                             $statusStyles = [
-                                                'pending'    => 'bg-yellow-100 text-yellow-800',
-                                                'present'    => 'bg-green-100 text-green-800',
+                                                'pending' => 'bg-yellow-100 text-yellow-800',
+                                                'present' => 'bg-green-100 text-green-800',
                                                 'change_day' => 'bg-blue-100 text-blue-800',
-                                                'leave'      => 'bg-purple-100 text-purple-800',
-                                                'absent'     => 'bg-red-100 text-red-800',
+                                                'leave' => 'bg-purple-100 text-purple-800',
+                                                'absent' => 'bg-red-100 text-red-800',
                                             ];
-                                            $currentStatusClass = $statusStyles[$item->status_kehadiran] ?? 'bg-gray-100 text-gray-800';
+                                            $currentStatusClass =
+                                                $statusStyles[$item->status_kehadiran] ?? 'bg-gray-100 text-gray-800';
                                             $isToday = $item->tanggal && $item->tanggal->isToday();
-                                            $statusLabel = match($item->status_kehadiran) {
-                                                'pending'    => 'Pending',
-                                                'present'    => 'Present',
+                                            $statusLabel = match ($item->status_kehadiran) {
+                                                'pending' => 'Pending',
+                                                'present' => 'Present',
                                                 'change_day' => 'Change Day',
-                                                'leave'      => 'Leave',
-                                                'absent'     => 'Absent',
-                                                default      => ucfirst($item->status_kehadiran),
+                                                'leave' => 'Leave',
+                                                'absent' => 'Absent',
+                                                default => ucfirst($item->status_kehadiran),
                                             };
                                         @endphp
 
                                         @if ($isToday)
                                             <div title="Editable tomorrow">
-                                                <span class="inline-flex items-center gap-1 text-xs rounded-full py-1 px-3 cursor-not-allowed opacity-75 {{ $currentStatusClass }}">
+                                                <span
+                                                    class="inline-flex items-center gap-1 text-xs rounded-full py-1 px-3 cursor-not-allowed opacity-75 {{ $currentStatusClass }}">
                                                     {{ $statusLabel }}
-                                                    <svg class="w-3 h-3 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    <svg class="w-3 h-3 opacity-60" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
                                                             d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                                     </svg>
                                                 </span>
@@ -246,26 +250,33 @@
                                                 <select name="status_kehadiran"
                                                     data-current="{{ $item->status_kehadiran }}"
                                                     onchange="updateStatus({{ $item->id }}, this)"
-                                                    class="text-xs rounded-full py-1 px-3 border-0 focus:ring-2 focus:ring-blue-500 {{ $currentStatusClass }}" id="select-{{ $item->id }}">
+                                                    class="text-xs rounded-full py-1 px-3 border-0 focus:ring-2 focus:ring-blue-500 {{ $currentStatusClass }}"
+                                                    id="select-{{ $item->id }}">
                                                     <option value="pending"
-                                                        {{ $item->status_kehadiran == 'pending' ? 'selected' : '' }}>Pending</option>
+                                                        {{ $item->status_kehadiran == 'pending' ? 'selected' : '' }}>
+                                                        Pending</option>
                                                     <option value="present"
-                                                        {{ $item->status_kehadiran == 'present' ? 'selected' : '' }}>Present</option>
+                                                        {{ $item->status_kehadiran == 'present' ? 'selected' : '' }}>
+                                                        Present</option>
                                                     <option value="change_day"
-                                                        {{ $item->status_kehadiran == 'change_day' ? 'selected' : '' }}>Change Day</option>
+                                                        {{ $item->status_kehadiran == 'change_day' ? 'selected' : '' }}>
+                                                        Change Day</option>
                                                     <option value="leave"
-                                                        {{ $item->status_kehadiran == 'leave' ? 'selected' : '' }}>Leave</option>
+                                                        {{ $item->status_kehadiran == 'leave' ? 'selected' : '' }}>Leave
+                                                    </option>
                                                     <option value="absent"
-                                                        {{ $item->status_kehadiran == 'absent' ? 'selected' : '' }}>Absent</option>
+                                                        {{ $item->status_kehadiran == 'absent' ? 'selected' : '' }}>Absent
+                                                    </option>
                                                 </select>
                                             </form>
                                         @endif
                                     </td>
 
                                     <td class="py-3">
-                                        <a class="text-blue-500 hover:text-blue-700 cursor-pointer"
+                                        <a class="text-blue-500 cursor-pointer hover:text-blue-700"
                                             onclick="showDetail({{ $item->id }})">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                             </svg>
@@ -274,14 +285,14 @@
                                 </tr>
                             @endforeach
                             <tr id="emptySearchRow" style="display:none;">
-                                <td colspan="8" class="text-center py-4 text-gray-400">
+                                <td colspan="8" class="py-4 text-center text-gray-400">
                                     Data Not Found
                                 </td>
                             </tr>
                         </tbody>
                     </table>
 
-                    <div id="paginationContainer" class="mt-4 flex justify-end gap-1"></div>
+                    <div id="paginationContainer" class="flex justify-end gap-1 mt-4"></div>
 
                 </div>
             </div>
@@ -290,13 +301,13 @@
 
     <!-- Detail Modal -->
     <div id="detailModal" tabindex="-1" aria-hidden="true"
-        class="hidden fixed inset-0 z-50 flex justify-center items-center bg-black/40">
+        class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black/40">
         <div class="relative w-full max-w-xl p-4">
-            <div class="bg-white rounded-3xl shadow-lg p-6">
-                <div class="flex justify-between items-center border-b pb-4">
+            <div class="p-6 bg-white shadow-lg rounded-3xl">
+                <div class="flex items-center justify-between pb-4 border-b">
                     <h3 class="text-lg font-semibold text-blue-900">Detail Attendance</h3>
                     <button onclick="closeDetailModal()"
-                        class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100">✕</button>
+                        class="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100">✕</button>
                 </div>
                 <div id="detailContent" class="mt-5 space-y-5"></div>
             </div>
@@ -307,11 +318,11 @@
 @push('scripts')
     <script>
         const statusStyles = {
-            pending:    'bg-yellow-100 text-yellow-800',
-            present:    'bg-green-100 text-green-800',
+            pending: 'bg-yellow-100 text-yellow-800',
+            present: 'bg-green-100 text-green-800',
             change_day: 'bg-blue-100 text-blue-800',
-            leave:      'bg-purple-100 text-purple-800',
-            absent:     'bg-red-100 text-red-800',
+            leave: 'bg-purple-100 text-purple-800',
+            absent: 'bg-red-100 text-red-800',
         };
 
         function updateStatus(id, selectEl) {
@@ -338,49 +349,55 @@
                 }
 
                 fetch(`/admin/absensi/${id}/status-absensi`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        'X-Requested-With': 'XMLHttpRequest',
-                    },
-                    body: JSON.stringify({ status_kehadiran: newStatus })
-                })
-                .then(r => r.json())
-                .then(data => {
-                    if (data.success) {
-                        // Update the select's data-current to the new value
-                        selectEl.dataset.current = newStatus;
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                        body: JSON.stringify({
+                            status_kehadiran: newStatus
+                        })
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Update the select's data-current to the new value
+                            selectEl.dataset.current = newStatus;
 
-                        // Update the select's color class
-                        const allStatusClasses = Object.values(statusStyles).join(' ').split(' ');
-                        selectEl.classList.remove(...allStatusClasses);
-                        if (statusStyles[newStatus]) {
-                            selectEl.classList.add(...statusStyles[newStatus].split(' '));
+                            // Update the select's color class
+                            const allStatusClasses = Object.values(statusStyles).join(' ').split(' ');
+                            selectEl.classList.remove(...allStatusClasses);
+                            if (statusStyles[newStatus]) {
+                                selectEl.classList.add(...statusStyles[newStatus].split(' '));
+                            }
+
+                            Swal.fire({
+                                toast: true,
+                                position: 'top-end',
+                                icon: 'success',
+                                title: data.message ?? 'Status updated successfully',
+                                showConfirmButton: false,
+                                timer: 2500,
+                                timerProgressBar: true,
+                            });
+                        } else {
+                            selectEl.value = previousStatus;
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Failed',
+                                text: data.message ?? 'An error occurred.',
+                            });
                         }
-
-                        Swal.fire({
-                            toast: true,
-                            position: 'top-end',
-                            icon: 'success',
-                            title: data.message ?? 'Status updated successfully',
-                            showConfirmButton: false,
-                            timer: 2500,
-                            timerProgressBar: true,
-                        });
-                    } else {
+                    })
+                    .catch(() => {
                         selectEl.value = previousStatus;
                         Swal.fire({
                             icon: 'error',
-                            title: 'Failed',
-                            text: data.message ?? 'An error occurred.',
+                            title: 'Network Error',
+                            text: 'Could not reach the server.'
                         });
-                    }
-                })
-                .catch(() => {
-                    selectEl.value = previousStatus;
-                    Swal.fire({ icon: 'error', title: 'Network Error', text: 'Could not reach the server.' });
-                });
+                    });
             });
         }
 
@@ -431,7 +448,7 @@
                         '-';
 
                     const attachment = data.attachment ?
-                        `<a href="/storage/${data.attachment}" target="_blank" class="text-blue-600 hover:underline text-xs">Lihat file</a>` :
+                        `<a href="/storage/${data.attachment}" target="_blank" class="text-xs text-blue-600 hover:underline">Lihat file</a>` :
                         '-';
 
                     const note = data.keterangan || '-';
@@ -463,12 +480,12 @@
                     const content = `
                     <div class="space-y-5">
 
-                        <div class="border-b pb-4">
+                        <div class="pb-4 border-b">
                             <div class="flex items-start gap-4">
-                                <div class="w-16 h-16 rounded-full overflow-hidden border-2 border-blue-700 shrink-0">
+                                <div class="w-16 h-16 overflow-hidden border-2 border-blue-700 rounded-full shrink-0">
                                     <img
                                         src="${foto}"
-                                        class="w-full h-full object-cover"
+                                        class="object-cover w-full h-full"
                                         onerror="this.src='https://ui-avatars.com/api/?background=1E3A8A&color=fff&size=100&name=${encodeURIComponent(nama)}'">
                                 </div>
 
@@ -483,40 +500,40 @@
 
                         <div class="grid grid-cols-5 gap-3 text-xs">
                             <div>
-                                <p class="text-gray-400 mb-1">Check In</p>
-                                <p class="text-gray-700 font-medium">${checkIn}</p>
+                                <p class="mb-1 text-gray-400">Check In</p>
+                                <p class="font-medium text-gray-700">${checkIn}</p>
                             </div>
 
                             <div>
-                                <p class="text-gray-400 mb-1">Check Out</p>
-                                <p class="text-gray-700 font-medium">${checkOut}</p>
+                                <p class="mb-1 text-gray-400">Check Out</p>
+                                <p class="font-medium text-gray-700">${checkOut}</p>
                             </div>
 
                             <div>
-                                <p class="text-gray-400 mb-1">Working Hours</p>
-                                <p class="text-gray-700 font-medium">${workingHours}</p>
+                                <p class="mb-1 text-gray-400">Working Hours</p>
+                                <p class="font-medium text-gray-700">${workingHours}</p>
                             </div>
 
                             <div>
-                                <p class="text-gray-400 mb-1">Date</p>
-                                <p class="text-gray-700 font-medium">${date}</p>
+                                <p class="mb-1 text-gray-400">Date</p>
+                                <p class="font-medium text-gray-700">${date}</p>
                             </div>
 
                             <div>
-                                <p class="text-gray-400 mb-1">Attachment</p>
+                                <p class="mb-1 text-gray-400">Attachment</p>
                                 ${attachment}
                             </div>
                         </div>
 
                         <div>
-                            <p class="text-xs text-gray-500 mb-1">Notes</p>
-                            <div class="border border-blue-500 rounded-md px-3 py-2 text-xs text-gray-600">
+                            <p class="mb-1 text-xs text-gray-500">Notes</p>
+                            <div class="px-3 py-2 text-xs text-gray-600 border border-blue-500 rounded-md">
                                 ${note}
                             </div>
                         </div>
 
                         <div>
-                            <p class="text-xs text-gray-500 mb-1">Status</p>
+                            <p class="mb-1 text-xs text-gray-500">Status</p>
                             <span class="inline-flex px-3 py-1 rounded-md text-xs font-medium ${statusClass}">
                                 ${statusText}
                             </span>

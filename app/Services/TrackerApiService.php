@@ -132,8 +132,8 @@ class TrackerApiService
         $taskCompleted = 0;
         foreach ($data as $stat) {
             $totalTask     += (int) ($stat['total_todo']   ?? 0)
-                            + (int) ($stat['total_doing']  ?? 0)
-                            + (int) ($stat['total_done']   ?? 0);
+                + (int) ($stat['total_doing']  ?? 0)
+                + (int) ($stat['total_done']   ?? 0);
             $taskCompleted += (int) ($stat['total_done']   ?? 0);
         }
 
@@ -165,8 +165,8 @@ class TrackerApiService
         foreach ($data ?? [] as $stat) {
             if (($stat['user']['email'] ?? null) === $email) {
                 $total = (int) ($stat['total_todo']  ?? 0)
-                       + (int) ($stat['total_doing'] ?? 0)
-                       + (int) ($stat['total_done']  ?? 0);
+                    + (int) ($stat['total_doing'] ?? 0)
+                    + (int) ($stat['total_done']  ?? 0);
                 return [
                     'connected'      => true,
                     'total_task'     => $total,

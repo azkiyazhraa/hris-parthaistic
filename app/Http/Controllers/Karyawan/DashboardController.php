@@ -121,15 +121,11 @@ class DashboardController extends Controller
         $taskTarget    = (int) ($latestPerforma?->task_target ?? 0);
         $taskRemaining = max(0, $taskTarget - $taskDone);
         $taskPercent   = $taskTarget > 0 ? round(($taskDone / $taskTarget) * 100) : 0;
-        $taskPeriod    = $latestPerforma
-            ? ($months[$latestPerforma->bulan] . ' ' . $latestPerforma->tahun)
-            : null;
+        $taskPeriod    = $latestPerforma ? ($months[$latestPerforma->bulan] . ' ' . $latestPerforma->tahun) : null;
 
         // Tracker stats (this employee, all-time)
         $trackerEmail = $karyawan->tracker_email ?: $karyawan->email;
-        $trackerStat  = $trackerEmail
-            ? (new TrackerApiService())->getSingleStatByEmail($trackerEmail)
-            : ['connected' => false, 'total_task' => 0, 'task_completed' => 0];
+        $trackerStat  = $trackerEmail ? (new TrackerApiService())->getSingleStatByEmail($trackerEmail) : ['connected' => false, 'total_task' => 0, 'task_completed' => 0];
 
         $trackerConnected     = $trackerStat['connected'];
         $trackerTaskTotal     = $trackerStat['total_task'];
@@ -211,15 +207,15 @@ class DashboardController extends Controller
             ],
         ]);
     }
-     public function getStatus()
+    public function getStatus()
     {
         $karyawanId = auth()->id();
-        
+
         $absensi = AbsensiKaryawan::where('karyawan_id', $karyawanId)
             ->whereDate('tanggal', now()->toDateString())
             ->where('is_change_day', false)
             ->first();
-            
+
         if (!$absensi || $absensi->jam_pulang) {
             return response()->json([
                 'absensi' => $absensi,
@@ -228,13 +224,13 @@ class DashboardController extends Controller
                 'breaks' => []
             ]);
         }
-        
+
         // Ambil semua break hari ini
         $breaks = BreakTime::where('karyawan_id', $karyawanId)
             ->whereDate('created_at', now()->toDateString())
             ->orderBy('break_start', 'asc')
             ->get()
-            ->map(function($break) {
+            ->map(function ($break) {
                 return [
                     'id' => $break->id,
                     'start' => $break->break_start ? $break->break_start->format('Y-m-d H:i:s') : null,
@@ -242,9 +238,9 @@ class DashboardController extends Controller
                     'is_active' => $break->break_start && !$break->break_end
                 ];
             });
-            
+
         $isOnBreak = $breaks->contains('is_active', true);
-        
+
         return response()->json([
             'absensi' => [
                 'id' => $absensi->id,

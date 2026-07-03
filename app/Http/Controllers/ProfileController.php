@@ -108,12 +108,28 @@ class ProfileController extends Controller
         $doneTasks = 0;
 
         return view('profile.edit', compact(
-            'karyawan', 'attendanceRate', 'presentCount', 'lateCount', 'absentCount', 'recentAttendances',
-            'annualLeaveUsed', 'annualLeaveQuota',
-            'maternityLeaveUsed', 'maternityLeaveQuota', 'maternityLeaveLabel',
-            'marriageLeaveUsed', 'marriageLeaveQuota',
-            'bereavementLeaveUsed', 'bereavementLeaveQuota',
-            'leaveRequests', 'latestPerformance', 'performanceChange', 'taskCompletionRate', 'todoTasks', 'inProgressTasks', 'doneTasks'
+            'karyawan',
+            'attendanceRate',
+            'presentCount',
+            'lateCount',
+            'absentCount',
+            'recentAttendances',
+            'annualLeaveUsed',
+            'annualLeaveQuota',
+            'maternityLeaveUsed',
+            'maternityLeaveQuota',
+            'maternityLeaveLabel',
+            'marriageLeaveUsed',
+            'marriageLeaveQuota',
+            'bereavementLeaveUsed',
+            'bereavementLeaveQuota',
+            'leaveRequests',
+            'latestPerformance',
+            'performanceChange',
+            'taskCompletionRate',
+            'todoTasks',
+            'inProgressTasks',
+            'doneTasks'
         ));
     }
 
@@ -121,33 +137,43 @@ class ProfileController extends Controller
      * Update profile karyawan
      * BANK: Nama bank selalu BSI, tidak bisa diubah
      */
-    public function update(Request $request)
+    public function updatePhoto(Request $request)
     {
         $karyawan = auth()->user();
 
         try {
-            // Jika hanya upload foto (dari AJAX)
-            if ($request->hasFile('foto_profil') && !$request->has('nama_depan') && !$request->has('email')) {
-                $request->validate([
-                    'foto_profil' => 'image|mimes:jpg,jpeg,png|max:2048',
-                ]);
+            $request->validate([
+                'foto_profil' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+            ]);
 
-                $fotoPath = $request->file('foto_profil')->store('karyawan', 'public');
-
-                // Hapus foto lama
-                if (!empty($karyawan->foto_profil) && Storage::disk('public')->exists($karyawan->foto_profil)) {
-                    Storage::disk('public')->delete($karyawan->foto_profil);
-                }
-
-                $karyawan->update(['foto_profil' => $fotoPath]);
-
-                if ($request->ajax()) {
-                    return response()->json(['success' => true, 'message' => 'Photo updated successfully']);
-                }
-                return redirect()->route('profile.edit')->with('success', 'Photo updated successfully');
+            if (!empty($karyawan->foto_profil) && Storage::disk('public')->exists($karyawan->foto_profil)) {
+                Storage::disk('public')->delete($karyawan->foto_profil);
             }
 
-            // Validasi untuk update profil lengkap
+            $fotoPath = $request->file('foto_profil')->store('karyawan', 'public');
+            $karyawan->update(['foto_profil' => $fotoPath]);
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Photo updated successfully',
+                    'foto_url' => Storage::url($fotoPath),
+                ]);
+            }
+            return redirect()->route('profile.edit')->with('success', 'Photo updated successfully');
+        } catch (\Throwable $th) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => $th->getMessage()], 422);
+            }
+            return redirect()->back()->with('error', 'Error: ' . $th->getMessage());
+        }
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $karyawan = auth()->user();
+
+        try {
             $validated = $request->validate([
                 'nama_depan' => 'required|string|max:100',
                 'nama_belakang' => 'required|string|max:100',
@@ -169,7 +195,6 @@ class ProfileController extends Controller
                 'telepon_kontak_darurat' => 'nullable|string|max:30',
                 'nama_bank' => 'nullable|string|max:50',
                 'nomor_rekening' => 'nullable|string|max:30',
-                'foto_profil' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             ]);
 
             $updateData = [
@@ -198,17 +223,9 @@ class ProfileController extends Controller
                 'nomor_rekening' => $validated['nomor_rekening'] ?? $karyawan->nomor_rekening,
             ];
 
-            // Handle foto profil
-            if ($request->hasFile('foto_profil')) {
-                if (!empty($karyawan->foto_profil) && Storage::disk('public')->exists($karyawan->foto_profil)) {
-                    Storage::disk('public')->delete($karyawan->foto_profil);
-                }
-                $updateData['foto_profil'] = $request->file('foto_profil')->store('karyawan', 'public');
-            }
-
             $karyawan->update($updateData);
 
-            if ($request->ajax()) {
+            if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => true,
                     'message' => 'Profile updated successfully. Bank: BSI (cannot be changed).'
@@ -216,13 +233,10 @@ class ProfileController extends Controller
             }
             return redirect()->route('profile.edit')->with('success', 'Profile updated successfully. Bank: BSI (cannot be changed).');
         } catch (\Throwable $th) {
-            if ($request->ajax()) {
+            if ($request->ajax() || $request->wantsJson()) {
                 return response()->json(['success' => false, 'message' => $th->getMessage()], 422);
             }
-            return redirect()
-                ->back()
-                ->withInput()
-                ->with('error', 'Error: ' . $th->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Error: ' . $th->getMessage());
         }
     }
 

@@ -37,7 +37,8 @@ Route::get('/attendance/filter', [KaryawanDashboardController::class, 'filterAtt
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::patch('/profile/photo', [ProfileController::class, 'updatePhoto'])->name('profile.photo.update');
+    Route::patch('/profile', [ProfileController::class, 'updateProfile'])->name('profile.update');
     Route::patch('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
     Route::get('/profile/performance-chart-data', [ProfileController::class, 'performanceChartData'])->name('profile.performance-chart-data');
 });

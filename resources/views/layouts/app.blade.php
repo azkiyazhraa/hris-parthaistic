@@ -27,8 +27,15 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
         /* Flatpickr: color Sundays and national holidays red */
-        .flatpickr-day.fp-sunday  { color: #ef4444 !important; }
-        .flatpickr-day.fp-holiday { color: #ef4444 !important; font-weight: 600; }
+        .flatpickr-day.fp-sunday {
+            color: #ef4444 !important;
+        }
+
+        .flatpickr-day.fp-holiday {
+            color: #ef4444 !important;
+            font-weight: 600;
+        }
+
         .flatpickr-day.fp-holiday::after {
             content: '•';
             display: block;
@@ -37,9 +44,12 @@
             line-height: 0;
             margin-top: 2px;
         }
+
         /* Sunday + holiday selected states */
         .flatpickr-day.fp-sunday.selected,
-        .flatpickr-day.fp-holiday.selected  { color: #fff !important; }
+        .flatpickr-day.fp-holiday.selected {
+            color: #fff !important;
+        }
     </style>
 
     {{-- STYLES --}}
@@ -137,7 +147,6 @@
 
                             {{-- BREAK BUTTON --}}
                             @if ($absensiToday)
-
                                 @if ($activeBreak)
                                     {{-- END BREAK --}}
                                     <form action="{{ route('break.end', $absensiToday->id) }}" method="POST">
@@ -220,7 +229,8 @@
 
                         <!-- FOOTER -->
                         <div class="px-4 py-3 text-center border-t">
-                            <a href="{{ route('notifikasi.page') }}" class="text-sm font-medium text-blue-600 hover:text-blue-700">
+                            <a href="{{ route('notifikasi.page') }}"
+                                class="text-sm font-medium text-blue-600 hover:text-blue-700">
                                 View all notifications
                             </a>
                         </div>

@@ -42,7 +42,7 @@
                                 Location
                             </label>
                             <input type="text" name="lokasi_masuk" id="lokasi_masuk"
-                                placeholder="Masukkan lokasi Anda"
+                                placeholder="Enter your location"
                                 class="w-full px-4 py-3 text-gray-700 transition border border-gray-300 shadow-sm rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none">
                         </div>
                     </div>
