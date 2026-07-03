@@ -408,8 +408,9 @@ class AbsensiController extends Controller
         }
 
         $request->validate([
-            'jam_pulang' => 'required',
+            'jam_pulang'    => 'required',
             'lokasi_pulang' => 'required|string|max:255',
+            'keterangan'    => 'nullable|string|max:500',
         ]);
 
         DB::beginTransaction();
@@ -431,11 +432,17 @@ class AbsensiController extends Controller
             $selisihMenit = $jamMasukDateTime->diffInMinutes($jamPulangDateTime);
             $totalJam = $selisihMenit / 60;
 
-            $absensi->update([
-                'jam_pulang' => $request->jam_pulang,
-                'lokasi_pulang' => $request->lokasi_pulang,
+            $updateData = [
+                'jam_pulang'      => $request->jam_pulang,
+                'lokasi_pulang'   => $request->lokasi_pulang,
                 'total_jam_kerja' => round($totalJam, 2),
-            ]);
+            ];
+
+            if ($request->filled('keterangan')) {
+                $updateData['keterangan'] = $request->keterangan;
+            }
+
+            $absensi->update($updateData);
 
             DB::commit();
 
