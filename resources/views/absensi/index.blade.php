@@ -1,13 +1,13 @@
 @extends('layouts.app')
 @section('content')
-    <div class="container mx-auto py-4 space-y-4">
+    <div class="container py-4 mx-auto space-y-4">
 
-        <div class="bg-gradient-to-r from-blue-200 to-cyan-400 rounded-2xl p-6 shadow-lg flex items-center justify-between">
+        <div class="flex items-center justify-between p-6 shadow-lg bg-gradient-to-r from-blue-200 to-cyan-400 rounded-2xl">
             <div>
-                <h1 class="text-2xl font-bold text-blue-900 mb-1">
+                <h1 class="mb-1 text-2xl font-bold text-blue-900">
                     Attendance
                 </h1>
-                <p class="text-gray-700/80 text-sm">
+                <p class="text-sm text-gray-700/80">
                     Monitor Check-In, Check-Out and attendance history with ease.
                 </p>
             </div>
@@ -17,34 +17,41 @@
         </div>
 
         {{-- CARD SUMMARY --}}
-        <div class="grid grid-cols-1 xl:grid-cols-3 gap-5 mb-5">
+        <div class="grid grid-cols-1 gap-5 mb-5 xl:grid-cols-3">
             <!-- ATTENDANCE STATUS -->
-            <div class="xl:col-span-2 bg-white rounded-3xl shadow-sm border border-gray-100 p-5 md:p-7">
+            <div class="p-5 bg-white border border-gray-100 shadow-sm xl:col-span-2 rounded-3xl md:p-7">
                 <div class="flex items-center justify-between mb-6">
                     <div>
                         <h2 class="text-lg font-semibold text-gray-800">
                             Today's Attendance
                         </h2>
 
-                        <p class="text-sm text-gray-400 mt-1">
+                        <p class="mt-1 text-sm text-gray-400">
                             Real-time attendance status
                         </p>
                     </div>
 
-                    <div class="h-11 w-11 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600">
+                    <div class="flex items-center justify-center text-blue-600 h-11 w-11 rounded-2xl bg-blue-50">
                         ⏱️
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                <div class="grid grid-cols-1 gap-5 sm:grid-cols-3">
                     <!-- STATUS -->
-                    <div class="bg-gray-50 rounded-2xl p-5">
-                        <p class="text-sm text-gray-500 mb-2">
+                    <div class="p-5 bg-gray-50 rounded-2xl">
+                        <p class="mb-2 text-sm text-gray-500">
                             Current Status
                         </p>
                         @php
                             $isCheckedIn = $absensiToday && $absensiToday->jam_masuk && !$absensiToday->jam_pulang;
-                            $isOnBreak = $absensiToday && $absensiToday->breaks->where('break_start', '!=', null)->where('break_end', null)->first() ? true : false;
+                            $isOnBreak =
+                                $absensiToday &&
+                                $absensiToday->breaks
+                                    ->where('break_start', '!=', null)
+                                    ->where('break_end', null)
+                                    ->first()
+                                    ? true
+                                    : false;
                         @endphp
 
                         <h2 class="text-2xl font-bold
@@ -53,8 +60,7 @@
                             @elseif ($absensiToday->status_kehadiran === 'leave') text-purple-600
                             @elseif ($isOnBreak) text-blue-500
                             @elseif ($absensiToday->jam_pulang) text-green-600
-                            @else text-yellow-500
-                            @endif"
+                            @else text-yellow-500 @endif"
                             id="attendanceStatus">
 
                             @if (!$absensiToday)
@@ -75,8 +81,8 @@
                     </div>
 
                     <!-- CHECK IN -->
-                    <div class="bg-gray-50 rounded-2xl p-5">
-                        <p class="text-sm text-gray-500 mb-2">
+                    <div class="p-5 bg-gray-50 rounded-2xl">
+                        <p class="mb-2 text-sm text-gray-500">
                             Check-In Time
                         </p>
 
@@ -91,12 +97,12 @@
                     </div>
 
                     <!-- WORKING HOURS -->
-                    <div class="bg-gray-50 rounded-2xl p-5">
-                        <p class="text-sm text-gray-500 mb-2">
+                    <div class="p-5 bg-gray-50 rounded-2xl">
+                        <p class="mb-2 text-sm text-gray-500">
                             Working Hours
                         </p>
 
-                        <h2 class="text-2xl font-bold text-blue-900 font-mono" id="attendanceWorking">
+                        <h2 class="font-mono text-2xl font-bold text-blue-900" id="attendanceWorking">
                             @if ($absensiToday && $absensiToday->jam_pulang)
                                 @php
                                     $hours = floor($absensiToday->total_jam_kerja);
@@ -114,27 +120,27 @@
             </div>
 
             <!-- SUMMARY -->
-            <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-5 md:p-7">
+            <div class="p-5 bg-white border border-gray-100 shadow-sm rounded-3xl md:p-7">
                 <div class="flex items-center justify-between mb-6">
                     <div>
                         <h2 class="text-lg font-semibold text-gray-800">
                             Attendance Summary
                         </h2>
 
-                        <p class="text-sm text-gray-400 mt-1">
+                        <p class="mt-1 text-sm text-gray-400">
                             Monthly overview
                         </p>
                     </div>
 
-                    <div class="h-11 w-11 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600">
+                    <div class="flex items-center justify-center text-blue-600 h-11 w-11 rounded-2xl bg-blue-50">
                         📊
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
                     <!-- PRESENT -->
-                    <div class="bg-green-50 rounded-2xl p-4">
-                        <p class="text-sm text-gray-500 mb-1">
+                    <div class="p-4 bg-green-50 rounded-2xl">
+                        <p class="mb-1 text-sm text-gray-500">
                             Present
                         </p>
 
@@ -144,8 +150,8 @@
                     </div>
 
                     <!-- CHANGE DAY -->
-                    <div class="bg-indigo-50 rounded-2xl p-4">
-                        <p class="text-sm text-gray-500 mb-1">
+                    <div class="p-4 bg-indigo-50 rounded-2xl">
+                        <p class="mb-1 text-sm text-gray-500">
                             Change Day
                         </p>
 
@@ -155,8 +161,8 @@
                     </div>
 
                     <!-- LEAVE -->
-                    <div class="bg-purple-50 rounded-2xl p-4">
-                        <p class="text-sm text-gray-500 mb-1">
+                    <div class="p-4 bg-purple-50 rounded-2xl">
+                        <p class="mb-1 text-sm text-gray-500">
                             Leave
                         </p>
 
@@ -166,8 +172,8 @@
                     </div>
 
                     <!-- PENDING -->
-                    <div class="bg-yellow-50 rounded-2xl p-4">
-                        <p class="text-sm text-gray-500 mb-1">
+                    <div class="p-4 bg-yellow-50 rounded-2xl">
+                        <p class="mb-1 text-sm text-gray-500">
                             Pending
                         </p>
 
@@ -180,9 +186,9 @@
         </div>
 
 
-        <div class="bg-white rounded-2xl shadow p-4 md:p-6">
+        <div class="p-4 bg-white shadow rounded-2xl md:p-6">
 
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+            <div class="flex flex-col gap-4 mb-4 md:flex-row md:items-center md:justify-between">
 
                 <!-- TITLE -->
                 <div>
@@ -192,7 +198,7 @@
                 </div>
 
                 <!-- FILTERS -->
-                <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                <div class="flex flex-col w-full gap-3 sm:flex-row md:w-auto">
 
                     <!-- STATUS -->
                     <div class="w-full sm:w-52">
@@ -234,17 +240,17 @@
             <div class="overflow-x-auto">
                 <table class="w-full min-w-[800px] md:min-w-full text-sm text-left">
                     <thead>
-                        <tr class="text-gray-400 font-medium text-xs uppercase tracking-wide border-b">
-                            <th class="text-left pb-3 whitespace-nowrap">Date</th>
-                            <th class="text-left pb-3 whitespace-nowrap">Check-In</th>
-                            <th class="text-left pb-3 whitespace-nowrap">Check-Out</th>
-                            <th class="text-left pb-3 whitespace-nowrap">Status</th>
-                            <th class="text-left pb-3 whitespace-nowrap">Action</th>
+                        <tr class="text-xs font-medium tracking-wide text-gray-400 uppercase border-b">
+                            <th class="pb-3 text-left whitespace-nowrap">Date</th>
+                            <th class="pb-3 text-left whitespace-nowrap">Check-In</th>
+                            <th class="pb-3 text-left whitespace-nowrap">Check-Out</th>
+                            <th class="pb-3 text-left whitespace-nowrap">Status</th>
+                            <th class="pb-3 text-left whitespace-nowrap">Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($absensi as $item)
-                            <tr class="attendance-row border-b border-gray-100 hover:bg-blue-50/40 transition"
+                            <tr class="transition border-b border-gray-100 attendance-row hover:bg-blue-50/40"
                                 data-search="{{ strtolower(($item->karyawan->nama_lengkap ?? '') . ' ' . ($item->karyawan->email ?? '') . ' ' . ($item->karyawan->nip ?? '')) }}"
                                 data-status="{{ strtolower($item->status_kehadiran) }}"
                                 data-month="{{ strtolower($item->tanggal?->format('F')) }}">
@@ -264,22 +270,22 @@
                                 <td class="py-3">
                                     @php
                                         $badgeClass = match ($item->status_kehadiran) {
-                                            'pending'    => 'bg-yellow-100 text-yellow-700',
-                                            'present'    => 'bg-green-100 text-green-700',
+                                            'pending' => 'bg-yellow-100 text-yellow-700',
+                                            'present' => 'bg-green-100 text-green-700',
                                             'change_day' => 'bg-blue-100 text-blue-700',
-                                            'leave'      => 'bg-purple-100 text-purple-700',
-                                            default      => 'bg-red-100 text-red-700',
+                                            'leave' => 'bg-purple-100 text-purple-700',
+                                            default => 'bg-red-100 text-red-700',
                                         };
                                     @endphp
 
                                     @php
-                                        $statusLabel = match($item->status_kehadiran) {
-                                            'pending'    => 'Pending',
-                                            'present'    => 'Present',
+                                        $statusLabel = match ($item->status_kehadiran) {
+                                            'pending' => 'Pending',
+                                            'present' => 'Present',
                                             'change_day' => 'Change Day',
-                                            'leave'      => 'Leave',
-                                            'absent'     => 'Absent',
-                                            default      => ucfirst($item->status_kehadiran),
+                                            'leave' => 'Leave',
+                                            'absent' => 'Absent',
+                                            default => ucfirst($item->status_kehadiran),
                                         };
                                     @endphp
                                     <span
@@ -290,7 +296,7 @@
                                 </td>
 
                                 <td class="py-3">
-                                    <a class="text-blue-500 hover:text-blue-700 cursor-pointer"
+                                    <a class="text-blue-500 cursor-pointer hover:text-blue-700"
                                         onclick="showDetail({{ $item->id }})">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -301,14 +307,14 @@
                             </tr>
                         @endforeach
                         <tr id="emptySearchRow" style="display:none;">
-                            <td colspan="8" class="text-center py-4 text-gray-400">
+                            <td colspan="8" class="py-4 text-center text-gray-400">
                                 No attendance records found.
                             </td>
                         </tr>
                     </tbody>
                 </table>
 
-                <div id="paginationContainer" class="mt-6 flex items-center justify-end gap-2">
+                <div id="paginationContainer" class="flex items-center justify-end gap-2 mt-6">
                 </div>
             </div>
         </div>
@@ -316,13 +322,13 @@
 
     <!-- Detail Modal -->
     <div id="detailModal" tabindex="-1" aria-hidden="true"
-        class="hidden fixed inset-0 z-50 flex justify-center items-center bg-black/40">
+        class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black/40">
         <div class="relative w-full max-w-xl p-4">
-            <div class="bg-white rounded-3xl shadow-lg p-6">
-                <div class="flex justify-between items-center border-b pb-4">
+            <div class="p-6 bg-white shadow-lg rounded-3xl">
+                <div class="flex items-center justify-between pb-4 border-b">
                     <h3 class="text-lg font-semibold text-blue-900">Detail Attendance</h3>
                     <button onclick="closeDetailModal()"
-                        class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100">✕</button>
+                        class="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100">✕</button>
                 </div>
                 <div id="detailContent" class="mt-5 space-y-5"></div>
             </div>
@@ -358,10 +364,12 @@
                         '-';
 
                     const attachment = data.attachment ?
-                        `<a href="/storage/${data.attachment}" target="_blank" class="text-blue-600 hover:underline text-xs">Lihat file</a>` :
+                        `<a href="/storage/${data.attachment}" target="_blank" class="text-xs text-blue-600 hover:underline">Lihat file</a>` :
                         '-';
 
-                    const note = data.keterangan || '-';
+                    const note = data.keterangan ?
+                        data.keterangan.replace(/\n/g, '<br>') :
+                        '-';
 
                     let statusClass = 'bg-gray-100 text-gray-700';
 
@@ -393,12 +401,12 @@
                     const content = `
                     <div class="space-y-5">
 
-                        <div class="border-b pb-4">
+                        <div class="pb-4 border-b">
                             <div class="flex items-start gap-4">
-                                <div class="w-16 h-16 rounded-full overflow-hidden border-2 border-blue-700 shrink-0">
+                                <div class="w-16 h-16 overflow-hidden border-2 border-blue-700 rounded-full shrink-0">
                                     <img
                                         src="${foto}"
-                                        class="w-full h-full object-cover"
+                                        class="object-cover w-full h-full"
                                         onerror="this.src='https://ui-avatars.com/api/?background=1E3A8A&color=fff&size=100&name=${encodeURIComponent(nama)}'">
                                 </div>
 
@@ -413,40 +421,40 @@
 
                         <div class="grid grid-cols-5 gap-3 text-xs">
                             <div>
-                                <p class="text-gray-400 mb-1">Check In</p>
-                                <p class="text-gray-700 font-medium">${checkIn}</p>
+                                <p class="mb-1 text-gray-400">Check In</p>
+                                <p class="font-medium text-gray-700">${checkIn}</p>
                             </div>
 
                             <div>
-                                <p class="text-gray-400 mb-1">Check Out</p>
-                                <p class="text-gray-700 font-medium">${checkOut}</p>
+                                <p class="mb-1 text-gray-400">Check Out</p>
+                                <p class="font-medium text-gray-700">${checkOut}</p>
                             </div>
 
                             <div>
-                                <p class="text-gray-400 mb-1">Working Hours</p>
-                                <p class="text-gray-700 font-medium">${workingHours}</p>
+                                <p class="mb-1 text-gray-400">Working Hours</p>
+                                <p class="font-medium text-gray-700">${workingHours}</p>
                             </div>
 
                             <div>
-                                <p class="text-gray-400 mb-1">Date</p>
-                                <p class="text-gray-700 font-medium">${date}</p>
+                                <p class="mb-1 text-gray-400">Date</p>
+                                <p class="font-medium text-gray-700">${date}</p>
                             </div>
 
                             <div>
-                                <p class="text-gray-400 mb-1">Attachment</p>
+                                <p class="mb-1 text-gray-400">Attachment</p>
                                 ${attachment}
                             </div>
                         </div>
 
                         <div>
-                            <p class="text-xs text-gray-500 mb-1">Notes</p>
-                            <div class="border border-blue-500 rounded-md px-3 py-2 text-xs text-gray-600">
+                            <p class="mb-1 text-xs text-gray-500">Notes</p>
+                            <div class="px-3 py-2 text-xs text-gray-600 border border-blue-500 rounded-md">
                                 ${note}
                             </div>
                         </div>
 
                         <div>
-                            <p class="text-xs text-gray-500 mb-1">Status</p>
+                            <p class="mb-1 text-xs text-gray-500">Status</p>
                             <span class="inline-flex px-3 py-1 rounded-md text-xs font-medium ${statusClass}">
                                 ${statusText}
                             </span>
@@ -627,58 +635,63 @@
             let breaksData = [];
             let isCurrentlyOnBreak = false;
             let displayUpdateInterval = null;
-            
+
             @if ($absensiToday && !$absensiToday->jam_pulang)
                 // Parse check-in time
                 const checkInDate = "{{ $absensiToday->tanggal->format('Y-m-d') }}";
                 const checkInTimeStr = "{{ $absensiToday->jam_masuk }}";
                 checkInTime = new Date(`${checkInDate}T${checkInTimeStr}`);
-                
+
                 // Fungsi untuk menghitung total break duration dalam detik
                 function calculateTotalBreakSeconds() {
                     let totalBreakSeconds = 0;
                     const now = new Date();
-                    
+
                     if (!breaksData || breaksData.length === 0) return 0;
-                    
+
                     breaksData.forEach(breakItem => {
                         if (breakItem.start) {
                             const breakStart = new Date(breakItem.start);
                             let breakEnd = null;
-                            
+
                             if (breakItem.end) {
                                 breakEnd = new Date(breakItem.end);
                             } else if (breakItem.is_active) {
                                 // Break sedang berlangsung, hitung sampai sekarang
                                 breakEnd = now;
                             }
-                            
+
                             if (breakEnd && breakEnd > breakStart) {
                                 totalBreakSeconds += Math.floor((breakEnd - breakStart) / 1000);
                             }
                         }
                     });
-                    
+
                     return totalBreakSeconds;
                 }
-                
+
                 // Fungsi untuk menghitung working hours
                 function calculateWorkingHours() {
                     const now = new Date();
-                    
+
                     // Total detik dari check-in sampai sekarang
                     const totalSeconds = Math.floor((now - checkInTime) / 1000);
-                    
-                    if (totalSeconds < 0) return { hours: 0, minutes: 0, seconds: 0, formatted: '00:00:00' };
-                    
+
+                    if (totalSeconds < 0) return {
+                        hours: 0,
+                        minutes: 0,
+                        seconds: 0,
+                        formatted: '00:00:00'
+                    };
+
                     // Kurangi dengan total break seconds
                     const breakSeconds = calculateTotalBreakSeconds();
                     const workingSeconds = Math.max(0, totalSeconds - breakSeconds);
-                    
+
                     const hours = Math.floor(workingSeconds / 3600);
                     const minutes = Math.floor((workingSeconds % 3600) / 60);
                     const seconds = workingSeconds % 60;
-                    
+
                     return {
                         hours: hours,
                         minutes: minutes,
@@ -686,33 +699,34 @@
                         formatted: `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
                     };
                 }
-                
+
                 // Fungsi untuk update display di halaman attendance
                 function updateAttendanceDisplay() {
                     const workingElement = document.getElementById('attendanceWorking');
                     const statusElement = document.getElementById('attendanceStatus');
-                    
+
                     if (workingElement) {
                         const working = calculateWorkingHours();
                         workingElement.innerText = working.formatted;
-                        
+
                         // Update title attribute untuk tooltip
                         const breakSeconds = calculateTotalBreakSeconds();
                         if (breakSeconds > 0) {
                             const breakHours = Math.floor(breakSeconds / 3600);
                             const breakMinutes = Math.floor((breakSeconds % 3600) / 60);
                             const breakSecs = breakSeconds % 60;
-                            workingElement.title = `Break time: ${String(breakHours).padStart(2, '0')}:${String(breakMinutes).padStart(2, '0')}:${String(breakSecs).padStart(2, '0')}`;
+                            workingElement.title =
+                                `Break time: ${String(breakHours).padStart(2, '0')}:${String(breakMinutes).padStart(2, '0')}:${String(breakSecs).padStart(2, '0')}`;
                         } else {
                             workingElement.title = '';
                         }
                     }
-                    
+
                     // Update status if needed
                     if (statusElement) {
                         const shouldShowOnBreak = isCurrentlyOnBreak;
                         const currentText = statusElement.textContent;
-                        
+
                         if (shouldShowOnBreak && currentText !== 'On Break') {
                             statusElement.textContent = 'On Break';
                             statusElement.className = 'text-2xl font-bold text-blue-500';
@@ -721,13 +735,14 @@
                             statusElement.className = 'text-2xl font-bold text-yellow-500';
                         } else if (!shouldShowOnBreak && !$absensiToday?.jam_pulang && currentText === 'Finished') {
                             // Do nothing
-                        } else if (!shouldShowOnBreak && currentText !== 'Working' && currentText !== 'Finished' && currentText !== 'Not Checked In') {
+                        } else if (!shouldShowOnBreak && currentText !== 'Working' && currentText !== 'Finished' &&
+                            currentText !== 'Not Checked In') {
                             statusElement.textContent = 'Working';
                             statusElement.className = 'text-2xl font-bold text-yellow-500';
                         }
                     }
                 }
-                
+
                 // Fetch breaks data from server
                 function fetchAttendanceBreaksData() {
                     $.ajax({
@@ -740,18 +755,19 @@
                                 if (response.breaks && Array.isArray(response.breaks)) {
                                     breaksData = response.breaks;
                                 }
-                                
+
                                 // Update break status
                                 isCurrentlyOnBreak = response.isOnBreak || false;
-                                
+
                                 // Update check-in time if needed
                                 if (response.absensi.jam_masuk && !checkInTime) {
-                                    const serverCheckIn = new Date(`${response.absensi.tanggal}T${response.absensi.jam_masuk}`);
+                                    const serverCheckIn = new Date(
+                                        `${response.absensi.tanggal}T${response.absensi.jam_masuk}`);
                                     if (!isNaN(serverCheckIn.getTime())) {
                                         checkInTime = serverCheckIn;
                                     }
                                 }
-                                
+
                                 // Update display
                                 updateAttendanceDisplay();
                             } else if (response.absensi && response.absensi.jam_pulang) {
@@ -764,7 +780,7 @@
                                     clearInterval(syncInterval);
                                     syncInterval = null;
                                 }
-                                
+
                                 // Update final working hours
                                 const workingElement = document.getElementById('attendanceWorking');
                                 if (workingElement && response.working_hours) {
@@ -777,16 +793,16 @@
                         }
                     });
                 }
-                
+
                 // Initial sync
                 fetchAttendanceBreaksData();
-                
+
                 // Update display setiap detik (1000 ms)
                 displayUpdateInterval = setInterval(updateAttendanceDisplay, 1000);
-                
+
                 // Sync dengan server setiap 10 detik untuk mendapatkan data break terbaru
                 syncInterval = setInterval(fetchAttendanceBreaksData, 10000);
-                
+
                 // Cleanup intervals saat page unload
                 window.addEventListener('beforeunload', function() {
                     if (displayUpdateInterval) {

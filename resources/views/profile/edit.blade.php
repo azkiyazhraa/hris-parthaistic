@@ -95,20 +95,24 @@
                                             </div>
 
                                             <div>
-                                                <label class="block mb-1 text-gray-400">Address</label>
+                                                <label class="block mb-1 text-gray-400">Address <span
+                                                        class="text-red-500">*</span></label>
                                                 <textarea name="alamat" rows="3"
-                                                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500">{{ old('alamat', $karyawan->alamat) }}</textarea>
+                                                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500" required>{{ old('alamat', $karyawan->alamat) }}</textarea>
                                             </div>
 
                                             <div>
-                                                <label class="block mb-1 text-gray-400">Place of Birth</label>
+                                                <label class="block mb-1 text-gray-400">Place of Birth <span
+                                                        class="text-red-500">*</span></label>
                                                 <input type="text" name="tempat_lahir"
                                                     value="{{ old('tempat_lahir', $karyawan->tempat_lahir) }}"
-                                                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                                                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
+                                                    required>
                                             </div>
 
                                             <div>
-                                                <label class="block mb-1 text-gray-400">Gender</label>
+                                                <label class="block mb-1 text-gray-400">Gender <span
+                                                        class="text-red-500">*</span></label>
                                                 <select name="jenis_kelamin"
                                                     class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
                                                     <option value="">Select</option>
@@ -122,7 +126,8 @@
                                             </div>
 
                                             <div>
-                                                <label class="block mb-1 text-gray-400">Marital Status</label>
+                                                <label class="block mb-1 text-gray-400">Marital Status <span
+                                                        class="text-red-500">*</span></label>
                                                 <select name="status_pernikahan"
                                                     class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
                                                     <option value="">Select</option>
@@ -172,38 +177,56 @@
                                             </div>
 
                                             <div>
-                                                <label class="block mb-1 text-gray-400">Phone Number</label>
+                                                <label class="block mb-1 text-gray-400">Phone Number <span
+                                                        class="text-red-500">*</span></label>
                                                 <input type="text" name="nomor_telepon"
                                                     value="{{ old('nomor_telepon', $karyawan->nomor_telepon) }}"
-                                                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                                                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500 number-only"
+                                                    required>
+                                                <p class="hidden mt-1 text-xs text-red-600 input-error">
+                                                    Field must contain numbers only.
+                                                </p>
                                             </div>
 
                                             <div>
-                                                <label class="block mb-1 text-gray-400">NIK</label>
+                                                <label class="block mb-1 text-gray-400">NIK <span
+                                                        class="text-red-500">*</span></label>
                                                 <input type="text" name="nik"
                                                     value="{{ old('nik', $karyawan->nik) }}"
-                                                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                                                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500 number-only"
+                                                    required>
                                                 @error('nik')
                                                     <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                                                 @enderror
+                                                <p class="hidden mt-1 text-xs text-red-600 input-error">
+                                                    Field must contain numbers only.
+                                                </p>
                                             </div>
 
                                             <div>
-                                                <label class="block mb-1 text-gray-400">NPWP</label>
+                                                <label class="block mb-1 text-gray-400">NPWP <span
+                                                        class="text-red-500">*</span></label>
                                                 <input type="text" name="npwp"
                                                     value="{{ old('npwp', $karyawan->npwp) }}"
-                                                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                                                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500 number-only"
+                                                    required>
+                                                <p class="hidden mt-1 text-xs text-red-600 input-error">
+                                                    Field must contain numbers only.
+                                                </p>
                                             </div>
 
                                             <div>
-                                                <label class="block mb-1 text-gray-400">Date of Birth</label>
+                                                <label class="block mb-1 text-gray-400">Date of Birth <span
+                                                        class="text-red-500">*</span></label>
                                                 <input type="date" name="tanggal_lahir"
                                                     value="{{ old('tanggal_lahir', $karyawan->tanggal_lahir ? $karyawan->tanggal_lahir->format('Y-m-d') : '') }}"
-                                                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                                                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
+                                                    required>
                                             </div>
 
                                             <div>
-                                                <label class="block mb-1 text-gray-400">Religion</label>
+                                                <label class="block mb-1 text-gray-400">Religion <span
+                                                        class="text-red-500">*</span></label>
                                                 <select name="agama"
                                                     class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
                                                     <option value="">Select</option>
@@ -231,56 +254,115 @@
                                     </div>
                                 </div>
 
+                                {{-- PASSPORT --}}
+                                <div class="my-4 mb-4">
+                                    @php
+                                        $hasPassport =
+                                            old('nomor_paspor', $karyawan->nomor_paspor) ||
+                                            old(
+                                                'paspor_berlaku_hingga',
+                                                optional($karyawan->paspor_berlaku_hingga)->format('Y-m-d'),
+                                            );
+                                    @endphp
+
+                                    <div class="mb-4 md:col-span-2">
+                                        <label class="inline-flex items-center gap-2 cursor-pointer">
+                                            <input type="checkbox" id="hasPassport" {{ $hasPassport ? 'checked' : '' }}
+                                                class="w-4 h-4 text-blue-600 rounded">
+
+                                            <span class="text-sm font-medium text-gray-700">
+                                                Employee has a passport
+                                            </span>
+                                        </label>
+                                    </div>
+
+                                    <div id="passportSection" class="{{ $hasPassport ? '' : 'hidden' }} md:col-span-2">
+                                        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+
+                                            <div>
+                                                <label class="block mb-1 text-sm font-medium text-gray-700">
+                                                    Passport Number <span class="text-red-500">*</span>
+                                                </label>
+
+                                                <input id="passportNumber" type="text" name="nomor_paspor"
+                                                    value="{{ old('nomor_paspor', $karyawan->nomor_paspor) }}"
+                                                    class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                                            </div>
+
+                                            <div>
+                                                <label class="block mb-1 text-sm font-medium text-gray-700">
+                                                    Passport Validity Period <span class="text-red-500">*</span>
+                                                </label>
+
+                                                <input id="passportExpiry" type="date" name="paspor_berlaku_hingga"
+                                                    value="{{ old('paspor_berlaku_hingga', optional($karyawan->paspor_berlaku_hingga)->format('Y-m-d')) }}"
+                                                    class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <!-- EMPLOYMENT INFO -->
-                                <div>
+                                <div class="my-4 mb-4">
                                     <h4 class="flex items-center gap-2 mb-4 text-lg font-semibold text-blue-900">
                                         Employment Info
                                     </h4>
 
                                     <div class="grid gap-4 text-sm md:grid-cols-2">
                                         <div>
-                                            <label class="block mb-1 text-gray-400">Position</label>
+                                            <label class="block mb-1 text-gray-400">Position <span
+                                                    class="text-red-500">*</span></label>
                                             <input type="text"
                                                 value="{{ $karyawan->jabatan_display ?? ucfirst($karyawan->role) }}"
                                                 readonly class="w-full px-3 py-2 bg-gray-100 border rounded-lg">
                                         </div>
 
                                         <div>
-                                            <label class="block mb-1 text-gray-400">Status</label>
+                                            <label class="block mb-1 text-gray-400">Status <span
+                                                    class="text-red-500">*</span></label>
                                             <input type="text" value="{{ $karyawan->status ?? 'Permanent' }}" readonly
                                                 class="w-full px-3 py-2 bg-gray-100 border rounded-lg">
                                         </div>
 
                                         <div>
-                                            <label class="block mb-1 text-gray-400">Date of Joining</label>
+                                            <label class="block mb-1 text-gray-400">Date of Joining <span
+                                                    class="text-red-500">*</span></label>
                                             <input type="text"
                                                 value="{{ $karyawan->tanggal_bergabung ? $karyawan->tanggal_bergabung->format('d M Y') : '-' }}"
                                                 readonly class="w-full px-3 py-2 bg-gray-100 border rounded-lg">
                                         </div>
 
                                         <div>
-                                            <label class="block mb-1 text-gray-400">Bank Name</label>
+                                            <label class="block mb-1 text-gray-400">Bank Name <span
+                                                    class="text-red-500">*</span></label>
                                             <input type="text" name="nama_bank" value="BSI" readonly
                                                 class="w-full px-3 py-2 text-gray-700 bg-gray-100 border rounded-lg cursor-not-allowed focus:outline-none">
                                             <p class="mt-1 text-xs text-gray-500">Default bank: BSI</p>
                                         </div>
 
                                         <div>
-                                            <label class="block mb-1 text-gray-400">Account Number</label>
+                                            <label class="block mb-1 text-gray-400">Account Number <span
+                                                    class="text-red-500">*</span></label>
                                             <input type="text" name="nomor_rekening"
                                                 value="{{ old('nomor_rekening', $karyawan->nomor_rekening) }}"
-                                                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                                                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500 number-only"
+                                                required>
+                                            <p class="hidden mt-1 text-xs text-red-600 input-error">
+                                                Field must contain numbers only.
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- EDUCATION INFO -->
                                 <div>
-                                    <h4 class="mb-4 text-lg font-semibold text-blue-900">Education</h4>
+                                    <h4 class="mb-4 text-lg font-semibold text-blue-900">Education </h4>
 
                                     <div class="grid gap-4 text-sm md:grid-cols-2">
                                         <div>
-                                            <label class="block mb-1 text-gray-400">Highest Education</label>
+                                            <label class="block mb-1 text-gray-400">Highest Education <span
+                                                    class="text-red-500">*</span></label>
                                             <select name="pendidikan_terakhir"
                                                 class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
                                                 <option value="">Select</option>
@@ -309,25 +391,33 @@
                                         </div>
 
                                         <div>
-                                            <label class="block mb-1 text-gray-400">University</label>
+                                            <label class="block mb-1 text-gray-400">University <span
+                                                    class="text-red-500">*</span></label>
                                             <input type="text" name="universitas"
                                                 value="{{ old('universitas', $karyawan->universitas) }}"
-                                                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                                                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
+                                                required>
                                         </div>
 
                                         <div>
-                                            <label class="block mb-1 text-gray-400">Major</label>
+                                            <label class="block mb-1 text-gray-400">Major <span
+                                                    class="text-red-500">*</span></label>
                                             <input type="text" name="jurusan"
                                                 value="{{ old('jurusan', $karyawan->jurusan) }}"
-                                                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                                                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
+                                                required>
                                         </div>
 
                                         <div>
-                                            <label class="block mb-1 text-gray-400">Graduation Year</label>
-                                            <input type="number" name="tahun_lulus"
+                                            <label class="block mb-1 text-gray-400">Graduation Year <span
+                                                    class="text-red-500">*</span></label>
+                                            <input type="text" name="tahun_lulus"
                                                 value="{{ old('tahun_lulus', $karyawan->tahun_lulus) }}"
-                                                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
-                                                min="1900" max="2099">
+                                                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500 number-only"
+                                                min="1900" max="2099" required>
+                                            <p class="hidden mt-1 text-xs text-red-600 input-error">
+                                                Field must contain numbers only.
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -338,24 +428,31 @@
 
                                     <div class="grid gap-4 text-sm md:grid-cols-2">
                                         <div>
-                                            <label class="block mb-1 text-gray-400">Emergency Contact Name</label>
+                                            <label class="block mb-1 text-gray-400">Emergency Contact Name <span
+                                                    class="text-red-500">*</span></label>
                                             <input type="text" name="nama_kontak_darurat"
                                                 value="{{ old('nama_kontak_darurat', $karyawan->nama_kontak_darurat) }}"
-                                                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                                                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
+                                                required>
                                         </div>
 
                                         <div>
-                                            <label class="block mb-1 text-gray-400">Emergency Contact Phone</label>
+                                            <label class="block mb-1 text-gray-400">Emergency Contact Phone <span
+                                                    class="text-red-500">*</span></label>
                                             <input type="text" name="telepon_kontak_darurat"
                                                 value="{{ old('telepon_kontak_darurat', $karyawan->telepon_kontak_darurat) }}"
-                                                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                                                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500 number-only"
+                                                required>
+                                            <p class="hidden mt-1 text-xs text-red-600 input-error">
+                                                Field must contain numbers only.
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="flex gap-3 mt-6">
-                                    <button type="submit"
-                                        class="px-6 py-2 font-bold text-white transition bg-blue-500 rounded-lg hover:bg-blue-700">
+                                    <button id="submitBtn" type="submit"
+                                        class="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed">
                                         Update Profile
                                     </button>
                                 </div>
@@ -460,7 +557,8 @@
 
                 <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                     <div>
-                        <label class="block mb-2 text-sm font-bold text-gray-700">Current Password</label>
+                        <label class="block mb-2 text-sm font-bold text-gray-700">Current Password <span
+                                class="text-red-500">*</span></label>
                         <input type="password" name="current_password" required
                             class="w-full px-3 py-2 leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline">
                         @error('current_password')
@@ -469,7 +567,8 @@
                     </div>
 
                     <div>
-                        <label class="block mb-2 text-sm font-bold text-gray-700">New Password</label>
+                        <label class="block mb-2 text-sm font-bold text-gray-700">New Password <span
+                                class="text-red-500">*</span></label>
                         <input type="password" name="new_password" required
                             class="w-full px-3 py-2 leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline">
                         @error('new_password')
@@ -478,7 +577,8 @@
                     </div>
 
                     <div>
-                        <label class="block mb-2 text-sm font-bold text-gray-700">Confirm New Password</label>
+                        <label class="block mb-2 text-sm font-bold text-gray-700">Confirm New Password <span
+                                class="text-red-500">*</span></label>
                         <input type="password" name="new_password_confirmation" required
                             class="w-full px-3 py-2 leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline">
                     </div>
@@ -578,5 +678,39 @@
                     });
             }, "image/jpeg", 0.95);
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const hasPassport = document.getElementById('hasPassport');
+            const passportSection = document.getElementById('passportSection');
+            const passportNumber = document.getElementById('passportNumber');
+            const passportExpiry = document.getElementById('passportExpiry');
+
+            // Kalau halaman lain tidak punya elemen ini, hentikan saja
+            if (!hasPassport || !passportSection || !passportNumber || !passportExpiry) {
+                return;
+            }
+
+            function togglePassport() {
+                if (hasPassport.checked) {
+                    passportSection.classList.remove('hidden');
+
+                    passportNumber.required = true;
+                    passportExpiry.required = true;
+                } else {
+                    passportSection.classList.add('hidden');
+
+                    passportNumber.required = false;
+                    passportExpiry.required = false;
+
+                    passportNumber.value = '';
+                    passportExpiry.value = '';
+                }
+            }
+
+            hasPassport.addEventListener('change', togglePassport);
+
+            // Sinkronkan tampilan awal
+            togglePassport();
+        });
     </script>
 @endpush

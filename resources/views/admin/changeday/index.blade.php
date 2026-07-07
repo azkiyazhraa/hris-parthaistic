@@ -1,14 +1,14 @@
 @extends('layouts.app')
 @section('content')
-    <div class="container mx-auto py-4 space-y-4 px-2 sm:px-4">
+    <div class="container px-2 py-4 mx-auto space-y-4 sm:px-4">
 
         {{-- CARD HEADER --}}
-        <div class="bg-gradient-to-r from-blue-200 to-cyan-400 rounded-2xl p-6 shadow-lg flex items-center justify-between">
+        <div class="flex items-center justify-between p-6 shadow-lg bg-gradient-to-r from-blue-200 to-cyan-400 rounded-2xl">
             <div>
-                <h1 class="text-2xl font-bold text-blue-900 mb-1">
+                <h1 class="mb-1 text-2xl font-bold text-blue-900">
                     Change Day
                 </h1>
-                <p class="text-gray-700/80 text-sm">
+                <p class="text-sm text-gray-700/80">
                     Employee change day management system.
                 </p>
             </div>
@@ -18,33 +18,33 @@
         </div>
 
         {{-- CARD SUMMARY --}}
-        <div class="bg-white rounded-2xl shadow p-4 md:p-6">
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div class="p-4 bg-white shadow rounded-2xl md:p-6">
+            <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
                 <div class="flex flex-col gap-1 px-2 py-2 text-center sm:text-left">
-                    <p class="text-gray-400 text-xs sm:text-sm">Total Request (This Month)</p>
-                    <h2 class="text-xl md:text-2xl font-semibold text-blue-900">{{ $totalRequest }}</h2>
+                    <p class="text-xs text-gray-400 sm:text-sm">Total Request (This Month)</p>
+                    <h2 class="text-xl font-semibold text-blue-900 md:text-2xl">{{ $totalRequest }}</h2>
                 </div>
                 <div class="flex flex-col gap-1 px-2 py-2 text-center sm:text-left">
-                    <p class="text-gray-400 text-xs sm:text-sm">Approved</p>
-                    <h2 class="text-xl md:text-2xl font-semibold text-green-600">{{ $approved }}</h2>
+                    <p class="text-xs text-gray-400 sm:text-sm">Approved</p>
+                    <h2 class="text-xl font-semibold text-green-600 md:text-2xl">{{ $approved }}</h2>
                 </div>
                 <div class="flex flex-col gap-1 px-2 py-2 text-center sm:text-left">
-                    <p class="text-gray-400 text-xs sm:text-sm">Requested</p>
-                    <h2 class="text-xl md:text-2xl font-semibold text-yellow-600">{{ $requested }}</h2>
+                    <p class="text-xs text-gray-400 sm:text-sm">Requested</p>
+                    <h2 class="text-xl font-semibold text-yellow-600 md:text-2xl">{{ $requested }}</h2>
                 </div>
                 <div class="flex flex-col gap-1 px-2 py-2 text-center sm:text-left">
-                    <p class="text-gray-400 text-xs sm:text-sm">Rejected</p>
-                    <h2 class="text-xl md:text-2xl font-semibold text-red-600">{{ $rejected }}</h2>
+                    <p class="text-xs text-gray-400 sm:text-sm">Rejected</p>
+                    <h2 class="text-xl font-semibold text-red-600 md:text-2xl">{{ $rejected }}</h2>
                 </div>
             </div>
         </div>
 
         {{-- TABLE --}}
-        <div class="bg-white rounded-2xl shadow-lg w-full p-4 sm:p-6" style="border: 2px solid #e0eaff;">
-            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-3">
+        <div class="w-full p-4 bg-white shadow-lg rounded-2xl sm:p-6" style="border: 2px solid #e0eaff;">
+            <div class="flex flex-col items-start justify-between gap-3 mb-6 sm:flex-row sm:items-center">
                 <div class="flex gap-2">
                     <button
-                        class="flex items-center gap-2 border border-gray-200 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition">
+                        class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 transition border border-gray-200 rounded-lg hover:bg-gray-50">
                         <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -52,7 +52,7 @@
                         This month
                     </button>
                 </div>
-                <div class="flex gap-2 flex-wrap">
+                <div class="flex flex-wrap gap-2">
                     <select id="filter_status" class="border rounded-lg px-3 py-1.5 text-sm">
                         <option value="">All Status</option>
                         <option value="pending">Pending</option>
@@ -62,24 +62,24 @@
                 </div>
             </div>
 
-            <div class="overflow-x-auto -mx-4 sm:mx-0">
+            <div class="-mx-4 overflow-x-auto sm:mx-0">
                 <table class="w-full text-sm min-w-[800px]">
                     <thead>
-                        <tr class="text-gray-400 font-medium text-xs uppercase tracking-wide border-b">
-                            <th class="text-left py-3 pl-4 sm:pl-2 pr-2">Employee</th>
-                            <th class="text-left py-3 px-2">Role</th>
-                            <th class="text-left py-3 px-2">Request Date</th>
-                            <th class="text-left py-3 px-2">Original Schedule</th>
-                            <th class="text-left py-3 px-2">Requested Schedule</th>
-                            <th class="text-left py-3 px-2">Status</th>
-                            <th class="text-center py-3 pr-4 sm:pr-2 pl-2">Action</th>
+                        <tr class="text-xs font-medium tracking-wide text-gray-400 uppercase border-b">
+                            <th class="py-3 pl-4 pr-2 text-left sm:pl-2">Employee</th>
+                            <th class="px-2 py-3 text-left">Role</th>
+                            <th class="px-2 py-3 text-left">Request Date</th>
+                            <th class="px-2 py-3 text-left">Original Schedule</th>
+                            <th class="px-2 py-3 text-left">Requested Schedule</th>
+                            <th class="px-2 py-3 text-left">Status</th>
+                            <th class="py-3 pl-2 pr-4 text-center sm:pr-2">Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($data as $item)
-                            <tr class="change-day-row border-t border-gray-100 hover:bg-blue-50/40 transition"
+                            <tr class="transition border-t border-gray-100 change-day-row hover:bg-blue-50/40"
                                 data-status="{{ strtolower($item->change_day_status) }}">
-                                <td class="py-3 pl-4 sm:pl-2 pr-2">
+                                <td class="py-3 pl-4 pr-2 sm:pl-2">
                                     <div class="flex items-center gap-3">
                                         {{-- Avatar / Foto Profil --}}
                                         <div class="flex-shrink-0">
@@ -97,31 +97,31 @@
                                                             urlencode($item->nama_karyawan);
                                             @endphp
                                             <img src="{{ $fotoUrl }}"
-                                                class="w-10 h-10 rounded-full object-cover border-2 border-blue-300"
+                                                class="object-cover w-10 h-10 border-2 border-blue-300 rounded-full"
                                                 alt="{{ $item->nama_karyawan }}">
                                         </div>
 
                                         {{-- Employee Info --}}
-                                        <div class="min-w-0 flex-1">
+                                        <div class="flex-1 min-w-0">
                                             <div class="font-medium text-gray-800 truncate">{{ $item->nama_karyawan }}</div>
-                                            <div class="text-gray-400 text-xs truncate">{{ $item->karyawan->email ?? '-' }}
+                                            <div class="text-xs text-gray-400 truncate">{{ $item->karyawan->email ?? '-' }}
                                             </div>
                                         </div>
                                     </div>
                                 </td>
-                                <td class="py-3 px-2 text-gray-700 whitespace-nowrap">
+                                <td class="px-2 py-3 text-gray-700 whitespace-nowrap">
                                     <span class="capitalize">{{ $item->karyawan->role ?? '-' }}</span>
                                 </td>
-                                <td class="py-3 px-2 text-gray-700 whitespace-nowrap">
+                                <td class="px-2 py-3 text-gray-700 whitespace-nowrap">
                                     {{ $item->created_at ? $item->created_at->format('d/m/Y H:i') : '-' }}
                                 </td>
-                                <td class="py-3 px-2 text-gray-700 whitespace-nowrap">
+                                <td class="px-2 py-3 text-gray-700 whitespace-nowrap">
                                     {{ $item->change_day_tanggal_awal ? $item->change_day_tanggal_awal->format('d M Y') : '-' }}
                                 </td>
-                                <td class="py-3 px-2 text-gray-700 font-semibold whitespace-nowrap">
+                                <td class="px-2 py-3 font-semibold text-gray-700 whitespace-nowrap">
                                     {{ $item->change_day_tanggal_akhir ? $item->change_day_tanggal_akhir->format('d M Y') : '-' }}
                                 </td>
-                                <td class="py-3 px-2 whitespace-nowrap">
+                                <td class="px-2 py-3 whitespace-nowrap">
                                     <form action="{{ route('admin.absensi.update-status-change-day', $item->id) }}"
                                         method="POST" class="inline-block" id="form-{{ $item->id }}">
                                         @csrf
@@ -153,8 +153,8 @@
                                         </select>
                                     </form>
                                 </td>
-                                <td class="py-3 px-3 text-center whitespace-nowrap">
-                                    <a class="text-blue-500 hover:text-blue-700 cursor-pointer"
+                                <td class="px-3 py-3 text-center whitespace-nowrap">
+                                    <a class="text-blue-500 cursor-pointer hover:text-blue-700"
                                         onclick="showDetail({{ $item->id }})">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -168,20 +168,20 @@
                 </table>
             </div>
 
-            <div id="paginationContainer" class="mt-6 flex items-center justify-end gap-2 flex-wrap">
+            <div id="paginationContainer" class="flex flex-wrap items-center justify-end gap-2 mt-6">
             </div>
         </div>
     </div>
 
     <!-- Detail Modal -->
     <div id="detailModal" tabindex="-1" aria-hidden="true"
-        class="hidden fixed inset-0 z-50 flex justify-center items-center bg-black/40">
+        class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black/40">
         <div class="relative w-full max-w-xl mx-4">
-            <div class="bg-white rounded-3xl shadow-lg p-6">
-                <div class="flex justify-between items-center border-b pb-4">
+            <div class="p-6 bg-white shadow-lg rounded-3xl">
+                <div class="flex items-center justify-between pb-4 border-b">
                     <h3 class="text-lg font-semibold text-blue-900">Detail Change Day</h3>
                     <button onclick="closeDetailModal()"
-                        class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-xl">
+                        class="flex items-center justify-center w-8 h-8 text-xl rounded-full hover:bg-gray-100">
                         ✕
                     </button>
                 </div>
@@ -195,12 +195,15 @@
     <script>
         async function updateChangeDayStatus(id, selectElement) {
             const selectedStatus = selectElement.value;
-            const currentStatus = selectElement.dataset.currentStatus || selectElement.getAttribute('data-current-status');
+            const currentStatus = selectElement.dataset.currentStatus || selectElement.getAttribute(
+                'data-current-status');
             let note = '';
 
             // Extra warning when reverting from approved to rejected
             if (selectedStatus === 'rejected' && currentStatus === 'approved') {
-                const { isConfirmed: warnConfirmed } = await Swal.fire({
+                const {
+                    isConfirmed: warnConfirmed
+                } = await Swal.fire({
                     title: 'Revert approval?',
                     html: `<p class="text-sm text-gray-600">This request was already <strong>approved</strong>. Rejecting it will also <strong>remove the related attendance records</strong> that were created for this change day.</p>`,
                     icon: 'warning',
@@ -278,10 +281,12 @@
                         `https://ui-avatars.com/api/?background=1E3A8A&color=fff&size=100&name=${encodeURIComponent(nama)}`;
 
                     const attachment = data.attachment ?
-                        `<a href="/storage/${data.attachment}" target="_blank" class="text-blue-600 hover:underline text-xs">Lihat file</a>` :
+                        `<a href="/storage/${data.attachment}" target="_blank" class="text-xs text-blue-600 hover:underline">Lihat file</a>` :
                         '-';
 
-                    const note = data.change_day_alasan || '-';
+                    const note = data.change_day_alasan ?
+                        data.change_day_alasan.replace(/\n/g, '<br>') :
+                        '-';
 
                     const requestDate = new Date(data.created_at).toLocaleDateString('id-ID', {
                         day: '2-digit',
@@ -331,12 +336,12 @@
                     const content = `
                     <div class="space-y-5">
 
-                        <div class="border-b pb-4">
+                        <div class="pb-4 border-b">
                             <div class="flex items-start gap-4">
-                                <div class="w-16 h-16 rounded-full overflow-hidden border-2 border-blue-700 shrink-0">
+                                <div class="w-16 h-16 overflow-hidden border-2 border-blue-700 rounded-full shrink-0">
                                     <img
                                         src="${foto}"
-                                        class="w-full h-full object-cover"
+                                        class="object-cover w-full h-full"
                                         onerror="this.src='https://ui-avatars.com/api/?background=1E3A8A&color=fff&size=100&name=${encodeURIComponent(nama)}'">
                                 </div>
 
@@ -351,29 +356,29 @@
 
                         <div class="grid grid-cols-4 gap-3 text-xs">
                             <div>
-                                <p class="text-gray-400 mb-1">Request Date</p>
-                                <p class="text-gray-700 font-medium">${requestDate}</p>
+                                <p class="mb-1 text-gray-400">Request Date</p>
+                                <p class="font-medium text-gray-700">${requestDate}</p>
                             </div>
 
                             <div>
-                                <p class="text-gray-400 mb-1">Original Schedule</p>
-                                <p class="text-gray-700 font-medium">${originalDate}</p>
+                                <p class="mb-1 text-gray-400">Original Schedule</p>
+                                <p class="font-medium text-gray-700">${originalDate}</p>
                             </div>
 
                             <div>
-                                <p class="text-gray-400 mb-1">Requested Change</p>
-                                <p class="text-gray-700 font-medium">${requestChange}</p>
+                                <p class="mb-1 text-gray-400">Requested Change</p>
+                                <p class="font-medium text-gray-700">${requestChange}</p>
                             </div>
 
                             <div>
-                                <p class="text-gray-400 mb-1">Attachment</p>
+                                <p class="mb-1 text-gray-400">Attachment</p>
                                 ${attachment}
                             </div>
                         </div>
 
                         <div>
-                            <p class="text-xs text-gray-500 mb-1">Reason</p>
-                            <div class="border border-blue-500 rounded-md px-3 py-2 text-xs text-gray-600">
+                            <p class="mb-1 text-xs text-gray-500">Reason</p>
+                            <div class="px-3 py-2 text-xs text-gray-600 border border-blue-500 rounded-md">
                                 ${note}
                             </div>
                         </div>
@@ -388,7 +393,7 @@
                         ` : ''}
 
                         <div>
-                            <p class="text-xs text-gray-500 mb-1">Status</p>
+                            <p class="mb-1 text-xs text-gray-500">Status</p>
                             <span class="inline-flex items-center px-3 py-1 rounded text-xs font-medium ${currentStatus.class}">
                                 ${currentStatus.text}
                             </span>

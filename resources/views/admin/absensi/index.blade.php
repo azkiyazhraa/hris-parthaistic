@@ -451,7 +451,9 @@
                         `<a href="/storage/${data.attachment}" target="_blank" class="text-xs text-blue-600 hover:underline">Lihat file</a>` :
                         '-';
 
-                    const note = data.keterangan || '-';
+                    const note = data.keterangan ?
+                        data.keterangan.replace(/\n/g, '<br>') :
+                        '-';
 
                     let statusClass = 'bg-gray-100 text-gray-700';
 

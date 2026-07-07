@@ -249,10 +249,10 @@
                     <div class="mb-8 text-center lg:hidden">
 
                         <div
-                            class="flex items-center justify-center w-20 h-20 p-1 mx-auto mb-5 overflow-hidden text-white bg-blue-600 shadow-lg rounded-3xl">
+                            class="flex items-center justify-center w-24 h-24 p-1 mx-auto mb-5 overflow-hidden text-white bg-blue-600 shadow-lg rounded-3xl">
 
                             <!-- LOGO PNG MOBILE -->
-                            <img src="{{ asset('assets/image/logo-partharis.png') }}" alt="Parthaistic Logo"
+                            <img src="{{ asset('assets/image/logo-partharis-white.png') }}" alt="Parthaistic Logo"
                                 class="logo-image">
                         </div>
 
@@ -327,7 +327,7 @@
                                 </span>
 
                                 <input type="password" id="password" name="password" required
-                                    autocomplete="current-password" placeholder="Masukkan password"
+                                    autocomplete="current-password" placeholder="Enter your password"
                                     class="w-full pl-12 pr-12 py-3.5 rounded-2xl border border-slate-200 bg-slate-50
                                     focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition">
 

@@ -1,13 +1,13 @@
 @extends('layouts.app')
 @section('content')
-    <div class="container mx-auto py-4 space-y-4">
+    <div class="container py-4 mx-auto space-y-4">
 
-        <div class="bg-gradient-to-r from-blue-200 to-cyan-400 rounded-2xl p-6 shadow-lg flex items-center justify-between">
+        <div class="flex items-center justify-between p-6 shadow-lg bg-gradient-to-r from-blue-200 to-cyan-400 rounded-2xl">
             <div>
-                <h1 class="text-2xl font-bold text-blue-900 mb-1">
+                <h1 class="mb-1 text-2xl font-bold text-blue-900">
                     Change Day
                 </h1>
-                <p class="text-gray-700/80 text-sm">
+                <p class="text-sm text-gray-700/80">
                     Request and manage your change day with ease.
                 </p>
             </div>
@@ -17,13 +17,13 @@
         </div>
 
         {{-- CARD SUMMARY --}}
-        <div class="bg-white rounded-2xl shadow p-4 md:p-6 my-4">
-            <div class="grid grid-cols-1 sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x">
+        <div class="p-4 my-4 bg-white shadow rounded-2xl md:p-6">
+            <div class="grid grid-cols-1 divide-y sm:grid-cols-4 sm:divide-y-0 sm:divide-x">
                 <!-- ITEM 1 -->
                 <div class="flex flex-col gap-1 px-4 py-2">
-                    <span class="text-blue-900 text-lg">Total Requests (This Month)</span>
+                    <span class="text-lg text-blue-900">Total Requests (This Month)</span>
                     <div class="flex items-center justify-between gap-2">
-                        <h2 class="text-xl md:text-2xl font-semibold text-blue-900">
+                        <h2 class="text-xl font-semibold text-blue-900 md:text-2xl">
                             {{ number_format($totalRequest, 0, ',', '.') }}
                         </h2>
                     </div>
@@ -31,24 +31,24 @@
 
                 <!-- ITEM 2 -->
                 <div class="flex flex-col gap-1 px-4 py-2">
-                    <span class="text-blue-900 text-xl">Approved</span>
-                    <h2 class="text-xl md:text-2xl font-semibold text-blue-900">
+                    <span class="text-xl text-blue-900">Approved</span>
+                    <h2 class="text-xl font-semibold text-blue-900 md:text-2xl">
                         {{ number_format($approved, 0, ',', '.') }}
                     </h2>
                 </div>
 
                 <!-- ITEM 3 -->
                 <div class="flex flex-col gap-1 px-4 py-2">
-                    <span class="text-blue-900 text-xl">Requested</span>
-                    <h2 class="text-xl md:text-2xl font-semibold text-blue-900">
+                    <span class="text-xl text-blue-900">Requested</span>
+                    <h2 class="text-xl font-semibold text-blue-900 md:text-2xl">
                         {{ number_format($requested, 0, ',', '.') }}
                     </h2>
                 </div>
 
                 <!-- ITEM 4 -->
                 <div class="flex flex-col gap-1 px-4 py-2">
-                    <span class="text-blue-900 text-xl">Rejected</span>
-                    <h2 class="text-xl md:text-2xl font-semibold text-blue-900">
+                    <span class="text-xl text-blue-900">Rejected</span>
+                    <h2 class="text-xl font-semibold text-blue-900 md:text-2xl">
                         {{ number_format($rejected, 0, ',', '.') }}
                     </h2>
                 </div>
@@ -56,7 +56,7 @@
         </div>
 
         {{-- TABLE --}}
-        <div class="bg-white rounded-2xl shadow p-4 md:p-6">
+        <div class="p-4 bg-white shadow rounded-2xl md:p-6">
             <div class="flex flex-col gap-4 mb-4 lg:flex-row lg:items-center lg:justify-between">
 
                 <!-- FILTER -->
@@ -111,17 +111,17 @@
             <div class="overflow-x-auto">
                 <table class="w-full min-w-[800px] md:min-w-full text-sm text-left">
                     <thead>
-                        <tr class="text-gray-400 font-medium text-xs uppercase tracking-wide border-b">
-                            <th class="text-left pb-3 whitespace-nowrap">Request Date</th>
-                            <th class="text-left pb-3 whitespace-nowrap">Original Date</th>
-                            <th class="text-left pb-3 whitespace-nowrap">Requested Date</th>
-                            <th class="text-left pb-3 whitespace-nowrap">Status</th>
-                            <th class="text-left pb-3 whitespace-nowrap">Action</th>
+                        <tr class="text-xs font-medium tracking-wide text-gray-400 uppercase border-b">
+                            <th class="pb-3 text-left whitespace-nowrap">Request Date</th>
+                            <th class="pb-3 text-left whitespace-nowrap">Original Date</th>
+                            <th class="pb-3 text-left whitespace-nowrap">Requested Date</th>
+                            <th class="pb-3 text-left whitespace-nowrap">Status</th>
+                            <th class="pb-3 text-left whitespace-nowrap">Action</th>
                         </tr>
                     </thead>
                     <tbody id="changeDayTable">
                         @foreach ($data as $item)
-                            <tr class="change-day-row border-b hover:bg-gray-50 transition"
+                            <tr class="transition border-b change-day-row hover:bg-gray-50"
                                 data-status="{{ strtolower($item->change_day_status) }}"
                                 data-month="{{ $item->created_at->format('n') }}">
                                 <td class="py-3">{{ $item->created_at->format('d F Y') }}</td>
@@ -144,9 +144,8 @@
                                 <td class="py-3">
                                     <div class="flex items-center gap-2">
                                         {{-- View --}}
-                                        <a onclick="showDetail({{ $item->id }})"
-                                            title="View Detail"
-                                            class="text-blue-500 hover:text-blue-700 cursor-pointer transition">
+                                        <a onclick="showDetail({{ $item->id }})" title="View Detail"
+                                            class="text-blue-500 transition cursor-pointer hover:text-blue-700">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -155,10 +154,10 @@
 
                                         @if (strtolower($item->change_day_status) === 'pending')
                                             {{-- Edit --}}
-                                            <a onclick="openEditModal({{ $item->id }})"
-                                                title="Edit Request"
-                                                class="text-yellow-500 hover:text-yellow-700 cursor-pointer transition">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <a onclick="openEditModal({{ $item->id }})" title="Edit Request"
+                                                class="text-yellow-500 transition cursor-pointer hover:text-yellow-700">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                         d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                 </svg>
@@ -171,9 +170,11 @@
                                                 @method('DELETE')
                                                 <button type="button" title="Cancel Request"
                                                     onclick="confirmDeleteChangeDay(this)"
-                                                    class="text-red-400 hover:text-red-600 transition">
-                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    class="text-red-400 transition hover:text-red-600">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
                                                             d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                     </svg>
                                                 </button>
@@ -181,7 +182,8 @@
                                         @else
                                             {{-- Locked --}}
                                             <span title="Cannot be modified" class="text-gray-300 cursor-not-allowed">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                         d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                                 </svg>
@@ -192,14 +194,14 @@
                             </tr>
                         @endforeach
                         <tr id="emptyFilterRow" style="display: none;">
-                            <td colspan="5" class="text-center py-6 text-gray-400">
+                            <td colspan="5" class="py-6 text-center text-gray-400">
                                 Data Not Found
                             </td>
                         </tr>
                     </tbody>
                 </table>
 
-                <div id="paginationContainer" class="mt-6 flex items-center justify-end gap-2 flex-wrap">
+                <div id="paginationContainer" class="flex flex-wrap items-center justify-end gap-2 mt-6">
                 </div>
             </div>
         </div>
@@ -207,13 +209,13 @@
 
     <!-- Detail Modal -->
     <div id="detailModal" tabindex="-1" aria-hidden="true"
-        class="hidden fixed inset-0 z-50 flex justify-center items-center bg-black/40">
+        class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black/40">
         <div class="relative w-full max-w-xl p-4">
-            <div class="bg-white rounded-3xl shadow-lg p-6">
-                <div class="flex justify-between items-center border-b pb-4">
+            <div class="p-6 bg-white shadow-lg rounded-3xl">
+                <div class="flex items-center justify-between pb-4 border-b">
                     <h3 class="text-lg font-semibold text-blue-900">Detail Change Day</h3>
                     <button onclick="closeDetailModal()"
-                        class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100">✕</button>
+                        class="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100">✕</button>
                 </div>
                 <div id="detailContent" class="mt-5 space-y-5"></div>
             </div>
@@ -225,18 +227,20 @@
     
     {{-- MODAL EDIT CHANGE DAY --}}
     <div id="editChangeDayModal" tabindex="-1" aria-hidden="true"
-        class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+        class="fixed inset-0 z-50 flex items-center justify-center hidden p-4 bg-black/50">
         <div class="relative w-full max-w-2xl">
-            <div class="bg-white rounded-3xl shadow-2xl overflow-hidden">
+            <div class="overflow-hidden bg-white shadow-2xl rounded-3xl">
                 <div class="flex items-center justify-between px-6 py-5 border-b border-gray-100">
                     <div>
                         <h3 class="text-xl font-semibold text-gray-800">Edit Change Day Request</h3>
-                        <p class="mt-1 text-sm text-gray-500">Swap a regular work day off for working on a Sunday or national holiday.</p>
+                        <p class="mt-1 text-sm text-gray-500">Swap a regular work day off for working on a Sunday or
+                            national holiday.</p>
                     </div>
                     <button onclick="closeEditModal()"
-                        class="w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-full hover:bg-gray-100 transition ml-4">
+                        class="flex items-center justify-center flex-shrink-0 ml-4 transition rounded-full w-9 h-9 hover:bg-gray-100">
                         <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
@@ -245,10 +249,10 @@
                         @csrf
                         @method('PUT')
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
                             <!-- ORIGINAL DATE -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                <label class="block mb-1 text-sm font-medium text-gray-700">
                                     Original Date <span class="text-red-500">*</span>
                                 </label>
                                 <p class="text-xs text-gray-400 mb-2">The regular work day (Mon–Sat) you want to take off</p>
@@ -260,7 +264,7 @@
 
                             <!-- REQUESTED DATE -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                <label class="block mb-1 text-sm font-medium text-gray-700">
                                     Requested Date <span class="text-red-500">*</span>
                                 </label>
                                 <p class="text-xs text-gray-400 mb-2">The Sunday or national holiday you'll work instead, within 1 week</p>
@@ -274,10 +278,10 @@
 
                         <!-- REASON -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Reason</label>
+                            <label class="block mb-2 text-sm font-medium text-gray-700">Reason</label>
                             <textarea id="editReason" name="reason" rows="4"
                                 placeholder="Explain the reason for requesting a change day..."
-                                class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm shadow-sm resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                                class="w-full px-4 py-3 text-sm border border-gray-300 shadow-sm resize-none rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
                         </div>
 
                         <div class="flex flex-col-reverse gap-3 mt-6 sm:flex-row sm:justify-end">
@@ -313,7 +317,7 @@
                         `https://ui-avatars.com/api/?background=1E3A8A&color=fff&size=100&name=${encodeURIComponent(nama)}`;
 
                     const attachment = data.attachment ?
-                        `<a href="/storage/${data.attachment}" target="_blank" class="text-blue-600 hover:underline text-xs">Lihat file</a>` :
+                        `<a href="/storage/${data.attachment}" target="_blank" class="text-xs text-blue-600 hover:underline">Lihat file</a>` :
                         '-';
 
                     const note      = data.change_day_alasan || '-';
@@ -367,12 +371,12 @@
                     const content = `
                     <div class="space-y-5">
 
-                        <div class="border-b pb-4">
+                        <div class="pb-4 border-b">
                             <div class="flex items-start gap-4">
-                                <div class="w-16 h-16 rounded-full overflow-hidden border-2 border-blue-700 shrink-0">
+                                <div class="w-16 h-16 overflow-hidden border-2 border-blue-700 rounded-full shrink-0">
                                     <img
                                         src="${foto}"
-                                        class="w-full h-full object-cover"
+                                        class="object-cover w-full h-full"
                                         onerror="this.src='https://ui-avatars.com/api/?background=1E3A8A&color=fff&size=100&name=${encodeURIComponent(nama)}'">
                                 </div>
 
@@ -387,29 +391,29 @@
 
                         <div class="grid grid-cols-4 gap-3 text-xs">
                             <div>
-                                <p class="text-gray-400 mb-1">Request Date</p>
-                                <p class="text-gray-700 font-medium">${requestDate}</p>
+                                <p class="mb-1 text-gray-400">Request Date</p>
+                                <p class="font-medium text-gray-700">${requestDate}</p>
                             </div>
 
                             <div>
-                                <p class="text-gray-400 mb-1">Original Schedule</p>
-                                <p class="text-gray-700 font-medium">${originalDate}</p>
+                                <p class="mb-1 text-gray-400">Original Schedule</p>
+                                <p class="font-medium text-gray-700">${originalDate}</p>
                             </div>
 
                             <div>
-                                <p class="text-gray-400 mb-1">Requested Change</p>
-                                <p class="text-gray-700 font-medium">${requestChange}</p>
+                                <p class="mb-1 text-gray-400">Requested Change</p>
+                                <p class="font-medium text-gray-700">${requestChange}</p>
                             </div>
 
                             <div>
-                                <p class="text-gray-400 mb-1">Attachment</p>
+                                <p class="mb-1 text-gray-400">Attachment</p>
                                 ${attachment}
                             </div>
                         </div>
 
                         <div>
-                            <p class="text-xs text-gray-500 mb-1">Reason</p>
-                            <div class="border border-blue-500 rounded-md px-3 py-2 text-xs text-gray-600">
+                            <p class="mb-1 text-xs text-gray-500">Reason</p>
+                            <div class="px-3 py-2 text-xs text-gray-600 border border-blue-500 rounded-md">
                                 ${note}
                             </div>
                         </div>
@@ -424,7 +428,7 @@
                         ` : ''}
 
                         <div>
-                            <p class="text-xs text-gray-500 mb-1">Status</p>
+                            <p class="mb-1 text-xs text-gray-500">Status</p>
                             <span class="inline-flex items-center px-3 py-1 rounded text-xs font-medium ${currentStatus.class}">
                                 ${currentStatus.text}
                             </span>
@@ -530,7 +534,7 @@
             const year = new Date().getFullYear();
             async function fetchEditYear(y) {
                 try {
-                    const res  = await fetch(`https://libur.deno.dev/api?year=${y}`);
+                    const res = await fetch(`https://libur.deno.dev/api?year=${y}`);
                     const data = await res.json();
                     if (Array.isArray(data)) {
                         data.forEach(item => {

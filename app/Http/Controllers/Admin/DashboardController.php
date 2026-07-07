@@ -116,7 +116,7 @@ class DashboardController extends Controller
             'leave'      => (int) ($attendanceCounts->leave      ?? 0),
             'absent'     => (int) ($attendanceCounts->absent     ?? 0),
         ];
- 
+
         // Task aggregate dari latest performa tiap karyawan aktif
         $activeKaryawanIds = Karyawan::whereIn('status', ['Full-time', 'Contract', 'Internship'])
             ->where('role', '!=', 'admin')
@@ -145,12 +145,25 @@ class DashboardController extends Controller
         $trackerTaskCompleted = $trackerStats['task_completed'];
 
         return view('admin.dashboard', compact(
-            'totalKaryawan', 'fulltime', 'contract', 'internship',
-            'fulltimePercent', 'contractPercent', 'internshipPercent',
-            'resignedEmployees', 'attachment', 'absensi', 'statistics',
-            'adminTaskDone', 'adminTaskTarget', 'adminTaskRemaining',
-            'adminTaskPercent', 'adminTaskEmployeeCount',
-            'trackerConnected', 'trackerTaskTotal', 'trackerTaskCompleted',
+            'totalKaryawan',
+            'fulltime',
+            'contract',
+            'internship',
+            'fulltimePercent',
+            'contractPercent',
+            'internshipPercent',
+            'resignedEmployees',
+            'attachment',
+            'absensi',
+            'statistics',
+            'adminTaskDone',
+            'adminTaskTarget',
+            'adminTaskRemaining',
+            'adminTaskPercent',
+            'adminTaskEmployeeCount',
+            'trackerConnected',
+            'trackerTaskTotal',
+            'trackerTaskCompleted',
         ));
     }
 
@@ -345,7 +358,7 @@ class DashboardController extends Controller
                 if ($nipChanged || $karyawan->nip === null) {
                     // NNN dipertahankan dari NIP lama; kalau tidak ada, hitung dari jumlah karyawan
                     $oldNnn = $karyawan->nip ? (int) substr($karyawan->nip, -3)
-                                             : Karyawan::where('role', 'karyawan')->count() + 1;
+                        : Karyawan::where('role', 'karyawan')->count() + 1;
 
                     $XX = str_pad($this->getOperationalYear($tanggalBergabung), 2, '0', STR_PAD_LEFT);
                     $G  = match (strtoupper($jenisKelamin)) {

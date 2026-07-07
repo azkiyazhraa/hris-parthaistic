@@ -35,7 +35,8 @@
                                 Check-in Time
                             </label>
                             <input type="time" name="jam_masuk" id="jam_masuk" value="{{ date('H:i') }}"
-                                class="w-full px-4 py-3 text-gray-700 transition border border-gray-300 shadow-sm rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none">
+                                class="w-full px-4 py-3 text-gray-700 transition border border-gray-300 shadow-sm cursor-not-allowed rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none"
+                                readonly>
                         </div>
                         <div>
                             <label class="block mb-2 text-sm font-semibold text-gray-700">
