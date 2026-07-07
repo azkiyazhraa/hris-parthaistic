@@ -683,13 +683,6 @@
             dateFromInput.addEventListener('change', applyFilters);
             dateToInput.addEventListener('change', applyFilters);
 
-            // Default: show yesterday's records
-            const yesterday = new Date();
-            yesterday.setDate(yesterday.getDate() - 1);
-            const yStr = yesterday.toISOString().split('T')[0];
-            dateFromInput.value = yStr;
-            dateToInput.value = yStr;
-
             applyFilters();
         });
     </script>
