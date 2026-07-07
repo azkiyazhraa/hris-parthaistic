@@ -195,6 +195,8 @@ class ProfileController extends Controller
                 'telepon_kontak_darurat' => 'nullable|string|max:30',
                 'nama_bank' => 'nullable|string|max:50',
                 'nomor_rekening' => 'nullable|string|max:30',
+                'nomor_paspor' => 'nullable|string|max:50',
+                'paspor_berlaku_hingga' => 'nullable|date',
             ]);
 
             $updateData = [
@@ -221,6 +223,8 @@ class ProfileController extends Controller
                 // BANK: Selalu BSI, tidak bisa diubah oleh employee
                 'nama_bank' => 'BSI',
                 'nomor_rekening' => $validated['nomor_rekening'] ?? $karyawan->nomor_rekening,
+                'nomor_paspor' => $validated['nomor_paspor'] ?? null,
+                'paspor_berlaku_hingga' => $validated['paspor_berlaku_hingga'] ?? null,
             ];
 
             $karyawan->update($updateData);

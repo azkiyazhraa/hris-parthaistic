@@ -260,17 +260,6 @@
                             </div>
                         </div>
                     </div>
-                    {{-- <div>
-                        <label class="block mb-1 text-sm font-medium text-gray-700">Passport Number</label>
-                        <input type="text" name="nomor_paspor" value="{{ old('nomor_paspor') }}"
-                            class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block mb-1 text-sm font-medium text-gray-700">Passport Validity Period</label>
-                        <input type="date" name="paspor_berlaku_hingga"
-                            value="{{ old('paspor_berlaku_hingga') }}"
-                            class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    </div> --}}
                     <div class="md:col-span-2">
                         <label class="block mb-1 text-sm font-medium text-gray-700">Address <span
                                 class="text-red-500">*</span></label>
@@ -374,9 +363,12 @@
                     <div>
                         <label class="block mb-1 text-sm font-medium text-gray-700">Graduation Year <span
                                 class="text-red-500">*</span></label>
-                        <input type="number" name="tahun_lulus" value="{{ old('tahun_lulus') }}" required
-                            class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                        <input type="text" name="tahun_lulus" value="{{ old('tahun_lulus') }}" required
+                            class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none number-only"
                             min="1900" max="2099" step="1">
+                        <p class="hidden mt-1 text-xs text-red-600 input-error">
+                            Field must contain numbers only.
+                        </p>
                     </div>
                 </div>
             </div>
@@ -397,7 +389,10 @@
                                 class="text-red-500">*</span></label>
                         <input type="text" name="telepon_kontak_darurat"
                             value="{{ old('telepon_kontak_darurat') }}" required
-                            class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none number-only">
+                        <p class="hidden mt-1 text-xs text-red-600 input-error">
+                            Field must contain numbers only.
+                        </p>
                     </div>
                 </div>
             </div>
