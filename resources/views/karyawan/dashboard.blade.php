@@ -811,7 +811,7 @@
             let isCurrentlyOnBreak = false;
             let displayUpdateInterval = null;
 
-            @if ($absensi && !$absensi->jam_pulang)
+            @if ($absensi && !$absensi->jam_pulang && $absensi->jam_masuk)
                 const checkInDate = "{{ $absensi->tanggal->format('Y-m-d') }}";
                 const checkInTimeStr = "{{ $absensi->jam_masuk }}";
                 checkInTime = new Date(`${checkInDate}T${checkInTimeStr}`);

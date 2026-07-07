@@ -176,8 +176,21 @@ class AbsensiController extends Controller
                     if (!$hasApprovedChangeDay) {
                         DB::rollBack();
                         return redirect()->route('absensi.index')
-                            ->with('error', 'Check-in is not allowed on Sundays or national holidays. You need an approved Change Day request for today.');
+                            ->with('error', 'Sunday and public holiday check-ins require an approved Change Day request.');
                     }
+                }
+
+                // Block check-in on approved Change Day off date (tanggal_awal = compensatory day off)
+                $isChangeDayOff = AbsensiKaryawan::where('karyawan_id', $karyawan->id)
+                    ->where('is_change_day', true)
+                    ->where('change_day_status', AbsensiKaryawan::CHANGE_DAY_APPROVED)
+                    ->whereDate('change_day_tanggal_awal', $today)
+                    ->exists();
+
+                if ($isChangeDayOff) {
+                    DB::rollBack();
+                    return redirect()->route('absensi.index')
+                        ->with('error', 'Today is your approved Change Day off. You are not scheduled to work today.');
                 }
 
                 // Cek apakah sudah ada absensi hari ini (apapun jenisnya, bukan change day)
