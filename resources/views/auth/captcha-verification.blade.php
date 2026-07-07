@@ -5,10 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'HRIS Management') }} - Lupa Password</title>
+    <title>{{ config('app.name', 'HRIS Management') }} - Verifikasi Captcha</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
@@ -18,11 +17,6 @@
 
         .gradient-bg {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
         }
 
         .logo-image {
@@ -35,6 +29,18 @@
         .input-focus:focus {
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+        }
+
+        .captcha-box {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border: 2px dashed #94a3b8;
+        }
+
+        .captcha-box .expression {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            letter-spacing: 4px;
         }
     </style>
 </head>
@@ -68,39 +74,30 @@
                     </div>
 
                     <h1 class="mb-4 text-5xl font-bold leading-tight">
-                        Reset Password
+                        Verifikasi Captcha
                     </h1>
                     <p class="max-w-md text-lg leading-relaxed text-blue-100">
-                        Lupa password? Tenang, kami akan membantu Anda mereset password.
+                        Selesaikan perhitungan matematika untuk verifikasi keamanan.
                     </p>
                 </div>
 
                 <div class="relative z-10 space-y-4">
                     <div class="flex items-center gap-4 p-4 border bg-white/10 backdrop-blur-md rounded-2xl border-white/10">
                         <div class="flex items-center justify-center w-11 h-11 rounded-xl bg-green-400/20">
-                            <i class="text-green-300 fas fa-check"></i>
+                            <i class="text-green-300 fas fa-check-circle"></i>
                         </div>
                         <div>
-                            <p class="font-medium">Verifikasi Email</p>
-                            <p class="text-sm text-blue-100">Masukkan email terdaftar Anda</p>
+                            <p class="font-medium">Email Terverifikasi</p>
+                            <p class="text-sm text-blue-100">{{ $email ?? 'Email terdaftar' }}</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-4 p-4 border bg-white/10 backdrop-blur-md rounded-2xl border-white/10">
-                        <div class="flex items-center justify-center w-11 h-11 rounded-xl bg-green-400/20">
-                            <i class="text-green-300 fas fa-check"></i>
+                        <div class="flex items-center justify-center w-11 h-11 rounded-xl bg-yellow-400/20">
+                            <i class="text-yellow-300 fas fa-shield-alt"></i>
                         </div>
                         <div>
-                            <p class="font-medium">Verifikasi Captcha</p>
-                            <p class="text-sm text-blue-100">Selesaikan perhitungan matematika</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-4 p-4 border bg-white/10 backdrop-blur-md rounded-2xl border-white/10">
-                        <div class="flex items-center justify-center w-11 h-11 rounded-xl bg-green-400/20">
-                            <i class="text-green-300 fas fa-check"></i>
-                        </div>
-                        <div>
-                            <p class="font-medium">Reset Password</p>
-                            <p class="text-sm text-blue-100">Buat password baru Anda</p>
+                            <p class="font-medium">Keamanan</p>
+                            <p class="text-sm text-blue-100">Verifikasi manusia dengan captcha</p>
                         </div>
                     </div>
                 </div>
@@ -116,17 +113,17 @@
                         <div class="flex items-center justify-center w-24 h-24 p-1 mx-auto mb-5 overflow-hidden text-white bg-blue-600 shadow-lg rounded-3xl">
                             <img src="{{ asset('assets/image/logo-partharis-white.png') }}" alt="Parthaistic Logo" class="logo-image">
                         </div>
-                        <h1 class="text-3xl font-bold text-slate-800">Lupa Password</h1>
-                        <p class="mt-2 text-slate-500">Reset password Anda</p>
+                        <h1 class="text-3xl font-bold text-slate-800">Verifikasi Captcha</h1>
+                        <p class="mt-2 text-slate-500">Selesaikan perhitungan di bawah</p>
                     </div>
 
                     <!-- HEADER -->
                     <div class="mb-8">
                         <h2 class="mb-2 text-3xl font-bold text-slate-800">
-                            Lupa Password? 🔑
+                            Verifikasi Keamanan 🛡️
                         </h2>
                         <p class="text-slate-500">
-                            Masukkan email Anda untuk mereset password
+                            Silakan selesaikan perhitungan di bawah ini
                         </p>
                     </div>
 
@@ -139,31 +136,47 @@
                         </div>
                     @endif
 
-                    @if (session('status'))
-                        <div class="px-4 py-3 mb-6 text-green-700 border border-green-200 bg-green-50 rounded-2xl">
-                            <p class="text-sm">{{ session('status') }}</p>
+                    <!-- CAPTCHA BOX -->
+                    <div class="p-6 mb-6 text-center rounded-2xl captcha-box">
+                        <div class="flex items-center justify-center gap-2 mb-2">
+                            <i class="text-2xl text-blue-500 fas fa-calculator"></i>
+                            <span class="text-sm font-medium text-slate-500">Selesaikan perhitungan:</span>
                         </div>
-                    @endif
+                        <div class="expression">
+                            {{ $expression ?? '2 + 6 - 7' }}
+                        </div>
+                        <div class="mt-2 text-sm text-slate-400">
+                            <i class="fas fa-info-circle"></i>
+                            Kerjakan dari kiri ke kanan
+                        </div>
+                    </div>
 
                     <!-- FORM -->
-                    <form action="{{ route('password.check-email') }}" method="POST" class="space-y-5">
+                    <form action="{{ route('password.verify-captcha') }}" method="POST" class="space-y-5">
                         @csrf
 
-                        <!-- EMAIL -->
+                        <!-- CAPTCHA ANSWER -->
                         <div>
                             <label class="block mb-2 text-sm font-medium text-slate-700">
-                                Email Address
+                                Hasil Perhitungan
                             </label>
                             <div class="relative">
                                 <span class="absolute -translate-y-1/2 left-4 top-1/2 text-slate-400">
-                                    <i class="fas fa-envelope"></i>
+                                    <i class="fas fa-equals"></i>
                                 </span>
-                                <input type="email" name="email" id="email" value="{{ old('email') }}" required
-                                    autocomplete="email" placeholder="nama@company.com"
+                                <input type="number" name="captcha_answer" id="captcha_answer" required
+                                    placeholder="Masukkan hasil perhitungan"
                                     class="w-full pl-12 pr-4 py-3.5 rounded-2xl border border-slate-200 bg-slate-50
                                     focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition input-focus">
                             </div>
+                            <p class="mt-2 text-xs text-slate-400">
+                                <i class="fas fa-lightbulb"></i>
+                                Contoh: jika 2 + 6 - 7 = 1, maka jawabannya 1
+                            </p>
                         </div>
+
+                        <!-- HIDDEN EMAIL -->
+                        <input type="hidden" name="email" value="{{ $email ?? '' }}">
 
                         <!-- BUTTONS -->
                         <div class="flex flex-col gap-3">
@@ -171,16 +184,16 @@
                                 class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold
                                 py-3.5 rounded-2xl transition duration-300 shadow-lg shadow-blue-600/20">
 
-                                <i class="mr-2 fas fa-paper-plane"></i>
-                                Kirim Verifikasi
+                                <i class="mr-2 fas fa-check-circle"></i>
+                                Verifikasi
                             </button>
 
-                            <a href="{{ route('login') }}"
+                            <a href="{{ route('password.request') }}"
                                 class="w-full text-center text-slate-600 hover:text-blue-600 font-medium
                                 py-3 rounded-2xl transition duration-300 border border-slate-200 hover:border-blue-200">
 
                                 <i class="mr-2 fas fa-arrow-left"></i>
-                                Kembali ke Login
+                                Kembali
                             </a>
                         </div>
 

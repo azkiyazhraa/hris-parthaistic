@@ -356,10 +356,8 @@
 
                             </label>
 
-                            <!-- FORGOT PASSWORD - Redirect to WhatsApp -->
-                            <a href="#" onclick="sendWhatsAppMessage('forgot')"
-                                class="text-sm font-medium text-blue-600 hover:text-blue-700 wa-link">
-
+                            <a href="{{ route('password.request') }}"
+                                class="text-sm font-medium text-blue-600 hover:text-blue-700 transition wa-link">
                                 Forgot Password?
                             </a>
 

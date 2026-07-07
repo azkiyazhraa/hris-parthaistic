@@ -14,12 +14,32 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\BreakController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Karyawan\DashboardController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
 
 // Redirect root to login
 Route::get('/', function () {
     return redirect()->route('login');
 });
 
+Route::get('forgot-password', [ForgotPasswordController::class, 'showForgotForm'])
+    ->middleware('guest')
+    ->name('password.request');
+
+Route::post('forgot-password/check-email', [ForgotPasswordController::class, 'checkEmail'])
+    ->middleware('guest')
+    ->name('password.check-email');
+
+Route::post('forgot-password/verify-captcha', [ForgotPasswordController::class, 'verifyCaptcha'])
+    ->middleware('guest')
+    ->name('password.verify-captcha');
+
+Route::get('reset-password/{token}', [ForgotPasswordController::class, 'showResetForm'])
+    ->middleware('guest')
+    ->name('password.reset');
+
+Route::post('reset-password', [ForgotPasswordController::class, 'resetPassword'])
+    ->middleware('guest')
+    ->name('password.update');
 
 // Default dashboard route for authenticated users
 Route::middleware('auth')->group(function () {
@@ -44,10 +64,13 @@ Route::middleware('auth')->group(function () {
 });
 
 // Calendar Routes
-Route::middleware('auth')->prefix('calendar')->name('calendar.')->group(function () {
-    Route::get('/events', [CalendarController::class, 'getEvents'])->name('events');
-    Route::get('/event-detail', [CalendarController::class, 'getEventDetail'])->name('event-detail');
-});
+Route::middleware('auth')
+    ->prefix('calendar')
+    ->name('calendar.')
+    ->group(function () {
+        Route::get('/events', [CalendarController::class, 'getEvents'])->name('events');
+        Route::get('/event-detail', [CalendarController::class, 'getEventDetail'])->name('event-detail');
+    });
 
 // Performa Routes (Employee - View only)
 Route::middleware('auth')
