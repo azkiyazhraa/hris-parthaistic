@@ -1,60 +1,109 @@
-version: '29.3.1'
+# docker-compose.yml
+version: '3.8'
 
 services:
+  # PHP-FPM Service
   app:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: laravel_app
     restart: unless-stopped
-    working_dir: /var/www
+    working_dir: /var/www/html
     volumes:
-      - ./:/var/www
+      - ./:/var/www/html
+      - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
     networks:
-      - laravel
+      - laravel-network
+    depends_on:
+      - db
+      - redis
 
-  webserver:
+  # Nginx Service
+  nginx:
     image: nginx:alpine
     container_name: laravel_nginx
     restart: unless-stopped
     ports:
-      - "8000:80"
+      - "80:80"
+      - "443:443"
     volumes:
-      - ./:/var/www
-      - ./docker/nginx:/etc/nginx/conf.d
+      - ./:/var/www/html
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d
     networks:
-      - laravel
+      - laravel-network
+    depends_on:
+      - app
 
+  # MySQL Database Service
   db:
     image: mysql:8.0
-    container_name: hris-system
+    container_name: laravel_db
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: hris-system
-      MYSQL_ROOT_PASSWORD: p@ssw0rd123
-      MYSQL_PASSWORD: p@ssw0rd123
-      MYSQL_USER: maszal_08
+      MYSQL_DATABASE: ${DB_DATABASE:-laravel}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-rootpassword}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-rootpassword}
+      MYSQL_USER: ${DB_USERNAME:-laravel}
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'no'
+      MYSQL_INIT_CONNECT: 'SET NAMES utf8mb4'
     ports:
       - "3306:3306"
     volumes:
-      - dbdata:/var/lib/mysql
+      - ./docker/mysql/data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d
     networks:
-      - laravel
+      - laravel-network
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
 
+  # Redis Service
+  redis:
+    image: redis:alpine
+    container_name: laravel_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./docker/redis/data:/data
+    networks:
+      - laravel-network
+
+  # phpMyAdmin
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     container_name: laravel_phpmyadmin
     restart: unless-stopped
-    ports:
-      - "8080:80"
     environment:
       PMA_HOST: db
-      MYSQL_ROOT_PASSWORD: root
+      PMA_PORT: 3306
+      UPLOAD_LIMIT: 100M
+    ports:
+      - "8080:80"
     networks:
-      - laravel
+      - laravel-network
+    depends_on:
+      - db
+
+  # Node.js for frontend
+  node:
+    image: node:20-alpine
+    container_name: laravel_node
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+    command: sh -c "npm install && npm run build"
+    networks:
+      - laravel-network
 
 networks:
-  laravel:
+  laravel-network:
+    driver: bridge
 
 volumes:
-  dbdata:
+  db_data:
+  redis_data:
