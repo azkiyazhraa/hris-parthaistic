@@ -411,7 +411,7 @@
             position:absolute;
             left:35px;
             top:15px;
-            width:90px;
+            width:120px;
             height:auto;
             z-index:10;
         ">
