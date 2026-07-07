@@ -327,6 +327,57 @@
     @stack('scripts')
 
     <script>
+        function updateSubmitButton() {
+            const hasError = document.querySelectorAll('.input-error:not(.hidden)').length > 0;
+
+            document.querySelectorAll('button[type="submit"]').forEach(btn => {
+                btn.disabled = hasError;
+            });
+        }
+
+        document.addEventListener('input', function(e) {
+            if (!e.target.matches('.number-only')) return;
+
+            const input = e.target;
+            const error = input.parentElement.querySelector('.input-error');
+
+            const valid = /^\d*$/.test(input.value);
+
+            if (valid) {
+                input.classList.remove(
+                    'border-red-500',
+                    'focus:border-red-500',
+                    'focus:ring-red-200'
+                );
+
+                input.classList.add(
+                    'border-gray-300',
+                    'focus:border-blue-500',
+                    'focus:ring-blue-200'
+                );
+
+                error.classList.add('hidden');
+            } else {
+                input.classList.remove(
+                    'border-gray-300',
+                    'focus:border-blue-500',
+                    'focus:ring-blue-200'
+                );
+
+                input.classList.add(
+                    'border-red-500',
+                    'focus:border-red-500',
+                    'focus:ring-red-200'
+                );
+
+                error.classList.remove('hidden');
+            }
+
+            updateSubmitButton();
+        });
+
+        document.addEventListener('DOMContentLoaded', updateSubmitButton);
+
         document.addEventListener('DOMContentLoaded', function() {
 
             // ==============================

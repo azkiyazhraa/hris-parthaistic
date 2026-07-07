@@ -144,11 +144,11 @@
 
                                 <td class="px-2 py-3 text-gray-700 whitespace-nowrap">
                                     {{ match ($item->jenis_cuti) {
-                                        'tahunan'   => 'Annual Leave',
-                                        'melahirkan'=> $item->karyawan?->jenis_kelamin === 'P' ? 'Maternity Leave' : 'Paternity Leave',
-                                        'menikah'   => 'Marriage Leave',
-                                        'duka'      => 'Bereavement Leave',
-                                        default     => ucfirst($item->jenis_cuti) . ' Leave',
+                                        'tahunan' => 'Annual Leave',
+                                        'melahirkan' => $item->karyawan?->jenis_kelamin === 'P' ? 'Maternity Leave' : 'Paternity Leave',
+                                        'menikah' => 'Marriage Leave',
+                                        'duka' => 'Bereavement Leave',
+                                        default => ucfirst($item->jenis_cuti) . ' Leave',
                                     } }}
                                 </td>
 
@@ -165,21 +165,23 @@
                                 </td>
 
                                 <td class="px-2 py-3 whitespace-nowrap">
-                                    <form action="{{ route('admin.leave.update-status', $item->id) }}"
-                                        method="POST" class="inline-block" id="leave-form-{{ $item->id }}">
+                                    <form action="{{ route('admin.leave.update-status', $item->id) }}" method="POST"
+                                        class="inline-block" id="leave-form-{{ $item->id }}">
                                         @csrf
                                         @method('PUT')
                                         <input type="hidden" name="catatan" id="leave-note-{{ $item->id }}">
-                                        <select name="status"
-                                            data-current-status="{{ $item->status }}"
+                                        <select name="status" data-current-status="{{ $item->status }}"
                                             onchange="updateLeaveStatus({{ $item->id }}, this)"
                                             class="text-xs rounded-full py-1 px-3 border-0 focus:ring-2 focus:ring-blue-500 cursor-pointer
                                             @if ($item->status == 'pending') bg-yellow-100 text-yellow-800
                                             @elseif($item->status == 'disetujui') bg-green-100 text-green-800
                                             @else bg-red-100 text-red-800 @endif">
-                                            <option value="pending" {{ $item->status == 'pending' ? 'selected' : '' }}>Pending</option>
-                                            <option value="disetujui" {{ $item->status == 'disetujui' ? 'selected' : '' }}>Approved</option>
-                                            <option value="ditolak" {{ $item->status == 'ditolak' ? 'selected' : '' }}>Rejected</option>
+                                            <option value="pending" {{ $item->status == 'pending' ? 'selected' : '' }}>
+                                                Pending</option>
+                                            <option value="disetujui" {{ $item->status == 'disetujui' ? 'selected' : '' }}>
+                                                Approved</option>
+                                            <option value="ditolak" {{ $item->status == 'ditolak' ? 'selected' : '' }}>
+                                                Rejected</option>
                                         </select>
                                     </form>
                                 </td>
@@ -233,13 +235,19 @@
     <script>
         async function updateLeaveStatus(id, selectElement) {
             const selectedStatus = selectElement.value;
-            const currentStatus  = selectElement.dataset.currentStatus;
+            const currentStatus = selectElement.dataset.currentStatus;
 
-            const labelMap = { disetujui: 'Approved', ditolak: 'Rejected', pending: 'Pending' };
+            const labelMap = {
+                disetujui: 'Approved',
+                ditolak: 'Rejected',
+                pending: 'Pending'
+            };
 
             // Warning when reverting from approved to rejected
             if (selectedStatus === 'ditolak' && currentStatus === 'disetujui') {
-                const { isConfirmed } = await Swal.fire({
+                const {
+                    isConfirmed
+                } = await Swal.fire({
                     title: 'Revert approval?',
                     html: `<p class="text-sm text-gray-600">This request was already <strong>approved</strong>. Rejecting it may affect the employee's leave quota.</p>`,
                     icon: 'warning',
@@ -254,16 +262,24 @@
                         cancelButton: 'bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg mx-1',
                     },
                 });
-                if (!isConfirmed) { location.reload(); return; }
+                if (!isConfirmed) {
+                    location.reload();
+                    return;
+                }
             }
 
             // Notes modal
-            const { value: inputNote, isConfirmed } = await Swal.fire({
+            const {
+                value: inputNote,
+                isConfirmed
+            } = await Swal.fire({
                 title: `Change status to ${labelMap[selectedStatus] || selectedStatus}?`,
                 input: 'textarea',
                 inputLabel: selectedStatus === 'ditolak' ? 'Rejection reason' : 'Note (optional)',
                 inputPlaceholder: selectedStatus === 'ditolak' ? 'Enter rejection reason...' : 'Add a note...',
-                inputAttributes: { 'aria-label': 'Note' },
+                inputAttributes: {
+                    'aria-label': 'Note'
+                },
                 showCancelButton: true,
                 confirmButtonText: 'Save',
                 cancelButtonText: 'Cancel',
@@ -279,7 +295,10 @@
                 },
             });
 
-            if (!isConfirmed) { location.reload(); return; }
+            if (!isConfirmed) {
+                location.reload();
+                return;
+            }
 
             document.getElementById(`leave-note-${id}`).value = inputNote || '';
             document.getElementById(`leave-form-${id}`).submit();
@@ -302,7 +321,9 @@
                         `<a href="/storage/${data.lampiran}" target="_blank" class="text-xs text-blue-600 hover:underline">Lihat file</a>` :
                         '-';
 
-                    const note = data.alasan || '-';
+                    const note = data.alasan ?
+                        data.alasan.replace(/\n/g, '<br>') :
+                        '-';
 
                     const startDate = new Date(data.tanggal_mulai).toLocaleDateString('id-ID', {
                         day: '2-digit',
@@ -320,10 +341,18 @@
                         data.status === 'ditolak' ? 'Rejected' : 'Requested';
 
                     const textLeave = {
-                        'tahunan':    { text: 'Annual Leave' },
-                        'melahirkan': { text: 'Maternity / Paternity Leave' },
-                        'menikah':    { text: 'Marriage Leave' },
-                        'duka':       { text: 'Bereavement Leave' },
+                        'tahunan': {
+                            text: 'Annual Leave'
+                        },
+                        'melahirkan': {
+                            text: 'Maternity / Paternity Leave'
+                        },
+                        'menikah': {
+                            text: 'Marriage Leave'
+                        },
+                        'duka': {
+                            text: 'Bereavement Leave'
+                        },
                     };
                     const leaveType = textLeave[(data.jenis_cuti || '').toLowerCase()] || {
                         text: data.jenis_cuti || '-',

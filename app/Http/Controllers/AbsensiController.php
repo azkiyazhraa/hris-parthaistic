@@ -408,7 +408,7 @@ class AbsensiController extends Controller
         $request->validate([
             'jam_pulang'    => 'required',
             'lokasi_pulang' => 'required|string|max:255',
-            'keterangan'    => 'required|string|max:500',
+            'keterangan'    => 'required|string',
         ]);
 
         DB::beginTransaction();
