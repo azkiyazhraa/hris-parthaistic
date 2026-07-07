@@ -120,7 +120,7 @@ class LeaveController extends Controller
             $lampiranPath = $request->file('lampiran')->store('lampiran-cuti', 'public');
         }
 
-        PengajuanCuti::create([
+        $cuti = PengajuanCuti::create([
             'karyawan_id'    => $karyawanId,
             'nama_karyawan'  => $karyawan->nama_lengkap,
             'jenis_cuti'     => $request->jenis_cuti,
@@ -135,6 +135,19 @@ class LeaveController extends Controller
             'kuota_terpakai' => $q['kuota'] - $q['sisa'],
             'sisa_kuota'     => $q['sisa'] - $totalHari,
         ]);
+
+        $leaveLabel = $q['label'];
+        $period     = Carbon::parse($request->tanggal_mulai)->format('d/m/Y')
+                    . ' – ' . Carbon::parse($request->tanggal_selesai)->format('d/m/Y');
+
+        foreach (Karyawan::whereIn('role', ['admin', 'hr'])->get() as $admin) {
+            Notifikasi::create([
+                'user_id'         => $admin->id,
+                'judul'           => 'New Leave Request',
+                'pesan'           => "{$karyawan->nama_lengkap} submitted a {$leaveLabel} leave request for {$period} ({$totalHari} day(s)).",
+                'tipe_notifikasi' => 'cuti',
+            ]);
+        }
 
         return redirect()->route('cuti.index')->with('success', 'Leave request submitted successfully');
     }

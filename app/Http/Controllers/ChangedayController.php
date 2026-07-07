@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\AbsensiKaryawan;
+use App\Models\Karyawan;
+use App\Models\Notifikasi;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -106,6 +109,19 @@ class ChangedayController extends Controller
         ];
 
         AbsensiKaryawan::create($data);
+
+        $karyawan   = Auth::user();
+        $origDate   = Carbon::parse($request->input('original_date'))->format('d/m/Y');
+        $reqDate    = Carbon::parse($request->input('requested_date'))->format('d/m/Y');
+
+        foreach (Karyawan::whereIn('role', ['admin', 'hr'])->get() as $admin) {
+            Notifikasi::create([
+                'user_id'         => $admin->id,
+                'judul'           => 'New Change Day Request',
+                'pesan'           => "{$karyawan->nama_lengkap} submitted a change day request: off on {$origDate}, working on {$reqDate}.",
+                'tipe_notifikasi' => 'absensi',
+            ]);
+        }
 
         return redirect()->route('changeday.index')
             ->with('success', 'Change day request submitted successfully');

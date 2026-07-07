@@ -38,7 +38,14 @@
                             </div>
                             <p class="text-sm text-gray-600">{{ $item->pesan }}</p>
                             <span class="inline-block mt-2 px-2 py-1 text-xs text-gray-500 bg-gray-100 rounded">
-                                {{ strtoupper($item->tipe_notifikasi) }}
+                                {{ match($item->tipe_notifikasi) {
+                                    'cuti'       => 'LEAVE',
+                                    'absensi'    => 'ATTENDANCE',
+                                    'pengumuman' => 'ANNOUNCEMENT',
+                                    'performa'   => 'PERFORMANCE',
+                                    'penggajian' => 'PAYROLL',
+                                    default      => strtoupper($item->tipe_notifikasi),
+                                } }}
                             </span>
                         </div>
 
