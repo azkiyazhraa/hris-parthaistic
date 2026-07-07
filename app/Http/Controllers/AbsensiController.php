@@ -8,7 +8,9 @@ use App\Models\Notifikasi;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 
 class AbsensiController extends Controller
@@ -163,6 +165,21 @@ class AbsensiController extends Controller
 
             // ── CHECK-IN ─────────────────────────────────────────────────────
             elseif ($request->jenis_absensi === 'checkin') {
+                // Block check-in on Sunday / national holiday without approved Change Day
+                if ($this->isSundayOrHoliday($today)) {
+                    $hasApprovedChangeDay = AbsensiKaryawan::where('karyawan_id', $karyawan->id)
+                        ->where('is_change_day', true)
+                        ->where('change_day_status', AbsensiKaryawan::CHANGE_DAY_APPROVED)
+                        ->whereDate('change_day_tanggal_akhir', $today)
+                        ->exists();
+
+                    if (!$hasApprovedChangeDay) {
+                        DB::rollBack();
+                        return redirect()->route('absensi.index')
+                            ->with('error', 'Check-in is not allowed on Sundays or national holidays. You need an approved Change Day request for today.');
+                    }
+                }
+
                 // Cek apakah sudah ada absensi hari ini (apapun jenisnya, bukan change day)
                 $existingAbsensi = AbsensiKaryawan::where('karyawan_id', $karyawan->id)
                     ->whereDate('tanggal', $today)
@@ -679,5 +696,30 @@ class AbsensiController extends Controller
         $absensi = AbsensiKaryawan::with(['karyawan', 'disetujuiOleh'])->findOrFail($id);
 
         return response()->json($absensi);
+    }
+
+    private function isSundayOrHoliday(Carbon $date): bool
+    {
+        if ($date->dayOfWeek === Carbon::SUNDAY) {
+            return true;
+        }
+
+        $year = $date->year;
+        $holidays = Cache::remember("national_holidays_{$year}", now()->addDay(), function () use ($year) {
+            try {
+                $response = Http::timeout(5)->get("https://libur.deno.dev/api?year={$year}");
+                if ($response->successful()) {
+                    return collect($response->json())
+                        ->pluck('date')
+                        ->map(fn($d) => substr($d, 0, 10))
+                        ->toArray();
+                }
+            } catch (\Exception $e) {
+                // API unavailable — fall back to Sunday-only check
+            }
+            return [];
+        });
+
+        return in_array($date->toDateString(), $holidays);
     }
 }

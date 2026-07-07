@@ -237,7 +237,7 @@
                                 </div>
                                 <p class="text-xs mt-2 text-green-100">This Month</p>
                             </div>
-                            <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl p-4 text-white shadow-lg">
+                            <!-- <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl p-4 text-white shadow-lg">
                                 <div class="flex justify-between items-start">
                                     <div>
                                         <p class="text-yellow-100 text-xs">Late</p>
@@ -250,7 +250,7 @@
                                     </div>
                                 </div>
                                 <p class="text-xs mt-2 text-yellow-100">This Month</p>
-                            </div>
+                            </div> -->
                             <div class="bg-gradient-to-br from-red-500 to-red-600 rounded-xl p-4 text-white shadow-lg">
                                 <div class="flex justify-between items-start">
                                     <div>
@@ -623,7 +623,7 @@
 
         document.getElementById('emp-attendance-rate').textContent  = a.rate + '%';
         document.getElementById('emp-present-count').textContent     = a.present;
-        document.getElementById('emp-late-count').textContent        = a.late || 0;
+        // document.getElementById('emp-late-count').textContent        = a.late || 0;
         document.getElementById('emp-absent-count').textContent      = a.absent;
 
         // Recent attendance rows

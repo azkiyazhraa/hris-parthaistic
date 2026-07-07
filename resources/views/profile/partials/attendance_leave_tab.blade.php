@@ -36,7 +36,7 @@
         </div>
 
         <!-- Late Card -->
-        <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl p-4 text-white shadow-lg">
+        <!-- <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl p-4 text-white shadow-lg">
             <div class="flex justify-between items-start">
                 <div>
                     <p class="text-yellow-100 text-sm">Late</p>
@@ -48,7 +48,7 @@
                     </svg>
                 </div>
             </div>
-        </div>
+        </div> -->
 
         <!-- Absent Card -->
         <div class="bg-gradient-to-br from-red-500 to-red-600 rounded-xl p-4 text-white shadow-lg">
