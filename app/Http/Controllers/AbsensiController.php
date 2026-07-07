@@ -501,35 +501,61 @@ class AbsensiController extends Controller
             ]);
 
             $updateData = [
-                'change_day_status' => $request->change_day_status,
-                'change_day_note' => $request->change_day_catatan_admin ?? null,
+                'change_day_status'        => $request->change_day_status,
+                'change_day_catatan_admin' => $request->change_day_note ?? null,
             ];
 
             if ($request->change_day_status === AbsensiKaryawan::CHANGE_DAY_APPROVED) {
                 $updateData['change_day_disetujui_pada'] = now();
                 $updateData['change_day_disetujui_oleh'] = Auth::id();
 
-                // Original Date (regular workday) → immediately mark as change_day (compensatory off)
+                // Original Date (compensatory day off) — if already past or today, create immediately;
+                // future dates are handled by the daily changeday:create-attendance scheduler.
                 if ($absensi->change_day_tanggal_awal) {
-                    AbsensiKaryawan::updateOrCreate(
-                        [
-                            'karyawan_id'   => $absensi->karyawan_id,
-                            'tanggal'       => $absensi->change_day_tanggal_awal->toDateString(),
-                            'is_change_day' => false,
-                        ],
-                        [
-                            'nama_karyawan'    => $absensi->nama_karyawan,
-                            'status_kehadiran' => AbsensiKaryawan::STATUS_CHANGE_DAY,
-                            'keterangan'       => 'Change Day off — will work on ' .
-                                ($absensi->change_day_tanggal_akhir
-                                    ? $absensi->change_day_tanggal_akhir->format('d/m/Y')
-                                    : '-'),
-                        ]
-                    );
+                    $origDate = $absensi->change_day_tanggal_awal->toDateString();
+                    if ($origDate <= Carbon::today()->toDateString()) {
+                        AbsensiKaryawan::updateOrCreate(
+                            [
+                                'karyawan_id'   => $absensi->karyawan_id,
+                                'tanggal'       => $origDate,
+                                'is_change_day' => false,
+                            ],
+                            [
+                                'nama_karyawan'    => $absensi->nama_karyawan,
+                                'status_kehadiran' => AbsensiKaryawan::STATUS_CHANGE_DAY,
+                                'keterangan'       => 'Change Day off — will work on ' .
+                                    ($absensi->change_day_tanggal_akhir
+                                        ? $absensi->change_day_tanggal_akhir->format('d/m/Y')
+                                        : '-'),
+                            ]
+                        );
+                    }
                 }
 
-                // Requested Date (Sunday/holiday) — record will be created by the daily scheduler
-                // on the actual date with status pending. See: changeday:create-attendance
+                // Requested Date (Sunday/holiday) — if already past or today, create immediately;
+                // future dates are handled by the daily changeday:create-attendance scheduler.
+                if ($absensi->change_day_tanggal_akhir) {
+                    $reqDate = $absensi->change_day_tanggal_akhir->toDateString();
+                    if ($reqDate <= Carbon::today()->toDateString()) {
+                        $alreadyExists = AbsensiKaryawan::where('karyawan_id', $absensi->karyawan_id)
+                            ->whereDate('tanggal', $reqDate)
+                            ->where('is_change_day', false)
+                            ->exists();
+                        if (!$alreadyExists) {
+                            AbsensiKaryawan::create([
+                                'karyawan_id'      => $absensi->karyawan_id,
+                                'nama_karyawan'    => $absensi->nama_karyawan,
+                                'tanggal'          => $reqDate,
+                                'is_change_day'    => false,
+                                'status_kehadiran' => AbsensiKaryawan::STATUS_PENDING,
+                                'keterangan'       => 'Change Day — working on holiday/Sunday in exchange for ' .
+                                    ($absensi->change_day_tanggal_awal
+                                        ? $absensi->change_day_tanggal_awal->format('d/m/Y')
+                                        : '-'),
+                            ]);
+                        }
+                    }
+                }
 
             } elseif ($request->change_day_status === AbsensiKaryawan::CHANGE_DAY_REJECTED) {
                 // If reverting from approved: clean up the change_day attendance record

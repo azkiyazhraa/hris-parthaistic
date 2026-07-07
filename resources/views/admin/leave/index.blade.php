@@ -369,11 +369,20 @@
                         </div>
 
                         <div>
-                            <p class="mb-1 text-xs text-gray-500">Notes</p>
+                            <p class="mb-1 text-xs text-gray-500">Reason</p>
                             <div class="px-3 py-2 text-xs text-gray-600 border border-blue-500 rounded-md">
                                 ${note}
                             </div>
                         </div>
+
+                        ${data.catatan ? `
+                        <div>
+                            <p class="mb-1 text-xs text-gray-500">Notes from Admin</p>
+                            <div class="px-3 py-2 text-xs text-gray-600 border border-gray-300 rounded-md bg-gray-50">
+                                ${data.catatan}
+                            </div>
+                        </div>
+                        ` : ''}
 
                         <div>
                             <p class="mb-1 text-xs text-gray-500">Status</p>

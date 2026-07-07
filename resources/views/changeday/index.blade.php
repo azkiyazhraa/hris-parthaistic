@@ -222,7 +222,7 @@
 
     {{-- MODAL REQUEST CHANGE DAY --}}
     @include('changeday.create')
-
+    
     {{-- MODAL EDIT CHANGE DAY --}}
     <div id="editChangeDayModal" tabindex="-1" aria-hidden="true"
         class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -252,8 +252,9 @@
                                     Original Date <span class="text-red-500">*</span>
                                 </label>
                                 <p class="text-xs text-gray-400 mb-2">The regular work day (Mon–Sat) you want to take off</p>
-                                <input type="date" id="editOriginalDate" name="original_date"
-                                    class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <input type="text" id="editOriginalDate" name="original_date"
+                                    placeholder="Select date" autocomplete="off" readonly
+                                    class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer">
                                 <p id="editOriginalDateError" class="mt-1.5 text-xs text-red-500 hidden"></p>
                             </div>
 
@@ -263,8 +264,9 @@
                                     Requested Date <span class="text-red-500">*</span>
                                 </label>
                                 <p class="text-xs text-gray-400 mb-2">The Sunday or national holiday you'll work instead, within 1 week</p>
-                                <input type="date" id="editRequestedDate" name="requested_date" disabled
-                                    class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed">
+                                <input type="text" id="editRequestedDate" name="requested_date"
+                                    placeholder="Select original date first" autocomplete="off" readonly
+                                    class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 text-gray-400 cursor-not-allowed">
                                 <p id="editRequestedDateError" class="mt-1.5 text-xs text-red-500 hidden"></p>
                                 <p id="editRequestedDateLabel" class="mt-1.5 text-xs text-blue-600 hidden"></p>
                             </div>
@@ -314,7 +316,8 @@
                         `<a href="/storage/${data.attachment}" target="_blank" class="text-blue-600 hover:underline text-xs">Lihat file</a>` :
                         '-';
 
-                    const note = data.change_day_alasan || '-';
+                    const note      = data.change_day_alasan || '-';
+                    const adminNote = data.change_day_catatan_admin || null;
 
                     const requestDate = new Date(data.created_at).toLocaleDateString('id-ID', {
                         day: '2-digit',
@@ -411,6 +414,15 @@
                             </div>
                         </div>
 
+                        ${adminNote ? `
+                        <div>
+                            <p class="text-xs text-gray-500 mb-1">Notes from Admin</p>
+                            <div class="px-3 py-2 text-xs text-gray-600 border border-gray-300 rounded-md bg-gray-50">
+                                ${adminNote}
+                            </div>
+                        </div>
+                        ` : ''}
+
                         <div>
                             <p class="text-xs text-gray-500 mb-1">Status</p>
                             <span class="inline-flex items-center px-3 py-1 rounded text-xs font-medium ${currentStatus.class}">
@@ -418,11 +430,7 @@
                             </span>
                             ${
                                 data.change_day_status === 'approved'
-                                    ? `
-                                                                                                                                    <p class="text-xs text-gray-500 mt-1">
-                                                                                                                                        Last updated: ${approveDate || '-'} by ${approveBy || '-'}
-                                                                                                                                    </p>
-                                                                                                                                `
+                                    ? `<p class="text-xs text-gray-500 mt-1">Last updated: ${approveDate || '-'} by ${approveBy || '-'}</p>`
                                 : ''
                             }
                         </div>
@@ -448,47 +456,40 @@
             fetch(`/changeday/${id}`)
                 .then(r => r.json())
                 .then(data => {
-                    const form = document.getElementById('editChangeDayForm');
-                    form.action = `/changeday/${id}`;
+                    document.getElementById('editChangeDayForm').action = `/changeday/${id}`;
 
-                    const origVal = data.change_day_tanggal_awal
-                        ? data.change_day_tanggal_awal.substring(0, 10) : '';
-                    const reqVal  = data.change_day_tanggal_akhir
-                        ? data.change_day_tanggal_akhir.substring(0, 10) : '';
+                    const origVal = data.change_day_tanggal_awal?.substring(0, 10) || '';
+                    const reqVal  = data.change_day_tanggal_akhir?.substring(0, 10) || '';
 
-                    const origInput = document.getElementById('editOriginalDate');
-                    const reqInput  = document.getElementById('editRequestedDate');
-
-                    origInput.value = origVal;
-                    reqInput.value  = reqVal;
-                    document.getElementById('editReason').value = data.change_day_alasan || '';
-
-                    // Reset errors & label
                     ['editOriginalDateError','editRequestedDateError','editRequestedDateLabel']
-                        .forEach(id => {
-                            const el = document.getElementById(id);
-                            el.textContent = '';
-                            el.classList.add('hidden');
+                        .forEach(elId => {
+                            const el = document.getElementById(elId);
+                            el.textContent = ''; el.classList.add('hidden');
                         });
 
-                    // Enable requested date and set range
-                    if (origVal) {
-                        reqInput.min      = addDaysEdit(origVal, -7);
-                        reqInput.max      = addDaysEdit(origVal, 7);
-                        reqInput.disabled = false;
+                    // Set Original Date (silent — no onChange trigger)
+                    fpEditOrig.setDate(origVal, false);
 
-                        // Show label for pre-filled requested date
-                        if (reqVal) {
-                            const lbl = document.getElementById('editRequestedDateLabel');
-                            if (isHolidayEdit(reqVal)) {
-                                lbl.textContent = '🗓 ' + HOLIDAY_MAP_EDIT[reqVal];
-                            } else if (isSundayEdit(reqVal)) {
-                                lbl.textContent = '📅 Sunday';
-                            }
-                            lbl.classList.remove('hidden');
-                        }
+                    if (origVal) {
+                        fpEditReq.set('minDate', addEditDays(origVal, -7));
+                        fpEditReq.set('maxDate', addEditDays(origVal, 7));
+                        fpEditReq.set('clickOpens', true);
+                        editReqInput.classList.remove('bg-gray-50', 'text-gray-400', 'cursor-not-allowed');
+                        editReqInput.classList.add('bg-white', 'text-gray-800', 'cursor-pointer');
+                        editReqInput.placeholder = 'Select date';
                     }
 
+                    // Set Requested Date (silent)
+                    if (reqVal) {
+                        fpEditReq.setDate(reqVal, false);
+                        const lbl = document.getElementById('editRequestedDateLabel');
+                        lbl.textContent = isEditHoliday(reqVal)
+                            ? '🗓 ' + EDIT_HOLIDAY_MAP[reqVal]
+                            : (isEditSunday(reqVal) ? '📅 Sunday' : '');
+                        if (lbl.textContent) lbl.classList.remove('hidden');
+                    }
+
+                    document.getElementById('editReason').value = data.change_day_alasan || '';
                     document.getElementById('editChangeDayModal').classList.remove('hidden');
                 })
                 .catch(() => alert('Failed to load request data.'));
@@ -496,6 +497,8 @@
 
         function closeEditModal() {
             document.getElementById('editChangeDayModal').classList.add('hidden');
+            fpEditOrig.clear();
+            resetEditReqDate();
         }
 
         // ── Delete Confirm ─────────────────────────────────────────────────────
@@ -520,99 +523,141 @@
             });
         }
 
-        // ── Holiday validation for edit modal ──────────────────────────────────
-        const HOLIDAY_MAP_EDIT = {};
+        // ── Edit modal Flatpickr ────────────────────────────────────────────────
+        const EDIT_HOLIDAY_MAP = {};
 
-        (async function loadHolidaysEdit() {
+        (async function loadEditHolidays() {
             const year = new Date().getFullYear();
-            const fetchY = async (y) => {
+            async function fetchEditYear(y) {
                 try {
                     const res  = await fetch(`https://libur.deno.dev/api?year=${y}`);
                     const data = await res.json();
                     if (Array.isArray(data)) {
                         data.forEach(item => {
-                            if (item.date) HOLIDAY_MAP_EDIT[item.date.substring(0, 10)] = item.name || 'National Holiday';
+                            if (item.date) EDIT_HOLIDAY_MAP[item.date.substring(0, 10)] = item.name || 'National Holiday';
                         });
                     }
                 } catch (e) {}
-            };
-            await Promise.all([fetchY(year), fetchY(year + 1)]);
+            }
+            await Promise.all([fetchEditYear(year), fetchEditYear(year + 1)]);
+            if (fpEditOrig) fpEditOrig.set('disable', editOrigDisableFn);
+            if (fpEditReq)  fpEditReq.set('disable', editReqDisableFn);
         })();
 
-        function parseLocalEdit(str) {
+        function parseEditLocal(str) {
             const [y, m, d] = str.split('-').map(Number);
             return new Date(y, m - 1, d);
         }
-        function addDaysEdit(str, days) {
-            const d = parseLocalEdit(str);
-            d.setDate(d.getDate() + days);
-            const y = d.getFullYear(), mo = String(d.getMonth()+1).padStart(2,'0'), da = String(d.getDate()).padStart(2,'0');
-            return `${y}-${mo}-${da}`;
+        function toEditYMD(date) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
         }
-        function isSundayEdit(str)  { return parseLocalEdit(str).getDay() === 0; }
-        function isHolidayEdit(str) { return Object.prototype.hasOwnProperty.call(HOLIDAY_MAP_EDIT, str); }
+        function addEditDays(str, days) {
+            const d = parseEditLocal(str);
+            d.setDate(d.getDate() + days);
+            return toEditYMD(d);
+        }
+        function isEditSunday(str)  { return parseEditLocal(str).getDay() === 0; }
+        function isEditHoliday(str) { return Object.prototype.hasOwnProperty.call(EDIT_HOLIDAY_MAP, str); }
 
-        document.getElementById('editOriginalDate').addEventListener('change', function () {
-            const val = this.value;
-            const errEl = document.getElementById('editOriginalDateError');
-            const reqInput = document.getElementById('editRequestedDate');
-            errEl.textContent = ''; errEl.classList.add('hidden');
-            reqInput.value = ''; reqInput.disabled = true;
-            document.getElementById('editRequestedDateLabel').textContent = '';
-            document.getElementById('editRequestedDateLabel').classList.add('hidden');
-
-            if (!val) return;
-
-            if (isSundayEdit(val)) {
-                errEl.textContent = 'Original date cannot be a Sunday — please select a regular work day.';
-                errEl.classList.remove('hidden'); this.value = ''; return;
+        function onEditDayCreate(dObj, dStr, fp, dayElem) {
+            const d = dayElem.dateObj;
+            if (!d) return;
+            if (d.getDay() === 0) dayElem.classList.add('fp-sunday');
+            const key = toEditYMD(d);
+            if (EDIT_HOLIDAY_MAP[key]) {
+                dayElem.classList.add('fp-holiday');
+                dayElem.title = EDIT_HOLIDAY_MAP[key];
             }
-            if (isHolidayEdit(val)) {
-                errEl.textContent = `Original date cannot be a national holiday (${HOLIDAY_MAP_EDIT[val]}) — please select a regular work day.`;
-                errEl.classList.remove('hidden'); this.value = ''; return;
-            }
-            reqInput.min = addDaysEdit(val, -7);
-            reqInput.max = addDaysEdit(val, 7);
-            reqInput.disabled = false;
+        }
+
+        const editReqInput = document.getElementById('editRequestedDate');
+
+        const editOrigDisableFn = [function(date) {
+            const str = toEditYMD(date);
+            return isEditSunday(str) || isEditHoliday(str);
+        }];
+        const editReqDisableFn = [function(date) {
+            const str = toEditYMD(date);
+            return !isEditSunday(str) && !isEditHoliday(str);
+        }];
+
+        function resetEditReqDate() {
+            fpEditReq.clear();
+            fpEditReq.set('minDate', null);
+            fpEditReq.set('maxDate', null);
+            fpEditReq.set('clickOpens', false);
+            editReqInput.classList.add('bg-gray-50', 'text-gray-400', 'cursor-not-allowed');
+            editReqInput.classList.remove('bg-white', 'text-gray-800', 'cursor-pointer');
+            editReqInput.placeholder = 'Select original date first';
+            const lbl = document.getElementById('editRequestedDateLabel');
+            lbl.textContent = ''; lbl.classList.add('hidden');
+            const err = document.getElementById('editRequestedDateError');
+            err.textContent = ''; err.classList.add('hidden');
+        }
+
+        let fpEditOrig = flatpickr('#editOriginalDate', {
+            dateFormat: 'Y-m-d',
+            allowInput: false,
+            disable: editOrigDisableFn,
+            onDayCreate: onEditDayCreate,
+            onChange: function(selectedDates, dateStr) {
+                document.getElementById('editOriginalDateError').textContent = '';
+                document.getElementById('editOriginalDateError').classList.add('hidden');
+                resetEditReqDate();
+                if (!dateStr) return;
+                fpEditReq.set('minDate', addEditDays(dateStr, -7));
+                fpEditReq.set('maxDate', addEditDays(dateStr, 7));
+                fpEditReq.set('clickOpens', true);
+                editReqInput.classList.remove('bg-gray-50', 'text-gray-400', 'cursor-not-allowed');
+                editReqInput.classList.add('bg-white', 'text-gray-800', 'cursor-pointer');
+                editReqInput.placeholder = 'Select date';
+            },
         });
 
-        document.getElementById('editRequestedDate').addEventListener('change', function () {
-            const val = this.value;
-            const origVal = document.getElementById('editOriginalDate').value;
-            const errEl = document.getElementById('editRequestedDateError');
-            const lbl   = document.getElementById('editRequestedDateLabel');
-            errEl.textContent = ''; errEl.classList.add('hidden');
-            lbl.textContent  = ''; lbl.classList.add('hidden');
+        let fpEditReq = flatpickr('#editRequestedDate', {
+            dateFormat: 'Y-m-d',
+            allowInput: false,
+            clickOpens: false,
+            disable: editReqDisableFn,
+            onDayCreate: onEditDayCreate,
+            onChange: function(selectedDates, dateStr) {
+                const errEl = document.getElementById('editRequestedDateError');
+                const lbl   = document.getElementById('editRequestedDateLabel');
+                errEl.textContent = ''; errEl.classList.add('hidden');
+                lbl.textContent  = ''; lbl.classList.add('hidden');
+                if (!dateStr) return;
 
-            if (!val) return;
-
-            if (!isSundayEdit(val) && !isHolidayEdit(val)) {
-                errEl.textContent = 'Requested date must be a Sunday or a national holiday.';
-                errEl.classList.remove('hidden'); this.value = ''; return;
-            }
-            const diff = Math.abs((parseLocalEdit(val) - parseLocalEdit(origVal)) / 86400000);
-            if (diff > 7) {
-                errEl.textContent = 'Requested date must be within 1 week of the original date.';
-                errEl.classList.remove('hidden'); this.value = ''; return;
-            }
-            lbl.textContent = isHolidayEdit(val) ? '🗓 ' + HOLIDAY_MAP_EDIT[val] : '📅 Sunday';
-            lbl.classList.remove('hidden');
+                const origDates = fpEditOrig.selectedDates;
+                if (origDates.length) {
+                    const diff = Math.abs((parseEditLocal(dateStr) - origDates[0]) / 86400000);
+                    if (diff > 7) {
+                        errEl.textContent = 'Requested date must be within 1 week of the original date.';
+                        errEl.classList.remove('hidden');
+                        fpEditReq.clear();
+                        return;
+                    }
+                }
+                lbl.textContent = isEditHoliday(dateStr) ? '🗓 ' + EDIT_HOLIDAY_MAP[dateStr] : '📅 Sunday';
+                lbl.classList.remove('hidden');
+            },
         });
 
-        document.getElementById('editChangeDayForm').addEventListener('submit', function (e) {
+        document.getElementById('editChangeDayForm').addEventListener('submit', function(e) {
+            const origVal = fpEditOrig.selectedDates[0] ? toEditYMD(fpEditOrig.selectedDates[0]) : '';
+            const reqVal  = fpEditReq.selectedDates[0]  ? toEditYMD(fpEditReq.selectedDates[0])  : '';
             let valid = true;
-            const origVal = document.getElementById('editOriginalDate').value;
-            const reqVal  = document.getElementById('editRequestedDate').value;
-            const origErr = document.getElementById('editOriginalDateError');
-            const reqErr  = document.getElementById('editRequestedDateError');
-
-            if (!origVal || isSundayEdit(origVal) || isHolidayEdit(origVal)) {
-                origErr.textContent = 'Original date must be a regular work day (Mon–Sat, not a holiday).';
-                origErr.classList.remove('hidden'); valid = false;
+            if (!origVal) {
+                const el = document.getElementById('editOriginalDateError');
+                el.textContent = 'Original date is required.'; el.classList.remove('hidden');
+                valid = false;
             }
-            if (!reqVal || (!isSundayEdit(reqVal) && !isHolidayEdit(reqVal))) {
-                reqErr.textContent = 'Requested date must be a Sunday or national holiday.';
-                reqErr.classList.remove('hidden'); valid = false;
+            if (!reqVal) {
+                const el = document.getElementById('editRequestedDateError');
+                el.textContent = 'Requested date is required.'; el.classList.remove('hidden');
+                valid = false;
             }
             if (!valid) e.preventDefault();
         });

@@ -378,20 +378,23 @@
                             </div>
                         </div>
 
+                        ${data.change_day_catatan_admin ? `
+                        <div>
+                            <p class="text-xs text-gray-500 mb-1">Notes from Admin</p>
+                            <div class="border border-gray-300 rounded-md px-3 py-2 text-xs text-gray-600 bg-gray-50">
+                                ${data.change_day_catatan_admin}
+                            </div>
+                        </div>
+                        ` : ''}
+
                         <div>
                             <p class="text-xs text-gray-500 mb-1">Status</p>
                             <span class="inline-flex items-center px-3 py-1 rounded text-xs font-medium ${currentStatus.class}">
                                 ${currentStatus.text}
                             </span>
-                            ${
-                                data.change_day_status === 'approved'
-                                    ? `
-                                                                                                                                                                                                        <p class="text-xs text-gray-500 mt-1">
-                                                                                                                                                                                                            Last updated: ${approveDate || '-'} by ${approveBy || '-'}
-                                                                                                                                                                                                        </p>
-                                                                                                                                                                                                    `
-                                : ''
-                            }
+                            ${data.change_day_status === 'approved'
+                                ? `<p class="text-xs text-gray-500 mt-1">Last updated: ${approveDate || '-'} by ${approveBy || '-'}</p>`
+                                : ''}
                         </div>
 
                     </div>
