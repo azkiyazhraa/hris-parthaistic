@@ -40,9 +40,9 @@
                     </div>
                 </div>
 
-                {{-- Latest Rating --}}
+                {{-- Latest Status --}}
                 <div class="flex flex-col justify-center px-5 py-4">
-                    <p class="text-sm font-medium text-gray-400">Latest Rating</p>
+                    <p class="text-sm font-medium text-gray-400">Latest Status</p>
                     <div class="mt-1">
                         @if ($latestPerforma)
                             <span
