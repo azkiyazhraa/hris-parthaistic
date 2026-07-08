@@ -481,7 +481,7 @@ class PenggajianController extends Controller
             . "Your payslip for *{$periode}* is now available.\n\n"
             . "📋 *Salary Summary:*\n"
             . "▪ Base Salary: {$gajiPokok}\n"
-            . "▪ Total Allowances: {$tunjangan}\n"
+            . "▪ Total Additional Earnings: {$tunjangan}\n"
             . "▪ Total Deductions: {$potongan}\n"
             . "▪ *Net Salary: {$netSalary}*\n\n"
             . "📥 *Download Payslip:*\n"
