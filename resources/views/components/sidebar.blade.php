@@ -20,22 +20,70 @@
             @php
                 $todaySpecialStatus = $absensiToday?->status_kehadiran;
                 $isTodayOff = in_array($todaySpecialStatus, ['change_day', 'leave']);
+                $isCheckedIn = $absensiToday && $absensiToday->jam_masuk && !$absensiToday->jam_pulang;
+                $activeBreak = null;
+                if ($absensiToday) {
+                    $activeBreak = \App\Models\BreakTime::where('absensi_id', $absensiToday->id)
+                        ->whereNull('break_end')
+                        ->latest()
+                        ->first();
+                }
             @endphp
 
-            @if ($isTodayOff)
-                {{-- Day off (change day / leave) — no check-in or check-out --}}
-                <span class="text-xs font-bold px-2 py-1 rounded-lg
-                    {{ $todaySpecialStatus === 'change_day' ? 'bg-indigo-500 text-white' : 'bg-purple-500 text-white' }}">
-                    {{ $todaySpecialStatus === 'change_day' ? 'Change Day Off' : 'On Leave' }}
-                </span>
-            @elseif ($absensiToday && !$absensiToday->jam_pulang)
-                <button id="checkout-btn-sidebar"
-                    data-modal-target="absence-modal-checkout-{{ $type }}-{{ $absensiToday->id }}"
-                    data-modal-toggle="absence-modal-checkout-{{ $type }}-{{ $absensiToday->id }}"
-                    class="text-xs font-bold bg-gray-400 text-white px-2 py-1 rounded-lg cursor-not-allowed"
-                    disabled>
-                    Check-Out
-                </button>
+            {{-- Buttons grouped so they sit flush together with a small gap --}}
+            <div class="flex items-center gap-1">
+                @if ($isTodayOff)
+                    <span class="text-xs font-bold px-2 py-1 rounded-lg
+                        {{ $todaySpecialStatus === 'change_day' ? 'bg-indigo-500 text-white' : 'bg-purple-500 text-white' }}">
+                        {{ $todaySpecialStatus === 'change_day' ? 'Change Day Off' : 'On Leave' }}
+                    </span>
+                @elseif ($absensiToday && !$absensiToday->jam_pulang)
+                    <button id="checkout-btn-sidebar"
+                        data-modal-target="absence-modal-checkout-{{ $type }}-{{ $absensiToday->id }}"
+                        data-modal-toggle="absence-modal-checkout-{{ $type }}-{{ $absensiToday->id }}"
+                        class="text-xs font-bold bg-gray-400 text-white px-2 py-1 rounded-lg cursor-not-allowed"
+                        disabled>
+                        Check-Out
+                    </button>
+                @elseif (!$absensiToday)
+                    <button data-modal-target="absence-modal-{{ $type }}"
+                        data-modal-toggle="absence-modal-{{ $type }}"
+                        class="text-xs font-bold bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded-lg">
+                        Check-In
+                    </button>
+                @endif
+
+                @if (!$isTodayOff)
+                    @if ($absensiToday)
+                        @if ($activeBreak)
+                            <form action="{{ route('break.end', $absensiToday->id) }}" method="POST">
+                                @csrf
+                                <button type="submit"
+                                    class="text-xs font-bold bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded-lg {{ !$isCheckedIn ? 'opacity-50 cursor-not-allowed' : '' }}"
+                                    {{ !$isCheckedIn ? 'disabled' : '' }}>
+                                    End Break
+                                </button>
+                            </form>
+                        @else
+                            <form action="{{ route('break.start', $absensiToday->id) }}" method="POST">
+                                @csrf
+                                <button type="submit"
+                                    class="text-xs font-bold bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded-lg {{ !$isCheckedIn ? 'opacity-50 cursor-not-allowed' : '' }}"
+                                    {{ !$isCheckedIn ? 'disabled' : '' }}>
+                                    Break
+                                </button>
+                            </form>
+                        @endif
+                    @else
+                        <button class="px-2 py-1 text-xs font-bold bg-yellow-500 rounded-lg opacity-50 cursor-not-allowed" disabled>
+                            Break
+                        </button>
+                    @endif
+                @endif
+            </div>
+
+            {{-- Scripts and modals (invisible, placed outside the flex group) --}}
+            @if ($absensiToday && !$absensiToday->jam_pulang)
                 <script>
                     document.addEventListener('DOMContentLoaded', function () {
                         const checkIn = new Date(
@@ -59,13 +107,8 @@
                     });
                 </script>
                 @include('absensi.checkout')
-            @elseif (!$absensiToday)
-                <button data-modal-target="absence-modal-{{ $type }}"
-                    data-modal-toggle="absence-modal-{{ $type }}"
-                    class="text-xs font-bold bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded-lg">
-                    Check-In
-                </button>
             @endif
+
             @include('absensi.create')
         @endif
     @endauth
