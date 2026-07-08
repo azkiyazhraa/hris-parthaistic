@@ -169,7 +169,9 @@ class DashboardController extends Controller
 
     public function karyawan()
     {
-        $karyawans = Karyawan::where('role', '!=', 'admin')->where('role', '!=', 'hr')->orderBy('nip', 'asc')->get();
+        $karyawans = Karyawan::where('role', '!=', 'admin')->where('role', '!=', 'hr')
+            ->orderByRaw('CAST(RIGHT(nip, 3) AS UNSIGNED) ASC')
+            ->get();
 
         return view('admin.karyawan.index', compact('karyawans'));
     }
