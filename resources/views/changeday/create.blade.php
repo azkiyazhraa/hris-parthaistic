@@ -90,7 +90,7 @@
                         <input type="file" id="fileAttachment" name="attachment"
                             class="w-full border border-gray-300 rounded-xl px-4 py-2 text-sm shadow-sm file:mr-4 file:rounded-lg file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-blue-700 hover:file:bg-blue-100">
 
-                        <p class="mt-2 text-xs text-gray-500">Supported formats: JPG, PNG, PDF (Max 5MB)</p>
+                        <p class="mt-2 text-xs text-gray-500">Supported formats: JPG, PNG, PDF (Max 2MB)</p>
                     </div>
 
                     <!-- FOOTER -->
