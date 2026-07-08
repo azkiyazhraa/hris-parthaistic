@@ -41,6 +41,7 @@
                                 {{ match($item->tipe_notifikasi) {
                                     'cuti'       => 'LEAVE',
                                     'absensi'    => 'ATTENDANCE',
+                                    'change_day' => 'CHANGE DAY',
                                     'pengumuman' => 'ANNOUNCEMENT',
                                     'performa'   => 'PERFORMANCE',
                                     'penggajian' => 'PAYROLL',

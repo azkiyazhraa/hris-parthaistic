@@ -620,7 +620,7 @@ class AbsensiController extends Controller
                 'user_id' => $absensi->karyawan_id,
                 'judul' => 'Change Day Status Updated',
                 'pesan' => $message,
-                'tipe_notifikasi' => 'absensi',
+                'tipe_notifikasi' => 'change_day',
             ]);
 
             DB::commit();

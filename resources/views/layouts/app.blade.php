@@ -491,6 +491,25 @@
 
     {{-- tarik data notifikasi --}}
     <script>
+        @php $role = auth()->user()->role; @endphp
+        const _isAdminRole = {{ in_array($role, ['admin', 'hr']) ? 'true' : 'false' }};
+
+        const notifUrls = _isAdminRole ? {
+            absensi:    '/admin/absensi',
+            change_day: '/admin/change-day',
+            cuti:       '/admin/leave',
+            pengumuman: '/admin/pengumuman',
+            performa:   '/admin/performa',
+            penggajian: '/admin/penggajian',
+        } : {
+            absensi:    '/absensi',
+            change_day: '/changeday',
+            cuti:       '/cuti',
+            pengumuman: '/pengumuman',
+            performa:   '/performa',
+            penggajian: '/penggajian',
+        };
+
         async function getNotifikasi() {
             try {
                 const response = await fetch('/notifikasi');
@@ -527,6 +546,7 @@
                     cuti: 'yellow',
                     performa: 'purple',
                     absensi: 'red',
+                    change_day: 'indigo',
                 };
 
                 data.notifikasi.forEach(item => {
@@ -541,7 +561,7 @@
                     let createdAt = new Date(item.created_at);
 
                     notifContainer.innerHTML += `
-                    <a href="javascript:void(0)" onclick="markNotifAsRead(${item.id})"
+                    <a href="javascript:void(0)" onclick="markNotifAsRead(${item.id}, '${item.tipe_notifikasi}')"
                         class="flex gap-3 px-4 py-3 transition border-b border-gray-100 hover:bg-gray-50">
 
                         <div class="w-10 h-10 rounded-full
@@ -578,8 +598,8 @@
         getNotifikasi();
         setInterval(getNotifikasi, 10000);
 
-        // MARK SINGLE NOTIFICATION AS READ
-        function markNotifAsRead(id) {
+        // MARK SINGLE NOTIFICATION AS READ + REDIRECT
+        function markNotifAsRead(id, tipe) {
             fetch(`/notifikasi/${id}/read`, {
                     method: 'POST',
                     headers: {
@@ -589,7 +609,12 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        getNotifikasi();
+                        const url = notifUrls[tipe];
+                        if (url) {
+                            window.location.href = url;
+                        } else {
+                            getNotifikasi();
+                        }
                     }
                 })
                 .catch(error => console.error('Error marking notification as read:', error));

@@ -119,7 +119,7 @@ class ChangedayController extends Controller
                 'user_id'         => $admin->id,
                 'judul'           => 'New Change Day Request',
                 'pesan'           => "{$karyawan->nama_lengkap} submitted a change day request: off on {$origDate}, working on {$reqDate}.",
-                'tipe_notifikasi' => 'absensi',
+                'tipe_notifikasi' => 'change_day',
             ]);
         }
 
