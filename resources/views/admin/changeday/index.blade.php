@@ -41,24 +41,54 @@
 
         {{-- TABLE --}}
         <div class="w-full p-4 bg-white shadow-lg rounded-2xl sm:p-6" style="border: 2px solid #e0eaff;">
-            <div class="flex flex-col items-start justify-between gap-3 mb-6 sm:flex-row sm:items-center">
-                <div class="flex gap-2">
+            <div class="flex flex-col gap-4 mb-6 lg:flex-row lg:items-center lg:justify-between">
+
+                <!-- FILTER -->
+                <div class="flex flex-col w-full gap-3 sm:flex-row lg:w-auto">
+
+                    <!-- STATUS -->
+                    <div class="w-full sm:w-52">
+                        <select id="filter_status"
+                            class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none">
+                            <option value="">All Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="approved">Approved</option>
+                            <option value="rejected">Rejected</option>
+                        </select>
+                    </div>
+
+                    <!-- MONTH -->
+                    <div class="w-full sm:w-52">
+                        <select id="filter_month"
+                            class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none">
+                            <option value="">All Month</option>
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <!-- QUICK ACTION -->
+                <div class="w-full sm:w-auto">
                     <button
-                        class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 transition border border-gray-200 rounded-lg hover:bg-gray-50">
+                        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-700 transition border border-gray-200 rounded-xl hover:bg-gray-50">
                         <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
                         This month
                     </button>
-                </div>
-                <div class="flex flex-wrap gap-2">
-                    <select id="filter_status" class="border rounded-lg px-3 py-1.5 text-sm">
-                        <option value="">All Status</option>
-                        <option value="pending">Pending</option>
-                        <option value="approved">Approved</option>
-                        <option value="rejected">Rejected</option>
-                    </select>
                 </div>
             </div>
 
@@ -78,7 +108,8 @@
                     <tbody>
                         @foreach ($data as $item)
                             <tr class="transition border-t border-gray-100 change-day-row hover:bg-blue-50/40"
-                                data-status="{{ strtolower($item->change_day_status) }}">
+                                data-status="{{ strtolower($item->change_day_status) }}"
+                                data-month="{{ $item->created_at->format('n') }}">
                                 <td class="py-3 pl-4 pr-2 sm:pl-2">
                                     <div class="flex items-center gap-3">
                                         {{-- Avatar / Foto Profil --}}
@@ -429,6 +460,7 @@
         document.addEventListener('DOMContentLoaded', function() {
 
             const statusFilter = document.getElementById('filter_status');
+            const monthFilter = document.getElementById('filter_month');
             const rows = Array.from(document.querySelectorAll('.change-day-row'));
             const emptyRow = document.getElementById('emptyRow');
             const paginationContainer = document.getElementById('paginationContainer');
@@ -441,14 +473,17 @@
             function applyFilters() {
 
                 const status = statusFilter.value.toLowerCase();
+                const month = monthFilter.value;
 
                 filteredRows = rows.filter(row => {
 
                     const rowStatus = row.dataset.status.toLowerCase();
+                    const rowMonth = row.dataset.month;
 
                     const matchStatus = !status || rowStatus === status;
+                    const matchMonth = !month || rowMonth === month;
 
-                    return matchStatus;
+                    return matchStatus && matchMonth;
                 });
 
                 currentPage = 1;
@@ -558,6 +593,7 @@
 
             // EVENT
             statusFilter.addEventListener('change', applyFilters);
+            monthFilter.addEventListener('change', applyFilters);
 
             // INIT
             applyFilters();
