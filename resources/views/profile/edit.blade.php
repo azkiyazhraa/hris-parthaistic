@@ -89,6 +89,25 @@
                                             </div>
 
                                             <div>
+                                                <label class="block mb-1 text-gray-400">Last Name <span
+                                                        class="text-red-500">*</span></label>
+                                                @php
+                                                    $namaParts = explode(' ', $karyawan->nama_lengkap);
+                                                    $namaBelakang =
+                                                        count($namaParts) > 1
+                                                            ? implode(' ', array_slice($namaParts, 1))
+                                                            : '';
+                                                @endphp
+                                                <input type="text" name="nama_belakang"
+                                                    value="{{ old('nama_belakang', $karyawan->nama_belakang ?? $namaBelakang) }}"
+                                                    required
+                                                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                                                @error('nama_belakang')
+                                                    <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                                                @enderror
+                                            </div>
+
+                                            <div>
                                                 <label class="block mb-1 text-gray-400">NIP</label>
                                                 <input type="text" value="{{ $karyawan->nip }}" readonly
                                                     class="w-full px-3 py-2 bg-gray-100 border rounded-lg">
@@ -125,6 +144,10 @@
                                                 </select>
                                             </div>
 
+                                        </div>
+
+                                        <!-- RIGHT COLUMN -->
+                                        <div class="space-y-4">
                                             <div>
                                                 <label class="block mb-1 text-gray-400">Marital Status <span
                                                         class="text-red-500">*</span></label>
@@ -141,28 +164,6 @@
                                                         {{ old('status_pernikahan', $karyawan->status_pernikahan) == 'Divorced' ? 'selected' : '' }}>
                                                         Divorced</option>
                                                 </select>
-                                            </div>
-                                        </div>
-
-                                        <!-- RIGHT COLUMN -->
-                                        <div class="space-y-4">
-                                            <div>
-                                                <label class="block mb-1 text-gray-400">Last Name <span
-                                                        class="text-red-500">*</span></label>
-                                                @php
-                                                    $namaParts = explode(' ', $karyawan->nama_lengkap);
-                                                    $namaBelakang =
-                                                        count($namaParts) > 1
-                                                            ? implode(' ', array_slice($namaParts, 1))
-                                                            : '';
-                                                @endphp
-                                                <input type="text" name="nama_belakang"
-                                                    value="{{ old('nama_belakang', $karyawan->nama_belakang ?? $namaBelakang) }}"
-                                                    required
-                                                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
-                                                @error('nama_belakang')
-                                                    <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                                                @enderror
                                             </div>
 
                                             <div>
