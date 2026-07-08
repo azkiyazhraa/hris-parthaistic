@@ -100,7 +100,7 @@
                             </div>
                             <div class="flex-1 min-w-0">
                                 <h3 class="font-semibold text-[#0B0F6D] leading-tight truncate">{{ $topPerformer->nama_lengkap }}</h3>
-                                <p class="text-xs text-gray-400 capitalize">{{ $topPerformer->jabatan ?? '-' }}</p>
+                                <p class="text-xs text-gray-400 capitalize">{{ $topPerformer->jabatan === 'lainnya' ? ($topPerformer->jabatan_lainnya ?? '-') : ($topPerformer->jabatan ?? '-') }}</p>
                             </div>
                             <div class="flex-shrink-0 text-right">
                                 <span class="text-xl font-bold text-[#0B0F6D]">{{ $topScore }}</span>
