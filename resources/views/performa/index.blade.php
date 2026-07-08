@@ -74,17 +74,17 @@
         {{-- TABLE --}}
         <div class="w-full p-6 bg-white shadow-lg rounded-2xl" style="border: 2px solid #e0eaff;">
             <div class="overflow-x-auto">
-                <table class="w-full min-w-[800px] md:min-w-full text-sm text-left">
+                <table class="w-full min-w-[1050px] text-sm text-left">
                     <thead>
                         <tr class="text-xs font-medium tracking-wide text-gray-400 uppercase border-b">
-                            <th class="pb-3 text-left whitespace-nowrap">Period</th>
-                            <th class="pb-3 text-left whitespace-nowrap">Quarter</th>
-                            <th class="pb-3 text-left whitespace-nowrap">Quality</th>
-                            <th class="pb-3 text-left whitespace-nowrap">Productivity</th>
-                            <th class="pb-3 text-left whitespace-nowrap">Teamwork</th>
-                            <th class="pb-3 text-left whitespace-nowrap">Discipline</th>
-                            <th class="pb-3 text-left whitespace-nowrap">KPI Score</th>
-                            <th class="pb-3 text-left whitespace-nowrap">
+                            <th class="pb-3 px-3 text-left whitespace-nowrap">Period</th>
+                            <th class="pb-3 px-3 text-left whitespace-nowrap">Quarter</th>
+                            <th class="pb-3 px-3 text-left whitespace-nowrap">Quality</th>
+                            <th class="pb-3 px-3 text-left whitespace-nowrap">Productivity</th>
+                            <th class="pb-3 px-3 text-left whitespace-nowrap">Teamwork</th>
+                            <th class="pb-3 px-3 text-left whitespace-nowrap">Discipline</th>
+                            <th class="pb-3 px-3 text-left whitespace-nowrap">KPI Score</th>
+                            <th class="pb-3 px-3 text-left whitespace-nowrap">
                                 <span class="flex items-center gap-1">
                                     Task Completed
                                     <svg class="w-3 h-3 text-[#0052CC] opacity-50" fill="currentColor" viewBox="0 0 24 24">
@@ -93,53 +93,53 @@
                                     </svg>
                                 </span>
                             </th>
-                            <th class="pb-3 text-left whitespace-nowrap">Attendance</th>
-                            <th class="pb-3 text-left whitespace-nowrap">Total Score</th>
-                            <th class="pb-3 text-left whitespace-nowrap">Status</th>
-                            <th class="pb-3 text-left whitespace-nowrap">Action</th>
+                            <th class="pb-3 px-3 text-left whitespace-nowrap">Attendance</th>
+                            <th class="pb-3 px-3 text-left whitespace-nowrap">Total Score</th>
+                            <th class="pb-3 px-3 text-left whitespace-nowrap">Status</th>
+                            <th class="pb-3 px-3 text-left whitespace-nowrap">Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($performas as $item)
                             <tr class="transition border-t border-gray-100 hover:bg-blue-50/40">
-                                <td class="py-3 pl-2">
-                                    <span class="font-medium text-gray-800">{{ $item->bulan_text }}
+                                <td class="py-3 px-3">
+                                    <span class="font-medium text-gray-800 whitespace-nowrap">{{ $item->bulan_text }}
                                         {{ $item->tahun }}</span>
                                 </td>
-                                <td class="py-3">
+                                <td class="py-3 px-3">
                                     <span
                                         class="px-2 py-1 text-xs text-gray-700 bg-gray-200 rounded">{{ $item->quarter }}</span>
                                 </td>
-                                <td class="py-3">
+                                <td class="py-3 px-3">
                                     <div class="w-16 bg-gray-200 rounded-full h-1.5">
                                         <div class="bg-green-600 rounded-full h-1.5" style="width: {{ $item->quality }}%">
                                         </div>
                                     </div>
                                     <span class="text-xs text-gray-500">{{ $item->quality }}%</span>
                                 </td>
-                                <td class="py-3">
+                                <td class="py-3 px-3">
                                     <div class="w-16 bg-gray-200 rounded-full h-1.5">
                                         <div class="bg-yellow-600 rounded-full h-1.5"
                                             style="width: {{ $item->productivity }}%"></div>
                                     </div>
                                     <span class="text-xs text-gray-500">{{ $item->productivity }}%</span>
                                 </td>
-                                <td class="py-3">
+                                <td class="py-3 px-3">
                                     <div class="w-16 bg-gray-200 rounded-full h-1.5">
                                         <div class="bg-purple-600 rounded-full h-1.5"
                                             style="width: {{ $item->teamwork }}%"></div>
                                     </div>
                                     <span class="text-xs text-gray-500">{{ $item->teamwork }}%</span>
                                 </td>
-                                <td class="py-3">
+                                <td class="py-3 px-3">
                                     <div class="w-16 bg-gray-200 rounded-full h-1.5">
                                         <div class="bg-indigo-600 rounded-full h-1.5"
                                             style="width: {{ $item->discipline }}%"></div>
                                     </div>
                                     <span class="text-xs text-gray-500">{{ $item->discipline }}%</span>
                                 </td>
-                                <td class="py-3 font-semibold text-blue-600">{{ $item->kpi_score }}%</td>
-                                <td class="py-3">
+                                <td class="py-3 px-3 font-semibold text-blue-600 whitespace-nowrap">{{ $item->kpi_score }}%</td>
+                                <td class="py-3 px-3">
                                     <div class="flex items-center gap-1">
                                         <svg class="w-3 h-3 text-[#0052CC] opacity-40" fill="currentColor"
                                             viewBox="0 0 24 24">
@@ -150,15 +150,15 @@
                                     </div>
                                     <span class="text-[10px] text-gray-400">score: {{ $item->task_score }}</span>
                                 </td>
-                                <td class="py-3">
+                                <td class="py-3 px-3">
                                     <div class="w-16 bg-gray-200 rounded-full h-1.5">
                                         <div class="bg-green-600 rounded-full h-1.5"
                                             style="width: {{ $item->attendance_rate }}%"></div>
                                     </div>
                                     <span class="text-xs text-gray-500">{{ $item->attendance_rate }}%</span>
                                 </td>
-                                <td class="py-3 text-lg font-bold text-purple-600">{{ $item->performance_score }}</td>
-                                <td class="py-3">
+                                <td class="py-3 px-3 text-lg font-bold text-purple-600">{{ $item->performance_score }}</td>
+                                <td class="py-3 px-3">
                                     <span
                                         class="px-3 py-1 rounded-full text-xs font-semibold
                                     @if ($item->performance_score >= 90) bg-green-100 text-green-700
@@ -170,7 +170,7 @@
                                         {{ $item->rating['label'] }}
                                     </span>
                                 </td>
-                                <td class="py-3">
+                                <td class="py-3 px-3">
                                     <button onclick="openDetailModal({{ $item->id }})"
                                         class="text-blue-500 hover:text-blue-700" title="Detail">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
