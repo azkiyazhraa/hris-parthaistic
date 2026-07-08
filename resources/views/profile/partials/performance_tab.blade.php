@@ -66,40 +66,40 @@
         <div class="bg-white rounded-xl shadow-md p-6">
             <h3 class="text-lg font-semibold text-gray-800 mb-4">Latest KPI Score</h3>
             <div class="space-y-3">
-                <div class="flex justify-between items-center">
-                    <span class="text-gray-600">Quality</span>
-                    <div class="flex items-center gap-3">
-                        <div class="w-48 bg-gray-200 rounded-full h-2">
-                            <div class="bg-blue-500 h-2 rounded-full" style="width: {{ $latestPerformance?->quality ?? 0 }}%"></div>
-                        </div>
-                        <span class="font-semibold">{{ $latestPerformance?->quality ?? 0 }}</span>
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-gray-600 text-sm">Quality</span>
+                        <span class="font-semibold text-sm">{{ $latestPerformance?->quality ?? 0 }}</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-blue-500 h-2 rounded-full" style="width: {{ $latestPerformance?->quality ?? 0 }}%"></div>
                     </div>
                 </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-gray-600">Productivity</span>
-                    <div class="flex items-center gap-3">
-                        <div class="w-48 bg-gray-200 rounded-full h-2">
-                            <div class="bg-green-500 h-2 rounded-full" style="width: {{ $latestPerformance?->productivity ?? 0 }}%"></div>
-                        </div>
-                        <span class="font-semibold">{{ $latestPerformance?->productivity ?? 0 }}</span>
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-gray-600 text-sm">Productivity</span>
+                        <span class="font-semibold text-sm">{{ $latestPerformance?->productivity ?? 0 }}</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-green-500 h-2 rounded-full" style="width: {{ $latestPerformance?->productivity ?? 0 }}%"></div>
                     </div>
                 </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-gray-600">Teamwork</span>
-                    <div class="flex items-center gap-3">
-                        <div class="w-48 bg-gray-200 rounded-full h-2">
-                            <div class="bg-yellow-500 h-2 rounded-full" style="width: {{ $latestPerformance?->teamwork ?? 0 }}%"></div>
-                        </div>
-                        <span class="font-semibold">{{ $latestPerformance?->teamwork ?? 0 }}</span>
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-gray-600 text-sm">Teamwork</span>
+                        <span class="font-semibold text-sm">{{ $latestPerformance?->teamwork ?? 0 }}</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-yellow-500 h-2 rounded-full" style="width: {{ $latestPerformance?->teamwork ?? 0 }}%"></div>
                     </div>
                 </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-gray-600">Discipline</span>
-                    <div class="flex items-center gap-3">
-                        <div class="w-48 bg-gray-200 rounded-full h-2">
-                            <div class="bg-purple-500 h-2 rounded-full" style="width: {{ $latestPerformance?->discipline ?? 0 }}%"></div>
-                        </div>
-                        <span class="font-semibold">{{ $latestPerformance?->discipline ?? 0 }}</span>
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-gray-600 text-sm">Discipline</span>
+                        <span class="font-semibold text-sm">{{ $latestPerformance?->discipline ?? 0 }}</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-purple-500 h-2 rounded-full" style="width: {{ $latestPerformance?->discipline ?? 0 }}%"></div>
                     </div>
                 </div>
                 <div class="border-t pt-3 mt-3">

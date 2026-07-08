@@ -267,16 +267,16 @@ class ProfileController extends Controller
         return redirect()->route('profile.edit')->with('success', 'Password updated successfully');
     }
 
-    public function performanceChartData()
+    public function performanceChartData(Request $request)
     {
         $karyawan = auth()->user();
-        $currentYear = Carbon::now()->year;
+        $year = (int) $request->query('year', Carbon::now()->year);
 
         $histMonths = [];
         $histScores = [];
         for ($m = 1; $m <= 12; $m++) {
-            $p = Performa::where('karyawan_id', $karyawan->id)->where('tahun', $currentYear)->where('bulan', $m)->first();
-            $histMonths[] = Carbon::create($currentYear, $m, 1)->format('M');
+            $p = Performa::where('karyawan_id', $karyawan->id)->where('tahun', $year)->where('bulan', $m)->first();
+            $histMonths[] = Carbon::create($year, $m, 1)->format('M');
             $histScores[] = $p?->performance_score ?? 0;
         }
 
