@@ -104,8 +104,8 @@
                         <div>
                             <label class="block mb-2 text-sm font-bold text-gray-700">Quality *</label>
                             <input type="number" id="quality" name="quality" value="{{ old('quality') }}" min="0"
-                                max="100" required class="w-full px-3 py-2 border rounded-lg" onchange="calculateAll()"
-                                onkeyup="calculateAll()">
+                                max="100" required class="w-full px-3 py-2 border rounded-lg" oninput="clampKPI(this);calculateAll()"
+                                onchange="calculateAll()">
                             <div class="w-full h-2 mt-1 bg-gray-200 rounded-full">
                                 <div id="quality_bar" class="h-2 bg-green-600 rounded-full" style="width: 0%"></div>
                             </div>
@@ -114,7 +114,7 @@
                             <label class="block mb-2 text-sm font-bold text-gray-700">Productivity *</label>
                             <input type="number" id="productivity" name="productivity" value="{{ old('productivity') }}"
                                 min="0" max="100" required class="w-full px-3 py-2 border rounded-lg"
-                                onchange="calculateAll()" onkeyup="calculateAll()">
+                                oninput="clampKPI(this);calculateAll()" onchange="calculateAll()">
                             <div class="w-full h-2 mt-1 bg-gray-200 rounded-full">
                                 <div id="productivity_bar" class="h-2 bg-yellow-600 rounded-full" style="width: 0%"></div>
                             </div>
@@ -123,7 +123,7 @@
                             <label class="block mb-2 text-sm font-bold text-gray-700">Teamwork *</label>
                             <input type="number" id="teamwork" name="teamwork" value="{{ old('teamwork') }}"
                                 min="0" max="100" required class="w-full px-3 py-2 border rounded-lg"
-                                onchange="calculateAll()" onkeyup="calculateAll()">
+                                oninput="clampKPI(this);calculateAll()" onchange="calculateAll()">
                             <div class="w-full h-2 mt-1 bg-gray-200 rounded-full">
                                 <div id="teamwork_bar" class="h-2 bg-purple-600 rounded-full" style="width: 0%"></div>
                             </div>
@@ -132,7 +132,7 @@
                             <label class="block mb-2 text-sm font-bold text-gray-700">Discipline *</label>
                             <input type="number" id="discipline" name="discipline" value="{{ old('discipline') }}"
                                 min="0" max="100" required class="w-full px-3 py-2 border rounded-lg"
-                                onchange="calculateAll()" onkeyup="calculateAll()">
+                                oninput="clampKPI(this);calculateAll()" onchange="calculateAll()">
                             <div class="w-full h-2 mt-1 bg-gray-200 rounded-full">
                                 <div id="discipline_bar" class="h-2 bg-indigo-600 rounded-full" style="width: 0%"></div>
                             </div>
@@ -275,7 +275,14 @@
     <script>
         let realAttendanceRate = 0;
 
+        function clampKPI(el) {
+            const v = parseInt(el.value);
+            if (!isNaN(v)) el.value = Math.min(100, Math.max(0, v));
+        }
+
         function calculateAll() {
+            ['quality', 'productivity', 'teamwork', 'discipline'].forEach(id => clampKPI(document.getElementById(id)));
+
             const quality = parseInt(document.getElementById('quality').value) || 0;
             const productivity = parseInt(document.getElementById('productivity').value) || 0;
             const teamwork = parseInt(document.getElementById('teamwork').value) || 0;

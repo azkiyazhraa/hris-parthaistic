@@ -83,8 +83,8 @@
                                 <label class="block text-gray-700 text-sm font-bold mb-2">{{ ucfirst($field) }} *</label>
                                 <input type="number" id="{{ $field }}" name="{{ $field }}"
                                     value="{{ old($field, $performa->$field) }}" min="0" max="100" required
-                                    class="w-full border rounded-lg px-3 py-2" onchange="calculateAll()"
-                                    onkeyup="calculateAll()">
+                                    class="w-full border rounded-lg px-3 py-2"
+                                    oninput="clampKPI(this);calculateAll()" onchange="calculateAll()">
                                 <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
                                     <div id="{{ $field }}_bar" class="bg-{{ $color }}-600 rounded-full h-2"
                                         style="width: {{ $performa->$field }}%"></div>
@@ -209,7 +209,14 @@
     </div>
 
     <script>
+        function clampKPI(el) {
+            const v = parseInt(el.value);
+            if (!isNaN(v)) el.value = Math.min(100, Math.max(0, v));
+        }
+
         function calculateAll() {
+            ['quality', 'productivity', 'teamwork', 'discipline'].forEach(id => clampKPI(document.getElementById(id)));
+
             const quality      = parseInt(document.getElementById('quality').value)      || 0;
             const productivity = parseInt(document.getElementById('productivity').value) || 0;
             const teamwork     = parseInt(document.getElementById('teamwork').value)     || 0;

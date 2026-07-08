@@ -95,16 +95,16 @@
                                     <input type="hidden" name="performas[{{ $index }}][task_source]" value="manual" class="task-source-input">
                                 </td>
                                 <td class="py-2 px-2 text-center">
-                                    <input type="number" name="performas[{{ $index }}][quality]" class="quality w-16 border rounded text-center py-1" min="0" max="100" value="0" onchange="calcRow(this)" onkeyup="calcRow(this)">
+                                    <input type="number" name="performas[{{ $index }}][quality]" class="quality w-16 border rounded text-center py-1" min="0" max="100" value="0" oninput="clampKPI(this);calcRow(this)" onchange="calcRow(this)">
                                 </td>
                                 <td class="py-2 px-2 text-center">
-                                    <input type="number" name="performas[{{ $index }}][productivity]" class="productivity w-16 border rounded text-center py-1" min="0" max="100" value="0" onchange="calcRow(this)" onkeyup="calcRow(this)">
+                                    <input type="number" name="performas[{{ $index }}][productivity]" class="productivity w-16 border rounded text-center py-1" min="0" max="100" value="0" oninput="clampKPI(this);calcRow(this)" onchange="calcRow(this)">
                                 </td>
                                 <td class="py-2 px-2 text-center">
-                                    <input type="number" name="performas[{{ $index }}][teamwork]" class="teamwork w-16 border rounded text-center py-1" min="0" max="100" value="0" onchange="calcRow(this)" onkeyup="calcRow(this)">
+                                    <input type="number" name="performas[{{ $index }}][teamwork]" class="teamwork w-16 border rounded text-center py-1" min="0" max="100" value="0" oninput="clampKPI(this);calcRow(this)" onchange="calcRow(this)">
                                 </td>
                                 <td class="py-2 px-2 text-center">
-                                    <input type="number" name="performas[{{ $index }}][discipline]" class="discipline w-16 border rounded text-center py-1" min="0" max="100" value="0" onchange="calcRow(this)" onkeyup="calcRow(this)">
+                                    <input type="number" name="performas[{{ $index }}][discipline]" class="discipline w-16 border rounded text-center py-1" min="0" max="100" value="0" oninput="clampKPI(this);calcRow(this)" onchange="calcRow(this)">
                                 </td>
                                 <td class="py-2 px-2 text-center">
                                     <input type="number" name="performas[{{ $index }}][task_done]" class="task-done w-16 border rounded text-center py-1" min="0" value="0" onchange="calcRow(this)" onkeyup="calcRow(this)">
@@ -205,8 +205,16 @@ function isRowEmpty(row) {
     return q === 0 && p === 0 && t === 0 && d === 0 && td === 0;
 }
 
+function clampKPI(el) {
+    const v = parseInt(el.value);
+    if (!isNaN(v)) el.value = Math.min(100, Math.max(0, v));
+}
+
 function calcRow(el) {
     const row = el.closest('tr');
+    ['.quality', '.productivity', '.teamwork', '.discipline'].forEach(sel => {
+        clampKPI(row.querySelector(sel));
+    });
     const q = parseInt(row.querySelector('.quality').value)      || 0;
     const p = parseInt(row.querySelector('.productivity').value) || 0;
     const t = parseInt(row.querySelector('.teamwork').value)     || 0;
