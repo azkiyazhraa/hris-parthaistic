@@ -30,21 +30,12 @@
                 <form method="POST" action="{{ route('absensi.pulang', optional($absensiToday)->id) }}">
                     @csrf
 
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="mb-4">
-                            <label class="block mb-2 text-sm font-bold text-gray-700">Check-out Time</label>
-                            <input type="time" name="jam_pulang" id="jam_pulang" required
-                                class="w-full px-4 py-3 text-gray-700 transition bg-white border border-gray-300 shadow-sm cursor-not-allowed rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none"
-                                value="{{ date('H:i') }}" readonly>
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="block mb-2 text-sm font-bold text-gray-700">Check-out Location <span
-                                    class="text-red-500">*</span></label>
-                            <input type="text" name="lokasi_pulang" id="lokasi_pulang" required
-                                class="w-full px-4 py-3 text-gray-700 transition bg-white border border-gray-300 shadow-sm rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none"
-                                placeholder="Enter check-out location">
-                        </div>
+                    <div class="mb-4">
+                        <label class="block mb-2 text-sm font-bold text-gray-700">Check-out Location <span
+                                class="text-red-500">*</span></label>
+                        <input type="text" name="lokasi_pulang" id="lokasi_pulang" required
+                            class="w-full px-4 py-3 text-gray-700 transition bg-white border border-gray-300 shadow-sm rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none"
+                            placeholder="Enter check-out location">
                     </div>
 
                     <div class="mb-4">

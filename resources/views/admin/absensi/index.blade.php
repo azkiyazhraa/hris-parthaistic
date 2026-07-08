@@ -438,6 +438,8 @@
                     const checkIn = data.jam_masuk ? data.jam_masuk.substring(0, 5) : '-';
                     const checkOut = data.jam_pulang ? data.jam_pulang.substring(0, 5) : '-';
                     const workingHours = data.total_jam_kerja ? `${data.total_jam_kerja} hr` : '-';
+                    const lokasiMasuk = data.lokasi_masuk || '-';
+                    const lokasiPulang = data.lokasi_pulang || '-';
 
                     const date = data.tanggal ?
                         new Date(data.tanggal).toLocaleDateString('id-ID', {
@@ -524,6 +526,17 @@
                             <div>
                                 <p class="mb-1 text-gray-400">Attachment</p>
                                 ${attachment}
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3 text-xs">
+                            <div>
+                                <p class="mb-1 text-gray-400">Check-in Location</p>
+                                <p class="font-medium text-gray-700">${lokasiMasuk}</p>
+                            </div>
+                            <div>
+                                <p class="mb-1 text-gray-400">Check-out Location</p>
+                                <p class="font-medium text-gray-700">${lokasiPulang}</p>
                             </div>
                         </div>
 

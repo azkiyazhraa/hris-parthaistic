@@ -69,7 +69,6 @@ class AbsensiController extends Controller
         // Validasi per jenis
         if ($request->jenis_absensi === 'checkin') {
             $request->validate([
-                'jam_masuk' => 'required',
                 'lokasi_masuk' => 'required|string|max:255',
                 'keterangan' => 'nullable',
                 'attachment' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
@@ -212,7 +211,7 @@ class AbsensiController extends Controller
                     'karyawan_id' => $karyawan->id,
                     'nama_karyawan' => $karyawan->nama_lengkap,
                     'tanggal' => $today,
-                    'jam_masuk' => $request->jam_masuk,
+                    'jam_masuk' => now()->format('H:i'),
                     'lokasi_masuk' => $request->lokasi_masuk,
                     'status_kehadiran' => 'pending',
                     'keterangan' => $request->keterangan,
@@ -436,7 +435,6 @@ class AbsensiController extends Controller
         }
 
         $request->validate([
-            'jam_pulang'    => 'required',
             'lokasi_pulang' => 'required|string|max:255',
             'keterangan'    => 'required|string',
         ]);
@@ -451,7 +449,8 @@ class AbsensiController extends Controller
             }
 
             $jamMasukDateTime = Carbon::parse($tanggalAbsensi . ' ' . $jamMasukValue);
-            $jamPulangDateTime = Carbon::parse($tanggalAbsensi . ' ' . $request->jam_pulang);
+            $jamPulang = now()->format('H:i');
+            $jamPulangDateTime = Carbon::parse($tanggalAbsensi . ' ' . $jamPulang);
 
             if ($jamPulangDateTime < $jamMasukDateTime) {
                 $jamPulangDateTime->addDay();
@@ -461,7 +460,7 @@ class AbsensiController extends Controller
             $totalJam = $selisihMenit / 60;
 
             $updateData = [
-                'jam_pulang'      => $request->jam_pulang,
+                'jam_pulang'      => $jamPulang,
                 'lokasi_pulang'   => $request->lokasi_pulang,
                 'total_jam_kerja' => round($totalJam, 2),
                 'keterangan'       => $request->keterangan,
