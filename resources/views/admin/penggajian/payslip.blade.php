@@ -229,25 +229,25 @@
                             </tr>
 
                             <tr>
-                                <td>Transport Allowance</td>
+                                <td>Transport</td>
                                 <td class="text-right">Rp
                                     {{ number_format($penggajian->transport_allowance, 0, ',', '.') }}</td>
                             </tr>
 
                             <tr>
-                                <td>Meal Allowance</td>
+                                <td>Meal</td>
                                 <td class="text-right">Rp {{ number_format($penggajian->meal_allowance, 0, ',', '.') }}
                                 </td>
                             </tr>
 
                             <tr>
-                                <td>Internet Allowance</td>
+                                <td>Internet</td>
                                 <td class="text-right">Rp
                                     {{ number_format($penggajian->internet_allowance, 0, ',', '.') }}</td>
                             </tr>
 
                             <tr>
-                                <td>Position Allowance</td>
+                                <td>Position</td>
                                 <td class="text-right">Rp
                                     {{ number_format($penggajian->position_allowance, 0, ',', '.') }}</td>
                             </tr>
@@ -389,19 +389,19 @@
     {{-- SIGNATURE & STAMP — fixed near the bottom so it always sits clear of the
          footer artwork's baked-in contact block, regardless of how tall the
          content above it (e.g. Notes) is. Keeps the payslip on a single page. --}}
-    <div style="position: fixed; bottom: 200px; right: 25px; width: 200px; text-align: center; z-index: 20;">
+    <div style="position: fixed; bottom: 150px; right: 25px; width: 200px; text-align: center; z-index: 20;">
         <h3 style="margin-bottom:2px;">Depok, {{ \Carbon\Carbon::now()->locale('en')->isoFormat('D MMMM YYYY') }}</h3>
 
-        <div style="position: relative; width:140px; height:85px; margin:0 auto;">
+        <div style="position: relative; width:200px; height:100px; margin:0 auto;">
 
             {{-- Stamp --}}
             <img src="data:image/{{ $logoType }};base64,{{ $stampPath }}" alt="Stamp"
                 style="
             position:absolute;
-            left:12px;
-            top:5px;
-            width:75px;
-            height:75px;
+            left:0;
+            top:-50px;
+            width:200px;
+            height:200px;
             opacity:0.8;
         ">
 
@@ -409,8 +409,8 @@
             <img src="data:image/{{ $logoType }};base64,{{ $signaturePath }}" alt="Signature"
                 style="
             position:absolute;
-            left:35px;
-            top:15px;
+            left:40px;
+            top:0px;
             width:120px;
             height:auto;
             z-index:10;

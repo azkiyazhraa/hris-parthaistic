@@ -31,27 +31,27 @@
 
                 <!-- ITEM 2 -->
                 <div class="flex flex-col gap-1 px-4 py-2">
-                    <span class="text-xl text-blue-900">Total Salary</span>
+                    <span class="text-xl text-blue-900">Total Net Salary</span>
                     <h2 class="text-xl font-semibold text-blue-900 md:text-2xl" id="total_salary">
                         Rp {{ number_format($totalSalary, 0, ',', '.') }}
                     </h2>
                 </div>
 
                 <!-- ITEM 3 -->
-                <div class="flex flex-col gap-1 px-4 py-2">
-                    <span class="text-xl text-blue-900">Deducation</span>
-                    <h2 class="text-xl font-semibold text-blue-900 md:text-2xl" id="deduction">
-                        Rp {{ number_format($totalDeducations, 0, ',', '.') }}
-                    </h2>
-                </div>
+                <!--<div class="flex flex-col gap-1 px-4 py-2">-->
+                <!--    <span class="text-xl text-blue-900">Deducation</span>-->
+                <!--    <h2 class="text-xl font-semibold text-blue-900 md:text-2xl" id="deduction">-->
+                <!--        Rp {{ number_format($totalDeducations, 0, ',', '.') }}-->
+                <!--    </h2>-->
+                <!--</div>-->
 
                 <!-- ITEM 4 -->
-                <div class="flex flex-col gap-1 px-4 py-2">
-                    <span class="text-xl text-blue-900">Allowance</span>
-                    <h2 class="text-xl font-semibold text-blue-900 md:text-2xl" id="allowance">
-                        Rp {{ number_format($totalAllowances, 0, ',', '.') }}
-                    </h2>
-                </div>
+                <!--<div class="flex flex-col gap-1 px-4 py-2">-->
+                <!--    <span class="text-xl text-blue-900">Allowance</span>-->
+                <!--    <h2 class="text-xl font-semibold text-blue-900 md:text-2xl" id="allowance">-->
+                <!--        Rp {{ number_format($totalAllowances, 0, ',', '.') }}-->
+                <!--    </h2>-->
+                <!--</div>-->
             </div>
         </div>
 
@@ -89,7 +89,7 @@
                         <tr class="text-xs font-medium tracking-wide text-gray-400 uppercase border-b">
                             <th class="pb-3 text-left whitespace-nowrap">Year</th>
                             <th class="pb-3 text-left whitespace-nowrap">Base Salary</th>
-                            <th class="pb-3 text-left whitespace-nowrap">Total Earnings</th>
+                            <th class="pb-3 text-left whitespace-nowrap">Total Additional Earnings</th>
                             <th class="pb-3 text-left whitespace-nowrap">Total Deductions</th>
                             <th class="pb-3 text-left whitespace-nowrap">Net Salary</th>
                             <th class="pb-3 text-left whitespace-nowrap">Status</th>
@@ -102,8 +102,10 @@
                                 data-year="{{ $item->tahun }}">
                                 <td class="py-3 text-gray-700">{{ $item->bulan_text }} {{ $item->tahun }}</td>
                                 <td class="py-3 text-gray-700">Rp {{ number_format($item->gaji_pokok, 0, ',', '.') }}</td>
-                                <td class="py-3 text-green-600">Rp {{ number_format($item->total_earnings, 0, ',', '.') }}
-                                </td>
+                                <td class="py-3 text-green-600">Rp {{ number_format(
+                                    $item->transport_allowance + $item->meal_allowance + $item->internet_allowance + $item->position_allowance + $item->incentive,
+                                    0, ',', '.'
+                                ) }}</td>
                                 <td class="py-3 text-red-600">Rp {{ number_format($item->total_deductions, 0, ',', '.') }}
                                 </td>
                                 <td class="py-3 font-semibold text-blue-600">Rp
