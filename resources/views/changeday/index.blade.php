@@ -267,7 +267,7 @@
                                 <label class="block mb-1 text-sm font-medium text-gray-700">
                                     Requested Date <span class="text-red-500">*</span>
                                 </label>
-                                <p class="text-xs text-gray-400 mb-2">The Sunday or national holiday you'll work instead, within 1 week</p>
+                                <p class="text-xs text-gray-400 mb-2">The Sunday or national holiday you'll work instead, within 2 weeks</p>
                                 <input type="text" id="editRequestedDate" name="requested_date"
                                     placeholder="Select original date first" autocomplete="off" readonly
                                     class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 text-gray-400 cursor-not-allowed">
@@ -475,8 +475,8 @@
                     fpEditOrig.setDate(origVal, false);
 
                     if (origVal) {
-                        fpEditReq.set('minDate', addEditDays(origVal, -7));
-                        fpEditReq.set('maxDate', addEditDays(origVal, 7));
+                        fpEditReq.set('minDate', addEditDays(origVal, -14));
+                        fpEditReq.set('maxDate', addEditDays(origVal, 14));
                         fpEditReq.set('clickOpens', true);
                         editReqInput.classList.remove('bg-gray-50', 'text-gray-400', 'cursor-not-allowed');
                         editReqInput.classList.add('bg-white', 'text-gray-800', 'cursor-pointer');
@@ -612,8 +612,8 @@
                 document.getElementById('editOriginalDateError').classList.add('hidden');
                 resetEditReqDate();
                 if (!dateStr) return;
-                fpEditReq.set('minDate', addEditDays(dateStr, -7));
-                fpEditReq.set('maxDate', addEditDays(dateStr, 7));
+                fpEditReq.set('minDate', addEditDays(dateStr, -14));
+                fpEditReq.set('maxDate', addEditDays(dateStr, 14));
                 fpEditReq.set('clickOpens', true);
                 editReqInput.classList.remove('bg-gray-50', 'text-gray-400', 'cursor-not-allowed');
                 editReqInput.classList.add('bg-white', 'text-gray-800', 'cursor-pointer');
@@ -638,7 +638,7 @@
                 if (origDates.length) {
                     const diff = Math.abs((parseEditLocal(dateStr) - origDates[0]) / 86400000);
                     if (diff > 7) {
-                        errEl.textContent = 'Requested date must be within 1 week of the original date.';
+                        errEl.textContent = 'Requested date must be within 2 weeks of the original date.';
                         errEl.classList.remove('hidden');
                         fpEditReq.clear();
                         return;

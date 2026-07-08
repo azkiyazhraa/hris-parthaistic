@@ -57,7 +57,7 @@
                             <label for="requestedDate" class="block text-sm font-medium text-gray-700 mb-1">
                                 Requested Date <span class="text-red-500">*</span>
                             </label>
-                            <p class="text-xs text-gray-400 mb-2">The Sunday or national holiday you'll work instead, within 1 week</p>
+                            <p class="text-xs text-gray-400 mb-2">The Sunday or national holiday you'll work instead, within 2 weeks</p>
 
                             <input type="text" id="requestedDate" name="requested_date"
                                 placeholder="Select original date first" autocomplete="off"
@@ -212,9 +212,9 @@
             resetRequestedDate();
             if (!dateStr) return;
 
-            // Unlock requested date within ±7 days
-            fpReq.set('minDate', addDays(dateStr, -7));
-            fpReq.set('maxDate', addDays(dateStr, 7));
+            // Unlock requested date within ±14 days
+            fpReq.set('minDate', addDays(dateStr, -14));
+            fpReq.set('maxDate', addDays(dateStr, 14));
             fpReq.set('clickOpens', true);
             reqInput.classList.remove('bg-gray-50', 'text-gray-400', 'cursor-not-allowed');
             reqInput.classList.add('bg-white', 'text-gray-800', 'cursor-pointer');
@@ -248,8 +248,8 @@
             const origVal = origInput.value;
             if (origVal) {
                 const diffDays = Math.abs((parseLocal(dateStr) - parseLocal(origVal)) / 86400000);
-                if (diffDays > 7) {
-                    showError(reqError, 'Requested date must be within 1 week of the original date.');
+                if (diffDays > 14) {
+                    showError(reqError, 'Requested date must be within 2 weeks of the original date.');
                     fpReq.clear();
                     return;
                 }
@@ -277,8 +277,8 @@
             valid = false;
         } else if (origInput.value) {
             const diffDays = Math.abs((parseLocal(reqInput.value) - parseLocal(origInput.value)) / 86400000);
-            if (diffDays > 7) {
-                showError(reqError, 'Requested date must be within 1 week of the original date.');
+            if (diffDays > 14) {
+                showError(reqError, 'Requested date must be within 2 weeks of the original date.');
                 valid = false;
             }
         }
