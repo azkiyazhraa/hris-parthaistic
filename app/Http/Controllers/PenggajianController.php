@@ -98,6 +98,7 @@ class PenggajianController extends Controller
     public function adminCreate()
     {
         $karyawans = Karyawan::where('role', 'karyawan')
+            ->whereIn('status', ['Full-time', 'Contract', 'Internship'])
             ->orderBy('nip', 'asc')
             ->get();
 
