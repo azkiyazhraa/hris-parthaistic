@@ -32,7 +32,7 @@ class PenggajianController extends Controller
         $totalSalary = Penggajian::where('karyawan_id', $karyawanId)
             ->where('status', Penggajian::STATUS_PAID)
             ->where('tahun', Carbon::now()->year)
-            ->sum('gaji_pokok');
+            ->sum('net_salary');
 
         $totalDeducations = Penggajian::where('karyawan_id', $karyawanId)
             ->where('status', Penggajian::STATUS_PAID)
