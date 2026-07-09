@@ -81,7 +81,9 @@ class PenggajianController extends Controller
         }
 
         $penggajian = $query->paginate(15);
-        $karyawans = Karyawan::orderBy('nama_lengkap')->get();
+        $karyawans = Karyawan::where('role', 'karyawan')
+            ->whereIn('status', ['Full-time', 'Contract', 'Internship'])
+            ->orderBy('nama_lengkap')->get();
 
         $statistics = [
             'total_payroll' => Penggajian::where('status', Penggajian::STATUS_PAID)->sum('net_salary'),

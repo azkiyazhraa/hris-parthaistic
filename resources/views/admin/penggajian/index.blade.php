@@ -45,6 +45,14 @@
                         Report</a>
                 </div>
                 <div class="flex flex-wrap gap-2">
+                    <select id="filter_karyawan" class="px-3 py-1 text-sm border rounded-lg">
+                        <option value="">All Employees</option>
+                        @foreach ($karyawans as $k)
+                            <option value="{{ $k->id }}" {{ request('karyawan_id') == $k->id ? 'selected' : '' }}>
+                                {{ $k->nama_lengkap }}
+                            </option>
+                        @endforeach
+                    </select>
                     <select id="filter_bulan" class="px-3 py-1 text-sm border rounded-lg">
                         <option value="">All Month</option>
                         @foreach (range(1, 12) as $b)
@@ -248,10 +256,13 @@
     <script>
         // ── Filters ───────────────────────────────────────────────────────────
         function applyFilters() {
+            let karyawan = document.getElementById('filter_karyawan').value;
             let bulan = document.getElementById('filter_bulan').value;
             let tahun = document.getElementById('filter_tahun').value;
             let status = document.getElementById('filter_status').value;
             let url = new URL(window.location.href);
+            if (karyawan) url.searchParams.set('karyawan_id', karyawan);
+            else url.searchParams.delete('karyawan_id');
             if (bulan) url.searchParams.set('bulan', bulan);
             else url.searchParams.delete('bulan');
             if (tahun) url.searchParams.set('tahun', tahun);
