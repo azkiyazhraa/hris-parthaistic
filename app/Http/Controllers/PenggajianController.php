@@ -62,7 +62,7 @@ class PenggajianController extends Controller
     // For Admin/HR
     public function adminIndex(Request $request)
     {
-        $query = Penggajian::with('karyawan')->orderBy('created_at', 'desc');
+        $query = Penggajian::with('karyawan')->orderBy('tahun', 'desc')->orderBy('bulan', 'desc');
 
         if ($request->bulan && $request->tahun) {
             $query->where('bulan', $request->bulan)->where('tahun', $request->tahun);
