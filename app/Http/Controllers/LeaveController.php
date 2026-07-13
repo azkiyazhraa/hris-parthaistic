@@ -337,18 +337,17 @@ class LeaveController extends Controller
 
     /**
      * Create or remove AbsensiKaryawan records when leave status changes.
-     * Only creates records for dates <= today (future dates are handled by the daily scheduler).
+     * Creates records for the full leave range immediately on approval
+     * (does not wait for the daily scheduler to reach future dates).
      * Removes records when an approved leave is rejected.
      */
     private function syncLeaveAttendance(PengajuanCuti $cuti, string $newStatus, string $oldStatus): void
     {
-        $today = Carbon::today();
-
         if ($newStatus === 'disetujui') {
             $current = Carbon::parse($cuti->tanggal_mulai)->startOfDay();
             $end     = Carbon::parse($cuti->tanggal_selesai)->startOfDay();
 
-            while ($current->lte($end) && $current->lte($today)) {
+            while ($current->lte($end)) {
                 $dateStr = $current->toDateString();
 
                 $exists = AbsensiKaryawan::where('karyawan_id', $cuti->karyawan_id)
