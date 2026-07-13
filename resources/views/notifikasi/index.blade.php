@@ -14,7 +14,7 @@
             </div>
 
             @if ($unreadCount > 0)
-                <form action="{{ route('notifikasi.mark-all-read') }}" method="POST">
+                <form id="markAllReadForm" action="{{ route('notifikasi.mark-all-read') }}" method="POST">
                     @csrf
                     <button type="submit"
                         class="px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700">
@@ -73,6 +73,24 @@
 
 @push('scripts')
     <script>
+        document.getElementById('markAllReadForm')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            fetch(e.target.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    }
+                })
+                .catch(error => console.error('Error marking all notifications as read:', error));
+        });
+
         function markAsRead(id) {
             fetch(`/notifikasi/${id}/read`, {
                     method: 'POST',
