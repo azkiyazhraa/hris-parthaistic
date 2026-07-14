@@ -72,6 +72,8 @@ class AbsensiController extends Controller
                 'lokasi_masuk' => 'required|string|max:255',
                 'keterangan' => 'nullable',
                 'attachment' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            ], [], [
+                'lokasi_masuk' => 'location',
             ]);
         } elseif ($request->jenis_absensi === 'change_day') {
             $request->validate([
@@ -437,6 +439,9 @@ class AbsensiController extends Controller
         $request->validate([
             'lokasi_pulang' => 'required|string|max:255',
             'keterangan'    => 'required|string',
+        ], [], [
+            'lokasi_pulang' => 'location',
+            'keterangan'    => 'notes',
         ]);
 
         DB::beginTransaction();

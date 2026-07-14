@@ -464,7 +464,12 @@
                                 <li>{{ $error }}</li>
                             @endforeach
                         </ul>
-                    `
+                    `,
+                    buttonsStyling: false,
+                    customClass: {
+                        confirmButton: 'bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium mt-2'
+                    },
+                    confirmButtonText: 'OK'
                 });
             @endif
 
