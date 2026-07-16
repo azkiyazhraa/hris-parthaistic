@@ -134,7 +134,7 @@
                             <label class="flex items-center gap-2">
                                 <input type="checkbox" id="use_bpjs" onchange="toggleBPJS()" class="rounded">
                                 <span class="text-xs text-gray-600">
-                                    Apply 3% BPJS Employment
+                                    Apply BPJS Employment
                                 </span>
                             </label>
                         </div>

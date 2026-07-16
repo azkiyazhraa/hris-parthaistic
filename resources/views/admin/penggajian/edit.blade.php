@@ -144,7 +144,7 @@
                                 <input type="checkbox" id="use_bpjs" onchange="toggleBPJS()" class="rounded"
                                     {{ old('bpjs_ketenagakerjaan', $penggajian->bpjs_ketenagakerjaan) > 0 ? 'checked' : '' }}>
                                 <span class="text-xs text-gray-600">
-                                    Apply 3% BPJS Employment
+                                    Apply BPJS Employment
                                 </span>
                             </label>
                         </div>
