@@ -206,12 +206,10 @@
                                             </div>
 
                                             <div>
-                                                <label class="block mb-1 text-gray-400">NPWP <span
-                                                        class="text-red-500">*</span></label>
+                                                <label class="block mb-1 text-gray-400">NPWP</label>
                                                 <input type="text" name="npwp"
                                                     value="{{ old('npwp', $karyawan->npwp) }}"
-                                                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500 number-only"
-                                                    required>
+                                                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500 number-only">
                                                 <p class="hidden mt-1 text-xs text-red-600 input-error">
                                                     Field must contain numbers only.
                                                 </p>
