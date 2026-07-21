@@ -357,8 +357,85 @@
                     <div class="md:col-span-2">
                         <label class="block mb-1 text-sm font-medium text-gray-700">Address <span
                                 class="text-red-500">*</span></label>
-                        <textarea name="alamat" rows="3" required
+                        <textarea name="alamat" rows="2" required placeholder="Street name and house number"
                             class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">{{ old('alamat', $item->alamat) }}</textarea>
+                    </div>
+
+                    <div>
+                        <label class="block mb-1 text-sm font-medium text-gray-700">Province <span
+                                class="text-red-500">*</span></label>
+                        <select id="provinsiSelectEdit{{ $item->id }}" required
+                            class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            <option value="">Select Province</option>
+                        </select>
+                        <input type="hidden" name="provinsi" id="provinsiNameEdit{{ $item->id }}"
+                            value="{{ old('provinsi', $item->provinsi) }}">
+                    </div>
+
+                    <div>
+                        <label class="block mb-1 text-sm font-medium text-gray-700">City/Regency <span
+                                class="text-red-500">*</span></label>
+                        <select id="kotaSelectEdit{{ $item->id }}" required disabled
+                            class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:bg-gray-100">
+                            <option value="">Select City/Regency</option>
+                        </select>
+                        <input type="hidden" name="kota" id="kotaNameEdit{{ $item->id }}"
+                            value="{{ old('kota', $item->kota) }}">
+                    </div>
+
+                    <div>
+                        <label class="block mb-1 text-sm font-medium text-gray-700">District <span
+                                class="text-red-500">*</span></label>
+                        <select id="kecamatanSelectEdit{{ $item->id }}" required disabled
+                            class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:bg-gray-100">
+                            <option value="">Select District</option>
+                        </select>
+                        <input type="hidden" name="kecamatan" id="kecamatanNameEdit{{ $item->id }}"
+                            value="{{ old('kecamatan', $item->kecamatan) }}">
+                    </div>
+
+                    <div>
+                        <label class="block mb-1 text-sm font-medium text-gray-700">Sub-district/Village <span
+                                class="text-red-500">*</span></label>
+                        <select id="kelurahanSelectEdit{{ $item->id }}" required disabled
+                            class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:bg-gray-100">
+                            <option value="">Select Sub-district/Village</option>
+                        </select>
+                        <input type="hidden" name="kelurahan" id="kelurahanNameEdit{{ $item->id }}"
+                            value="{{ old('kelurahan', $item->kelurahan) }}">
+                    </div>
+
+                    <div>
+                        <label class="block mb-1 text-sm font-medium text-gray-700">Neighborhood Unit (RT) <span
+                                class="text-red-500">*</span></label>
+                        <input type="text" name="rt" value="{{ old('rt', $item->rt) }}" required placeholder="004" maxlength="5"
+                            class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none number-only">
+                        <p class="hidden mt-1 text-xs text-red-600 input-error">
+                            Field must contain numbers only.
+                        </p>
+                    </div>
+
+                    <div>
+                        <label class="block mb-1 text-sm font-medium text-gray-700">Community Unit (RW) <span
+                                class="text-red-500">*</span></label>
+                        <input type="text" name="rw" value="{{ old('rw', $item->rw) }}" required placeholder="001" maxlength="5"
+                            class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none number-only">
+                        <p class="hidden mt-1 text-xs text-red-600 input-error">
+                            Field must contain numbers only.
+                        </p>
+                    </div>
+
+                    <div>
+                        <label class="block mb-1 text-sm font-medium text-gray-700">Postcode <span
+                                class="text-red-500">*</span></label>
+                        <input type="text" name="kode_pos" id="kodeposInputEdit{{ $item->id }}"
+                            value="{{ old('kode_pos', $item->kode_pos) }}" required maxlength="10"
+                            class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none number-only">
+                        <p class="mt-1 text-xs text-gray-400">Auto-filled based on the selected Sub-district/Village. Edit
+                            manually if it's incorrect.</p>
+                        <p class="hidden mt-1 text-xs text-red-600 input-error">
+                            Field must contain numbers only.
+                        </p>
                     </div>
                 </div>
             </div>
@@ -536,6 +613,32 @@
         </form>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        @php
+            $__wilayahInitial = \App\Models\Wilayah::resolveCodes(
+                old('provinsi', $item->provinsi),
+                old('kota', $item->kota),
+                old('kecamatan', $item->kecamatan),
+                old('kelurahan', $item->kelurahan)
+            );
+        @endphp
+
+        initWilayahCascade({
+            provinsi: document.getElementById('provinsiSelectEdit{{ $item->id }}'),
+            kota: document.getElementById('kotaSelectEdit{{ $item->id }}'),
+            kecamatan: document.getElementById('kecamatanSelectEdit{{ $item->id }}'),
+            kelurahan: document.getElementById('kelurahanSelectEdit{{ $item->id }}'),
+            provinsiName: document.getElementById('provinsiNameEdit{{ $item->id }}'),
+            kotaName: document.getElementById('kotaNameEdit{{ $item->id }}'),
+            kecamatanName: document.getElementById('kecamatanNameEdit{{ $item->id }}'),
+            kelurahanName: document.getElementById('kelurahanNameEdit{{ $item->id }}'),
+            kodepos: document.getElementById('kodeposInputEdit{{ $item->id }}'),
+            initial: @json($__wilayahInitial),
+        });
+    });
+</script>
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {

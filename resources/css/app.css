@@ -14,6 +14,12 @@ body {
     font-family: "Poppins", sans-serif;
 }
 
+input::placeholder,
+textarea::placeholder {
+    color: #bababa;
+    opacity: 1;
+}
+
 .status-badge {
     background: #10b981;
     color: white;

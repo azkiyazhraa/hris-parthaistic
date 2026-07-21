@@ -326,6 +326,144 @@
     {{-- JavaScript --}}
     @stack('scripts')
 
+    {{-- WILAYAH CASCADING DROPDOWN (Province -> City -> Kecamatan -> Kelurahan + auto postal code) --}}
+    <script>
+        let _wilayahProvincesPromise = null;
+
+        function wilayahFetchJSON(url) {
+            return fetch(url).then(res => res.ok ? res.json() : []).catch(() => []);
+        }
+
+        function wilayahGetProvinces() {
+            if (!_wilayahProvincesPromise) {
+                _wilayahProvincesPromise = wilayahFetchJSON('/wilayah/provinces');
+            }
+            return _wilayahProvincesPromise;
+        }
+
+        function wilayahFillSelect(select, items, placeholder) {
+            select.innerHTML = '';
+            const placeholderOpt = document.createElement('option');
+            placeholderOpt.value = '';
+            placeholderOpt.textContent = placeholder;
+            select.appendChild(placeholderOpt);
+
+            items.forEach(item => {
+                const opt = document.createElement('option');
+                opt.value = item.kode;
+                opt.textContent = item.nama;
+                if (item.kodepos) opt.dataset.kodepos = item.kodepos;
+                select.appendChild(opt);
+            });
+        }
+
+        function wilayahSyncHidden(select, hiddenInput) {
+            const opt = select.selectedOptions[0];
+            hiddenInput.value = (opt && opt.value) ? opt.textContent.trim() : '';
+        }
+
+        /**
+         * Wire up cascading Province -> City -> Kecamatan -> Kelurahan dropdowns with auto postal code.
+         * cfg: {
+         *   provinsi, kota, kecamatan, kelurahan: <select> elements,
+         *   provinsiName, kotaName, kecamatanName, kelurahanName: hidden <input> elements (submitted to server),
+         *   kodepos: <input> element for the postal code,
+         *   initial: { provinsi, kota, kecamatan, kelurahan } wilayah codes to pre-select (optional)
+         * }
+         */
+        async function initWilayahCascade(cfg) {
+            const provinces = await wilayahGetProvinces();
+            wilayahFillSelect(cfg.provinsi, provinces, 'Select Province');
+
+            async function loadRegencies(provinceCode, preselect = '') {
+                cfg.kota.disabled = true;
+                wilayahFillSelect(cfg.kota, [], 'Select City/Regency');
+                if (!provinceCode) return;
+                const regencies = await wilayahFetchJSON(`/wilayah/regencies/${provinceCode}`);
+                wilayahFillSelect(cfg.kota, regencies, 'Select City/Regency');
+                cfg.kota.disabled = false;
+                if (preselect) cfg.kota.value = preselect;
+                wilayahSyncHidden(cfg.kota, cfg.kotaName);
+            }
+
+            async function loadDistricts(regencyCode, preselect = '') {
+                cfg.kecamatan.disabled = true;
+                wilayahFillSelect(cfg.kecamatan, [], 'Select District');
+                if (!regencyCode) return;
+                const districts = await wilayahFetchJSON(`/wilayah/districts/${regencyCode}`);
+                wilayahFillSelect(cfg.kecamatan, districts, 'Select District');
+                cfg.kecamatan.disabled = false;
+                if (preselect) cfg.kecamatan.value = preselect;
+                wilayahSyncHidden(cfg.kecamatan, cfg.kecamatanName);
+            }
+
+            async function loadVillages(districtCode, preselect = '') {
+                cfg.kelurahan.disabled = true;
+                wilayahFillSelect(cfg.kelurahan, [], 'Select Sub-district/Village');
+                if (!districtCode) return;
+                const villages = await wilayahFetchJSON(`/wilayah/villages/${districtCode}`);
+                wilayahFillSelect(cfg.kelurahan, villages, 'Select Sub-district/Village');
+                cfg.kelurahan.disabled = false;
+                if (preselect) cfg.kelurahan.value = preselect;
+                wilayahSyncHidden(cfg.kelurahan, cfg.kelurahanName);
+                updateKodepos();
+            }
+
+            function updateKodepos() {
+                const opt = cfg.kelurahan.selectedOptions[0];
+                cfg.kodepos.value = (opt && opt.dataset.kodepos) ? opt.dataset.kodepos : '';
+            }
+
+            cfg.provinsi.addEventListener('change', async () => {
+                wilayahSyncHidden(cfg.provinsi, cfg.provinsiName);
+                await loadRegencies(cfg.provinsi.value);
+                wilayahFillSelect(cfg.kecamatan, [], 'Select District');
+                cfg.kecamatan.disabled = true;
+                wilayahFillSelect(cfg.kelurahan, [], 'Select Sub-district/Village');
+                cfg.kelurahan.disabled = true;
+                cfg.kecamatanName.value = '';
+                cfg.kelurahanName.value = '';
+                cfg.kodepos.value = '';
+            });
+
+            cfg.kota.addEventListener('change', async () => {
+                wilayahSyncHidden(cfg.kota, cfg.kotaName);
+                await loadDistricts(cfg.kota.value);
+                wilayahFillSelect(cfg.kelurahan, [], 'Select Sub-district/Village');
+                cfg.kelurahan.disabled = true;
+                cfg.kelurahanName.value = '';
+                cfg.kodepos.value = '';
+            });
+
+            cfg.kecamatan.addEventListener('change', async () => {
+                wilayahSyncHidden(cfg.kecamatan, cfg.kecamatanName);
+                await loadVillages(cfg.kecamatan.value);
+            });
+
+            cfg.kelurahan.addEventListener('change', () => {
+                wilayahSyncHidden(cfg.kelurahan, cfg.kelurahanName);
+                updateKodepos();
+            });
+
+            const initial = cfg.initial || {};
+            cfg.kota.disabled = true;
+            cfg.kecamatan.disabled = true;
+            cfg.kelurahan.disabled = true;
+
+            if (initial.provinsi) {
+                cfg.provinsi.value = initial.provinsi;
+                wilayahSyncHidden(cfg.provinsi, cfg.provinsiName);
+                await loadRegencies(initial.provinsi, initial.kota);
+                if (initial.kota) {
+                    await loadDistricts(initial.kota, initial.kecamatan);
+                    if (initial.kecamatan) {
+                        await loadVillages(initial.kecamatan, initial.kelurahan);
+                    }
+                }
+            }
+        }
+    </script>
+
     <script>
         function updateSubmitButton() {
             const hasError = document.querySelectorAll('.input-error:not(.hidden)').length > 0;

@@ -67,6 +67,22 @@
                                             <p class="font-medium text-gray-800" id="detail_alamat">-</p>
                                         </div>
                                         <div>
+                                            <p class="text-gray-400 text-xs uppercase tracking-wider">Neighborhood/Community Unit (RT/RW)</p>
+                                            <p class="font-medium text-gray-800" id="detail_rt_rw">-</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-gray-400 text-xs uppercase tracking-wider">Sub-district/Village, District</p>
+                                            <p class="font-medium text-gray-800" id="detail_kelurahan_kecamatan">-</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-gray-400 text-xs uppercase tracking-wider">City/Regency, Province</p>
+                                            <p class="font-medium text-gray-800" id="detail_kota_provinsi">-</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-gray-400 text-xs uppercase tracking-wider">Postcode</p>
+                                            <p class="font-medium text-gray-800" id="detail_kode_pos">-</p>
+                                        </div>
+                                        <div>
                                             <p class="text-gray-400 text-xs uppercase tracking-wider">Place of Birth</p>
                                             <p class="font-medium text-gray-800" id="detail_tempat_lahir">-</p>
                                         </div>
@@ -455,6 +471,14 @@
             status_badge: "{{ $karyawan->status_badge ?? $karyawan->status ?? '-' }}",
             nomor_telepon: "{{ $karyawan->nomor_telepon ?? '-' }}",
             alamat: "{{ addslashes($karyawan->alamat ?? '-') }}",
+            rt: "{{ $karyawan->rt ?? '-' }}",
+            rw: "{{ $karyawan->rw ?? '-' }}",
+            kelurahan: "{{ addslashes($karyawan->kelurahan ?? '-') }}",
+            kecamatan: "{{ addslashes($karyawan->kecamatan ?? '-') }}",
+            kota: "{{ addslashes($karyawan->kota ?? '-') }}",
+            provinsi: "{{ addslashes($karyawan->provinsi ?? '-') }}",
+            kode_pos: "{{ $karyawan->kode_pos ?? '-' }}",
+            alamat_lengkap: "{{ addslashes($karyawan->alamat_lengkap ?: '-') }}",
             nik: "{{ $karyawan->nik ?? '-' }}",
             npwp: "{{ $karyawan->npwp ?? '-' }}",
             nomor_paspor: "{{ $karyawan->nomor_paspor ?? '-' }}",
@@ -524,6 +548,10 @@
         document.getElementById('detail_nama_lengkap').innerText         = data.nama_lengkap;
         document.getElementById('detail_nip').innerText                  = data.nip;
         document.getElementById('detail_alamat').innerText               = data.alamat;
+        document.getElementById('detail_rt_rw').innerText                = `RT ${data.rt}/RW ${data.rw}`;
+        document.getElementById('detail_kode_pos').innerText             = data.kode_pos;
+        document.getElementById('detail_kelurahan_kecamatan').innerText  = `${data.kelurahan}, ${data.kecamatan}`;
+        document.getElementById('detail_kota_provinsi').innerText        = `${data.kota}, ${data.provinsi}`;
         document.getElementById('detail_tempat_lahir').innerText         = data.tempat_lahir;
         document.getElementById('detail_tanggal_lahir').innerText        = data.tanggal_lahir;
         document.getElementById('detail_jenis_kelamin').innerText        = data.jenis_kelamin;

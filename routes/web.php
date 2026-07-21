@@ -12,6 +12,7 @@ use App\Http\Controllers\PengumumanController;
 use App\Http\Controllers\PerformaController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\BreakController;
+use App\Http\Controllers\WilayahController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Karyawan\DashboardController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
@@ -62,6 +63,17 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
     Route::get('/profile/performance-chart-data', [ProfileController::class, 'performanceChartData'])->name('profile.performance-chart-data');
 });
+
+// Wilayah Routes (cascading dropdown: province -> regency -> district -> village + kode pos)
+Route::middleware('auth')
+    ->prefix('wilayah')
+    ->name('wilayah.')
+    ->group(function () {
+        Route::get('/provinces', [WilayahController::class, 'provinces'])->name('provinces');
+        Route::get('/regencies/{provinceCode}', [WilayahController::class, 'regencies'])->name('regencies');
+        Route::get('/districts/{regencyCode}', [WilayahController::class, 'districts'])->name('districts');
+        Route::get('/villages/{districtCode}', [WilayahController::class, 'villages'])->name('villages');
+    });
 
 // Calendar Routes
 Route::middleware('auth')

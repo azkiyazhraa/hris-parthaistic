@@ -116,7 +116,8 @@
                                             <div>
                                                 <label class="block mb-1 text-gray-400">Address <span
                                                         class="text-red-500">*</span></label>
-                                                <textarea name="alamat" rows="3"
+                                                <textarea name="alamat" rows="2"
+                                                    placeholder="Street name and house number"
                                                     class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500" required>{{ old('alamat', $karyawan->alamat) }}</textarea>
                                             </div>
 
@@ -251,6 +252,88 @@
                                                         Konghucu</option>
                                                 </select>
                                             </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- ADDRESS DETAILS --}}
+                                <div class="my-4 mb-4">
+                                    <h4 class="mb-4 text-lg font-semibold text-blue-900">
+                                        Address Details
+                                    </h4>
+                                    <div class="grid grid-cols-1 gap-4 text-sm md:grid-cols-2">
+                                        <div>
+                                            <label class="block mb-1 text-gray-400">Province <span
+                                                    class="text-red-500">*</span></label>
+                                            <select id="provinsiSelectProfile" required
+                                                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                                                <option value="">Select Province</option>
+                                            </select>
+                                            <input type="hidden" name="provinsi" id="provinsiNameProfile"
+                                                value="{{ old('provinsi', $karyawan->provinsi) }}">
+                                        </div>
+                                        <div>
+                                            <label class="block mb-1 text-gray-400">City/Regency <span
+                                                    class="text-red-500">*</span></label>
+                                            <select id="kotaSelectProfile" required disabled
+                                                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500 disabled:bg-gray-100">
+                                                <option value="">Select City/Regency</option>
+                                            </select>
+                                            <input type="hidden" name="kota" id="kotaNameProfile"
+                                                value="{{ old('kota', $karyawan->kota) }}">
+                                        </div>
+                                        <div>
+                                            <label class="block mb-1 text-gray-400">District <span
+                                                    class="text-red-500">*</span></label>
+                                            <select id="kecamatanSelectProfile" required disabled
+                                                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500 disabled:bg-gray-100">
+                                                <option value="">Select District</option>
+                                            </select>
+                                            <input type="hidden" name="kecamatan" id="kecamatanNameProfile"
+                                                value="{{ old('kecamatan', $karyawan->kecamatan) }}">
+                                        </div>
+                                        <div>
+                                            <label class="block mb-1 text-gray-400">Sub-district/Village <span
+                                                    class="text-red-500">*</span></label>
+                                            <select id="kelurahanSelectProfile" required disabled
+                                                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500 disabled:bg-gray-100">
+                                                <option value="">Select Sub-district/Village</option>
+                                            </select>
+                                            <input type="hidden" name="kelurahan" id="kelurahanNameProfile"
+                                                value="{{ old('kelurahan', $karyawan->kelurahan) }}">
+                                        </div>
+                                        <div>
+                                            <label class="block mb-1 text-gray-400">Neighborhood Unit (RT) <span
+                                                    class="text-red-500">*</span></label>
+                                            <input type="text" name="rt" maxlength="5"
+                                                value="{{ old('rt', $karyawan->rt) }}" required placeholder="004"
+                                                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500 number-only">
+                                            <p class="hidden mt-1 text-xs text-red-600 input-error">
+                                                Field must contain numbers only.
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <label class="block mb-1 text-gray-400">Community Unit (RW) <span
+                                                    class="text-red-500">*</span></label>
+                                            <input type="text" name="rw" maxlength="5"
+                                                value="{{ old('rw', $karyawan->rw) }}" required placeholder="001"
+                                                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500 number-only">
+                                            <p class="hidden mt-1 text-xs text-red-600 input-error">
+                                                Field must contain numbers only.
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <label class="block mb-1 text-gray-400">Postcode <span
+                                                    class="text-red-500">*</span></label>
+                                            <input type="text" name="kode_pos" id="kodeposInputProfile"
+                                                maxlength="10" value="{{ old('kode_pos', $karyawan->kode_pos) }}"
+                                                required
+                                                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500 number-only">
+                                            <p class="mt-1 text-xs text-gray-400">Auto-filled based on the selected
+                                                Sub-district/Village. Edit manually if it's incorrect.</p>
+                                            <p class="hidden mt-1 text-xs text-red-600 input-error">
+                                                Field must contain numbers only.
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -712,6 +795,30 @@
 
             // Sinkronkan tampilan awal
             togglePassport();
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            @php
+                $__wilayahInitial = \App\Models\Wilayah::resolveCodes(
+                    old('provinsi', $karyawan->provinsi),
+                    old('kota', $karyawan->kota),
+                    old('kecamatan', $karyawan->kecamatan),
+                    old('kelurahan', $karyawan->kelurahan)
+                );
+            @endphp
+
+            initWilayahCascade({
+                provinsi: document.getElementById('provinsiSelectProfile'),
+                kota: document.getElementById('kotaSelectProfile'),
+                kecamatan: document.getElementById('kecamatanSelectProfile'),
+                kelurahan: document.getElementById('kelurahanSelectProfile'),
+                provinsiName: document.getElementById('provinsiNameProfile'),
+                kotaName: document.getElementById('kotaNameProfile'),
+                kecamatanName: document.getElementById('kecamatanNameProfile'),
+                kelurahanName: document.getElementById('kelurahanNameProfile'),
+                kodepos: document.getElementById('kodeposInputProfile'),
+                initial: @json($__wilayahInitial),
+            });
         });
     </script>
 @endpush

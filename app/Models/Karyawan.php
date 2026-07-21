@@ -27,6 +27,13 @@ class Karyawan extends Authenticatable
         'foto_profil',
         'nomor_telepon',
         'alamat',
+        'rt',
+        'rw',
+        'kelurahan',
+        'kecamatan',
+        'kota',
+        'provinsi',
+        'kode_pos',
         'tanggal_bergabung',
         'end_date',
         'total_hari_kerja',
@@ -207,6 +214,27 @@ class Karyawan extends Authenticatable
     public function isHR()
     {
         return $this->role === 'hr';
+    }
+
+    // Accessor alamat lengkap (gabungan semua bagian alamat)
+    public function getAlamatLengkapAttribute()
+    {
+        $rtRw = '';
+        if (!empty($this->rt) || !empty($this->rw)) {
+            $rtRw = 'RT ' . ($this->rt ?: '-') . '/RW ' . ($this->rw ?: '-');
+        }
+
+        $parts = array_filter([
+            $this->alamat,
+            $rtRw,
+            $this->kelurahan ? 'Kel. ' . $this->kelurahan : null,
+            $this->kecamatan ? 'Kec. ' . $this->kecamatan : null,
+            $this->kota,
+            $this->provinsi,
+            $this->kode_pos,
+        ], fn($part) => !empty($part));
+
+        return implode(', ', $parts);
     }
 
     // Accessor jabatan display
