@@ -523,6 +523,78 @@ class AbsensiController extends Controller
         return view('admin.absensi.index', compact('absensi', 'statistics'));
     }
 
+    public function adminLaporan(Request $request)
+    {
+        $query = AbsensiKaryawan::with('karyawan')
+            ->where('is_change_day', false);
+
+        $dateFrom = $request->input('date_from');
+        $dateTo = $request->input('date_to');
+        $keyword = $request->input('keyword');
+
+        if ($dateFrom) {
+            $query->whereDate('tanggal', '>=', $dateFrom);
+        }
+        if ($dateTo) {
+            $query->whereDate('tanggal', '<=', $dateTo);
+        }
+        if ($keyword) {
+            $query->where(function ($q) use ($keyword) {
+                $q->where('nama_karyawan', 'like', "%{$keyword}%")
+                    ->orWhereHas('karyawan', function ($kq) use ($keyword) {
+                        $kq->where('nama_lengkap', 'like', "%{$keyword}%")
+                            ->orWhere('email', 'like', "%{$keyword}%");
+                    });
+            });
+        }
+
+        $records = $query->orderBy('tanggal', 'desc')->orderBy('created_at', 'desc')->get();
+
+        $total = $records->count();
+
+        $tanpaCheckinCheckout = $records->filter(fn ($r) => empty($r->jam_masuk) && empty($r->jam_pulang));
+        $lupaCheckout = $records->filter(fn ($r) => !empty($r->jam_masuk) && empty($r->jam_pulang));
+        $lengkap = $records->filter(fn ($r) => !empty($r->jam_masuk) && !empty($r->jam_pulang));
+
+        $statusCounts = [
+            'present' => $records->where('status_kehadiran', AbsensiKaryawan::STATUS_PRESENT)->count(),
+            'pending' => $records->where('status_kehadiran', AbsensiKaryawan::STATUS_PENDING)->count(),
+            'change_day' => $records->where('status_kehadiran', AbsensiKaryawan::STATUS_CHANGE_DAY)->count(),
+            'leave' => $records->where('status_kehadiran', AbsensiKaryawan::STATUS_LEAVE)->count(),
+            'absent' => $records->where('status_kehadiran', AbsensiKaryawan::STATUS_ABSENT)->count(),
+        ];
+
+        $persen = fn ($jumlah) => $total > 0 ? round(($jumlah / $total) * 100, 1) : 0;
+
+        $percentages = [
+            'lengkap' => $persen($lengkap->count()),
+            'lupa_checkout' => $persen($lupaCheckout->count()),
+            'tanpa_checkin' => $persen($tanpaCheckinCheckout->count()),
+        ];
+
+        // Trend harian (jumlah record per tanggal) untuk grafik batang
+        $trendMap = $records->groupBy(fn ($r) => $r->tanggal ? $r->tanggal->format('Y-m-d') : '-')
+            ->map(fn ($group) => $group->count())
+            ->sortKeys();
+        $trendLabels = $trendMap->keys()->values();
+        $trendValues = $trendMap->values();
+
+        return view('admin.absensi.laporan', compact(
+            'records',
+            'total',
+            'tanpaCheckinCheckout',
+            'lupaCheckout',
+            'lengkap',
+            'statusCounts',
+            'percentages',
+            'trendLabels',
+            'trendValues',
+            'dateFrom',
+            'dateTo',
+            'keyword'
+        ));
+    }
+
     public function adminUpdateStatusChangeDay(Request $request, $id)
     {
         $absensi = AbsensiKaryawan::findOrFail($id);

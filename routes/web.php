@@ -191,6 +191,7 @@ Route::middleware(['auth', 'admin'])
             ->name('absensi.')
             ->group(function () {
                 Route::get('/', [AbsensiController::class, 'adminIndex'])->name('index');
+                Route::get('/laporan', [AbsensiController::class, 'adminLaporan'])->name('laporan');
                 Route::put('/{id}/status', [AbsensiController::class, 'adminUpdateStatusChangeDay'])->name('update-status-change-day');
                 Route::put('/{id}/status-absensi', [AbsensiController::class, 'adminUpdateStatusAbsensi'])->name('update-status-absensi');
                 Route::get('/{id}', [AbsensiController::class, 'adminShow'])->name('show');
